@@ -1,14 +1,114 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/dialer_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".fragment.DialPadFragment">
+    android:orientation="vertical"
+    android:gravity="center"
+    android:background="#FFFFFF"
+    android:padding="24dp">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <EditText
+        android:id="@+id/inputNumber"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:hint="Enter number"
+        android:background="@null"
+        android:textColor="#000000"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        android:inputType="phone"
+        android:focusable="false"
+        android:layout_marginBottom="20dp" />
 
-</FrameLayout>
+    <GridLayout
+        android:id="@+id/dial_pad"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:columnCount="3"
+        android:rowCount="4"
+        android:alignmentMode="alignMargins"
+        android:useDefaultMargins="true">
+
+        <!-- Digits -->
+        <include
+            layout="@layout/item_dial_key"
+            android:id="@+id/key1" />
+
+        <include
+            layout="@layout/item_dial_key"
+            android:id="@+id/key2" />
+
+        <include
+            layout="@layout/item_dial_key"
+            android:id="@+id/key3" />
+
+        <include
+            layout="@layout/item_dial_key"
+            android:id="@+id/key4" />
+
+        <include
+            layout="@layout/item_dial_key"
+            android:id="@+id/key5" />
+
+        <include
+            layout="@layout/item_dial_key"
+            android:id="@+id/key6" />
+
+        <include
+            layout="@layout/item_dial_key"
+            android:id="@+id/key7" />
+
+        <include
+            layout="@layout/item_dial_key"
+            android:id="@+id/key8" />
+
+        <include
+            layout="@layout/item_dial_key"
+            android:id="@+id/key9" />
+
+        <include
+            layout="@layout/item_dial_key"
+            android:id="@+id/keyStar" />
+
+        <include
+            layout="@layout/item_dial_key"
+            android:id="@+id/key0" />
+
+        <include
+            layout="@layout/item_dial_key"
+            android:id="@+id/keyHash" />
+
+    </GridLayout>
+
+    <LinearLayout
+        android:layout_marginTop="24dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <ImageButton
+            android:id="@+id/btnDelete"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:background="@android:color/transparent"
+            android:src="@android:drawable/ic_input_delete"
+            android:contentDescription="Delete"
+            app:tint="#666666" />
+
+        <ImageButton
+            android:id="@+id/btnCall"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:backgroundTint="#4CAF50"
+            android:background="@drawable/round_button"
+            android:src="@android:drawable/ic_menu_call"
+            android:layout_marginStart="40dp"
+            android:contentDescription="Call"
+            app:tint="#FFFFFF" />
+    </LinearLayout>
+
+</LinearLayout>

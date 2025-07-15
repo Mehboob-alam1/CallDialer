@@ -4,6 +4,10 @@ package com.mehboob.simplecalldialer;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.mehboob.simplecalldialer.fragment.CallHistoryFragment;
+import com.mehboob.simplecalldialer.fragment.ContactsFragment;
+import com.mehboob.simplecalldialer.fragment.DialPadFragment;
+
 import androidx.fragment.app.Fragment;
 import android.view.MenuItem;
 
