@@ -1,114 +1,147 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/dialer_root"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="center"
-    android:background="#FFFFFF"
-    android:padding="24dp">
+    android:background="@color/dialer_background">
 
-    <EditText
-        android:id="@+id/inputNumber"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:hint="Enter number"
-        android:background="@null"
-        android:textColor="#000000"
-        android:textSize="28sp"
-        android:textStyle="bold"
-        android:inputType="phone"
-        android:focusable="false"
-        android:layout_marginBottom="20dp" />
-
-    <GridLayout
-        android:id="@+id/dial_pad"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:columnCount="3"
-        android:rowCount="4"
-        android:alignmentMode="alignMargins"
-        android:useDefaultMargins="true">
-
-        <!-- Digits -->
-        <include
-            layout="@layout/item_dial_key"
-            android:id="@+id/key1" />
-
-        <include
-            layout="@layout/item_dial_key"
-            android:id="@+id/key2" />
-
-        <include
-            layout="@layout/item_dial_key"
-            android:id="@+id/key3" />
-
-        <include
-            layout="@layout/item_dial_key"
-            android:id="@+id/key4" />
-
-        <include
-            layout="@layout/item_dial_key"
-            android:id="@+id/key5" />
-
-        <include
-            layout="@layout/item_dial_key"
-            android:id="@+id/key6" />
-
-        <include
-            layout="@layout/item_dial_key"
-            android:id="@+id/key7" />
-
-        <include
-            layout="@layout/item_dial_key"
-            android:id="@+id/key8" />
-
-        <include
-            layout="@layout/item_dial_key"
-            android:id="@+id/key9" />
-
-        <include
-            layout="@layout/item_dial_key"
-            android:id="@+id/keyStar" />
-
-        <include
-            layout="@layout/item_dial_key"
-            android:id="@+id/key0" />
-
-        <include
-            layout="@layout/item_dial_key"
-            android:id="@+id/keyHash" />
-
-    </GridLayout>
-
+    <!-- Phone Number Display -->
     <LinearLayout
-        android:layout_marginTop="24dp"
-        android:layout_width="wrap_content"
+        android:id="@+id/displayLayout"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center">
+        android:layout_marginTop="24dp"
+        android:gravity="center"
+        android:orientation="vertical">
 
-        <ImageButton
-            android:id="@+id/btnDelete"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:background="@android:color/transparent"
-            android:src="@android:drawable/ic_input_delete"
-            android:contentDescription="Delete"
-            app:tint="#666666" />
+        <TextView
+            android:id="@+id/phoneNumberTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textColor="@color/white"
+            android:textSize="36sp"
+            android:textStyle="bold" />
 
-        <ImageButton
-            android:id="@+id/btnCall"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:backgroundTint="#4CAF50"
-            android:background="@drawable/round_button"
-            android:src="@android:drawable/ic_menu_call"
-            android:layout_marginStart="40dp"
-            android:contentDescription="Call"
-            app:tint="#FFFFFF" />
+        <TextView
+            android:id="@+id/contactNameTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textColor="@color/light_gray"
+            android:textSize="16sp"
+            android:visibility="gone" />
     </LinearLayout>
 
-</LinearLayout>
+    <!-- Dial Pad -->
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/callButton"
+        android:layout_margin="16dp"
+        app:cardBackgroundColor="@color/dialer_card_background"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="8dp">
+
+        <GridLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:columnCount="3"
+            android:rowCount="4">
+
+            <!-- Row 1 -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn1"
+                style="@style/DialPadButton"
+                android:text="1"
+                />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn2"
+                style="@style/DialPadButton"
+                android:text="2" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn3"
+                style="@style/DialPadButton"
+                android:text="3" />
+
+            <!-- Row 2 -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn4"
+                style="@style/DialPadButton"
+                android:text="4" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn5"
+                style="@style/DialPadButton"
+                android:text="5" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn6"
+                style="@style/DialPadButton"
+                android:text="6" />
+
+            <!-- Row 3 -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn7"
+                style="@style/DialPadButton"
+                android:text="7" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn8"
+                style="@style/DialPadButton"
+                android:text="8" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn9"
+                style="@style/DialPadButton"
+                android:text="9" />
+
+            <!-- Row 4 -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnStar"
+                style="@style/DialPadButton"
+                android:text="*" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn0"
+                style="@style/DialPadButton"
+                android:text="0" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnHash"
+                style="@style/DialPadButton"
+                android:text="#" />
+        </GridLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Call Button -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/callButton"
+        android:layout_width="72dp"
+        android:layout_height="72dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="24dp"
+        android:src="@drawable/ic_call"
+        app:backgroundTint="@color/green"
+        app:tint="@color/white" />
+
+    <!-- Delete Button -->
+    <ImageView
+        android:id="@+id/deleteButton"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="32dp"
+        android:src="@drawable/ic_backspace"
+        android:visibility="invisible"
+        app:tint="@color/light_gray"
+        tools:ignore="NotSibling" />
+</RelativeLayout>

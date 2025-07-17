@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.mehboob.simplecalldialer.fragment.CallHistoryFragment;
+import com.mehboob.simplecalldialer.fragment.CallListFragment;
 import com.mehboob.simplecalldialer.fragment.ContactsFragment;
 import com.mehboob.simplecalldialer.fragment.DialPadFragment;
 
@@ -31,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
             if (id == R.id.nav_contacts) {
                 fragment = new ContactsFragment();
             } else if (id == R.id.nav_history) {
-                fragment = new CallHistoryFragment();
+                fragment = new CallListFragment();
             } else if (id == R.id.nav_dialpad) {
                 fragment = new DialPadFragment();
             }

@@ -10,89 +10,118 @@ import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager2.adapter.FragmentStateAdapter;
+import androidx.viewpager2.widget.ViewPager2;
 
 
+import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 import com.mehboob.simplecalldialer.R;
 import com.mehboob.simplecalldialer.adapters.CallLogAdapter;
+import com.mehboob.simplecalldialer.models.CallLogEntry;
 import com.mehboob.simplecalldialer.models.CallLogItem;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
 public class CallHistoryFragment extends Fragment {
-
-    private static final int PERMISSION_REQUEST = 101;
-    private RecyclerView recyclerView;
-
-    public CallHistoryFragment() {}
+    private ViewPager2 viewPager;
+    private TabLayout tabLayout;
+    private CallHistoryPagerAdapter pagerAdapter;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_call_history, container, false);
-        recyclerView = view.findViewById(R.id.historyRecyclerView);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.READ_CALL_LOG)
-                != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(getActivity(),
-                    new String[]{Manifest.permission.READ_CALL_LOG}, PERMISSION_REQUEST);
-        } else {
-            loadCallLogs();
-        }
+        viewPager = view.findViewById(R.id.viewPager);
+        tabLayout = view.findViewById(R.id.tabLayout);
+
+        setupViewPager();
 
         return view;
     }
 
-    private void loadCallLogs() {
-        List<CallLogItem> logItems = new ArrayList<>();
+    private void setupViewPager() {
+        pagerAdapter = new CallHistoryPagerAdapter(this);
+        viewPager.setAdapter(pagerAdapter);
 
-        Cursor cursor = getContext().getContentResolver().query(
-                CallLog.Calls.CONTENT_URI,
-                null,
-                null,
-                null,
-                CallLog.Calls.DATE + " DESC"
-        );
+        new TabLayoutMediator(tabLayout, viewPager,
+                (tab, position) -> tab.setText(position == 0 ? "All Calls" : "Missed")
+        ).attach();
+    }
 
-        int nameIndex = cursor.getColumnIndex(CallLog.Calls.CACHED_NAME);
-        int numberIndex = cursor.getColumnIndex(CallLog.Calls.NUMBER);
-        int typeIndex = cursor.getColumnIndex(CallLog.Calls.TYPE);
-        int dateIndex = cursor.getColumnIndex(CallLog.Calls.DATE);
-
-        while (cursor.moveToNext()) {
-            String name = cursor.getString(nameIndex);
-            String number = cursor.getString(numberIndex);
-            String type;
-            int callType = cursor.getInt(typeIndex);
-            String dateStr = cursor.getString(dateIndex);
-            String formattedDate = DateFormat.format("dd MMM yyyy, h:mm a",
-                    new Date(Long.parseLong(dateStr))).toString();
-
-            switch (callType) {
-                case CallLog.Calls.INCOMING_TYPE:
-                    type = "INCOMING";
-                    break;
-                case CallLog.Calls.OUTGOING_TYPE:
-                    type = "OUTGOING";
-                    break;
-                case CallLog.Calls.MISSED_TYPE:
-                default:
-                    type = "MISSED";
-                    break;
-            }
-
-            String caller = (name != null) ? name : number;
-            logItems.add(new CallLogItem(caller, type, formattedDate));
+    private static class CallHistoryPagerAdapter extends FragmentStateAdapter {
+        public CallHistoryPagerAdapter(@NonNull Fragment fragment) {
+            super(fragment);
         }
 
-        cursor.close();
-        recyclerView.setAdapter(new CallLogAdapter(logItems));
+        @NonNull
+        @Override
+        public Fragment createFragment(int position) {
+            return position == 0 ? new AllCallsFragment() : new MissedCallsFragment();
+        }
+
+        @Override
+        public int getItemCount() {
+            return 2;
+        }
     }
+
+    public static class AllCallsFragment extends Fragment {
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                                 Bundle savedInstanceState) {
+            View view = inflater.inflate(R.layout.fragment_call_list, container, false);
+            setupCallList(view, false);
+            return view;
+        }
+    }
+
+    public static class MissedCallsFragment extends Fragment {
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                                 Bundle savedInstanceState) {
+            View view = inflater.inflate(R.layout.fragment_call_list, container, false);
+            setupCallList(view, true);
+            return view;
+        }
+    }
+
+    private static void setupCallList(View view, boolean missedOnly) {
+        RecyclerView recyclerView = view.findViewById(R.id.callRecyclerView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
+
+        // Add divider between items
+        DividerItemDecoration divider = new DividerItemDecoration(view.getContext(), DividerItemDecoration.VERTICAL);
+        recyclerView.addItemDecoration(divider);
+
+        // Create and set adapter with sample data
+        List<CallLogEntry> calls = getCallLogs(missedOnly);
+        CallLogAdapter adapter = new CallLogAdapter(calls);
+        recyclerView.setAdapter(adapter);
+    }
+
+    private static List<CallLogEntry> getCallLogs(boolean missedOnly) {
+        // Implement your call log loading logic here
+        List<CallLogEntry> calls = new ArrayList<>();
+        // Add sample data
+//        calls.add(new CallLogEntry("John Doe", "1234567890", "INCOMING", "2 min", "Today, 10:30 AM"));
+     //   calls.add(new CallLogEntry("Jane Smith", "2345678901", "MISSED", "12", "Yesterday, 4:15 PM"));
+        return calls;
+    }
+
+    // CallLogEntry model class
+
+    // CallLog Adapter
 }

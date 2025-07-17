@@ -1,25 +1,33 @@
 package com.mehboob.simplecalldialer.adapters;
 
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import androidx.recyclerview.widget.RecyclerView;
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.mehboob.simplecalldialer.R;
-import com.mehboob.simplecalldialer.models.CallLogItem;
+import com.mehboob.simplecalldialer.models.CallLogEntry;
 
 import java.util.List;
 
 public class CallLogAdapter extends RecyclerView.Adapter<CallLogAdapter.CallLogViewHolder> {
+    private List<CallLogEntry> callLogs;
+    private OnItemClickListener onItemClickListener;
 
-    private final List<CallLogItem> callLogs;
+    public interface OnItemClickListener {
+        void onItemClick(int position, CallLogEntry callLog);
+    }
 
-    public CallLogAdapter(List<CallLogItem> callLogs) {
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        this.onItemClickListener = listener;
+    }
+
+    public CallLogAdapter(List<CallLogEntry> callLogs) {
         this.callLogs = callLogs;
     }
 
@@ -27,30 +35,60 @@ public class CallLogAdapter extends RecyclerView.Adapter<CallLogAdapter.CallLogV
     @Override
     public CallLogViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_call_history, parent, false);
+                .inflate(R.layout.item_call_log, parent, false);
         return new CallLogViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull CallLogViewHolder holder, int position) {
-        CallLogItem item = callLogs.get(position);
-        holder.name.setText(item.getNameOrNumber());
-        holder.date.setText(item.getDate());
+        CallLogEntry callLog = callLogs.get(position);
 
-        switch (item.getType()) {
+        // Set contact name or number if name not available
+        if (!callLog.getName().isEmpty()) {
+            holder.nameTextView.setText(callLog.getName());
+            holder.numberTextView.setText(callLog.getNumber());
+            holder.numberTextView.setVisibility(View.VISIBLE);
+        } else {
+            holder.nameTextView.setText(callLog.getNumber());
+            holder.numberTextView.setVisibility(View.GONE);
+        }
+
+        // Set call time and duration
+        holder.timeTextView.setText(callLog.getTime());
+        if (!callLog.getDuration().isEmpty()) {
+            holder.durationTextView.setText(callLog.getDuration());
+            holder.durationTextView.setVisibility(View.VISIBLE);
+        } else {
+            holder.durationTextView.setVisibility(View.GONE);
+        }
+
+        // Set call type icon and color
+        int iconColor = R.color.gray;
+        switch (callLog.getType()) {
             case "INCOMING":
-                holder.icon.setImageResource(android.R.drawable.sym_call_incoming);
-                holder.icon.setColorFilter(0xFF4CAF50); // Green
-                break;
-            case "OUTGOING":
-                holder.icon.setImageResource(android.R.drawable.sym_call_outgoing);
-                holder.icon.setColorFilter(0xFF2196F3); // Blue
+                iconColor = R.color.green;
                 break;
             case "MISSED":
-                holder.icon.setImageResource(android.R.drawable.sym_call_missed);
-                holder.icon.setColorFilter(0xFFF44336); // Red
+                iconColor = R.color.red;
+                break;
+            case "OUTGOING":
+                iconColor = R.color.blue;
                 break;
         }
+
+        holder.typeIcon.setImageResource(callLog.getIconRes());
+        holder.typeIcon.setColorFilter(ContextCompat.getColor(holder.itemView.getContext(), iconColor));
+
+        // Set contact avatar
+        String avatarText = callLog.getName().isEmpty() ? "#" : callLog.getName().substring(0, 1);
+        holder.avatarTextView.setText(avatarText);
+
+        // Set click listener
+        holder.itemView.setOnClickListener(v -> {
+            if (onItemClickListener != null) {
+                onItemClickListener.onItemClick(position, callLog);
+            }
+        });
     }
 
     @Override
@@ -58,15 +96,23 @@ public class CallLogAdapter extends RecyclerView.Adapter<CallLogAdapter.CallLogV
         return callLogs.size();
     }
 
-    static class CallLogViewHolder extends RecyclerView.ViewHolder {
-        TextView name, date;
-        ImageView icon;
+    public void filterList(List<CallLogEntry> filteredList) {
+        callLogs = filteredList;
+        notifyDataSetChanged();
+    }
 
-        CallLogViewHolder(View view) {
-            super(view);
-            icon = view.findViewById(R.id.callTypeIcon);
-            name = view.findViewById(R.id.numberOrName);
-            date = view.findViewById(R.id.callDate);
+    static class CallLogViewHolder extends RecyclerView.ViewHolder {
+        TextView nameTextView, numberTextView, timeTextView, durationTextView, avatarTextView;
+        ImageView typeIcon;
+
+        CallLogViewHolder(View itemView) {
+            super(itemView);
+            nameTextView = itemView.findViewById(R.id.callName);
+            numberTextView = itemView.findViewById(R.id.callNumber);
+            timeTextView = itemView.findViewById(R.id.callTime);
+            durationTextView = itemView.findViewById(R.id.callDuration);
+            typeIcon = itemView.findViewById(R.id.callTypeIcon);
+            avatarTextView = itemView.findViewById(R.id.avatarText);
         }
     }
 }

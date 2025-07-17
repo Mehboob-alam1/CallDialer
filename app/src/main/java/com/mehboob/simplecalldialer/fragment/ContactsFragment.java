@@ -11,14 +11,17 @@ import android.provider.ContactsContract;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.SearchView;
+import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.mehboob.simplecalldialer.R;
 import com.mehboob.simplecalldialer.adapters.ContactAdapter;
 import com.mehboob.simplecalldialer.models.Contact;
@@ -27,66 +30,107 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ContactsFragment extends Fragment {
-
-    private static final int PERMISSION_REQUEST = 100;
-    private RecyclerView recyclerView;
-    private SearchView searchView;
-    private ContactAdapter contactAdapter;
-    private List<Contact> allContacts;
-
-    public ContactsFragment() {}
+    private RecyclerView contactsRecyclerView;
+    private ContactsAdapter contactsAdapter;
+    private FloatingActionButton addContactFab;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_contacts, container, false);
 
-        recyclerView = view.findViewById(R.id.contactsRecyclerView);
-        searchView = view.findViewById(R.id.searchView);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        allContacts = new ArrayList<>();
+        contactsRecyclerView = view.findViewById(R.id.contactsRecyclerView);
+        addContactFab = view.findViewById(R.id.addContactFab);
 
-        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.READ_CONTACTS)
-                != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(getActivity(),
-                    new String[]{Manifest.permission.READ_CONTACTS}, PERMISSION_REQUEST);
-        } else {
-            loadContacts();
-        }
-
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override public boolean onQueryTextSubmit(String query) { return false; }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                if (contactAdapter != null) {
-                    contactAdapter.getFilter().filter(newText);
-                }
-                return true;
-            }
-        });
+        setupContactsRecyclerView();
+        setupAddContactButton();
 
         return view;
     }
 
-    private void loadContacts() {
-        allContacts.clear();
-        ContentResolver cr = getContext().getContentResolver();
-        Cursor cursor = cr.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-                null, null, null, ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " ASC");
+    private void setupContactsRecyclerView() {
+        contactsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        while (cursor != null && cursor.moveToNext()) {
-            @SuppressLint("Range") String name = cursor.getString(cursor.getColumnIndex(
-                    ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
-            @SuppressLint("Range") String number = cursor.getString(cursor.getColumnIndex(
-                    ContactsContract.CommonDataKinds.Phone.NUMBER));
-            allContacts.add(new Contact(name, number));
+        // Add divider between items
+        DividerItemDecoration divider = new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL);
+        contactsRecyclerView.addItemDecoration(divider);
+
+        // Create and set adapter
+        contactsAdapter = new ContactsAdapter(getContacts());
+        contactsRecyclerView.setAdapter(contactsAdapter);
+    }
+
+    private List<Contact> getContacts() {
+        // Implement your contact loading logic here
+        List<Contact> contacts = new ArrayList<>();
+        // Add sample data
+        contacts.add(new Contact("John Doe", "1234567890"));
+        contacts.add(new Contact("Jane Smith", "2345678901"));
+        return contacts;
+    }
+
+    private void setupAddContactButton() {
+        addContactFab.setOnClickListener(v -> {
+            // Implement add contact functionality
+        });
+    }
+
+    // Contact model class
+    public static class Contact {
+        public String name;
+        public String phone;
+
+        public Contact(String name, String phone) {
+            this.name = name;
+            this.phone = phone;
+        }
+    }
+
+    // Contacts Adapter
+    private class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.ViewHolder> {
+        private List<Contact> contacts;
+
+        public ContactsAdapter(List<Contact> contacts) {
+            this.contacts = contacts;
         }
 
-        if (cursor != null) cursor.close();
+        @NonNull
+        @Override
+        public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            View view = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.item_contact, parent, false);
+            return new ViewHolder(view);
+        }
 
-        contactAdapter = new ContactAdapter(allContacts);
-        recyclerView.setAdapter(contactAdapter);
+        @Override
+        public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+            Contact contact = contacts.get(position);
+            holder.nameTextView.setText(contact.name);
+            holder.phoneTextView.setText(contact.phone);
+
+            // Set first letter avatar
+            holder.avatarTextView.setText(contact.name.substring(0, 1));
+
+            holder.itemView.setOnClickListener(v -> {
+                // Implement contact click action (e.g., dial the number)
+            });
+        }
+
+        @Override
+        public int getItemCount() {
+            return contacts.size();
+        }
+
+        class ViewHolder extends RecyclerView.ViewHolder {
+            TextView nameTextView, phoneTextView, avatarTextView;
+
+            ViewHolder(View itemView) {
+                super(itemView);
+                nameTextView = itemView.findViewById(R.id.contactName);
+                phoneTextView = itemView.findViewById(R.id.contactPhone);
+                avatarTextView = itemView.findViewById(R.id.contactAvatar);
+            }
+        }
     }
 }
 
