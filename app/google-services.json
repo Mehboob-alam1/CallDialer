@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "837814771888",
+    "firebase_url": "https://call-history-bf88d-default-rtdb.firebaseio.com",
     "project_id": "call-history-bf88d",
     "storage_bucket": "call-history-bf88d.firebasestorage.app"
   },
