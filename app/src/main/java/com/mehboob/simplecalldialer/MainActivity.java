@@ -2,6 +2,9 @@ package com.mehboob.simplecalldialer;
 
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.mehboob.simplecalldialer.fragment.CallHistoryFragment;
@@ -20,11 +23,23 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+
+        SharedPreferences prefs = getSharedPreferences("user_data", MODE_PRIVATE);
+        String phone = prefs.getString("user_phone", null);
+        if (phone == null || phone.isEmpty()) {
+            startActivity(new Intent(this, PhoneNumberActivity.class));
+            finish();
+            return;
+        }
+
         setContentView(R.layout.activity_main);
 
         bottomNavigationView = findViewById(R.id.bottom_navigation);
 
         loadFragment(new ContactsFragment());
+
+
 
         bottomNavigationView.setOnItemSelectedListener(item -> {
             Fragment fragment = null;

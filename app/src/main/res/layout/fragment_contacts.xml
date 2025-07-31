@@ -18,7 +18,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/toolbar"
-        android:hint="Search contacts"
+        :hint="Search contacts"
         app:strokeColor="@color/light_gray"
         app:strokeWidth="1dp" />
 

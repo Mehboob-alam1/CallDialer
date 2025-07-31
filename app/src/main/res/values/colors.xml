@@ -22,4 +22,32 @@
     <color name="call_history_tab_background">#FF3F51B5</color>
     <color name="red">#FFF44336</color>
     <color name="blue">#FF2196F3</color>
+
+
+        <!-- Primary colors -->
+        <color name="primary_dark">#1A237E</color>
+        <color name="primary">#303F9F</color>
+        <color name="primary_light">#7986CB</color>
+
+        <!-- Accent color -->
+        <color name="accent_color">#FF4081</color>
+
+        <!-- Background colors -->
+        <color name="background_dark">#121212</color>
+        <color name="background_light">#FFFFFF</color>
+
+        <!-- Text colors -->
+        <color name="text_primary">#E0E0E0</color>
+        <color name="text_secondary">#9E9E9E</color>
+        <color name="hint_color">#616161</color>
+
+        <!-- UI elements -->
+        <color name="divider_color">#1E1E1E</color>
+        <color name="avatar_border">#424242</color>
+        <color name="icon_secondary">#757575</color>
+        <color name="progress_track">#263238</color>
+
+        <!-- Status colors -->
+        <color name="online">#4CAF50</color>
+        <color name="offline">#F44336</color>
 </resources>

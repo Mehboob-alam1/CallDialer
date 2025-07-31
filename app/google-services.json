@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "837814771888",
+    "project_id": "call-history-bf88d",
+    "storage_bucket": "call-history-bf88d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:837814771888:android:bdf57ed0d0adb2dd8fdb75",
+        "android_client_info": {
+          "package_name": "com.mehboob.simplecalldialer"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyANDNswJFK5Qu8KE62sbAikpRZ355on_2Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
