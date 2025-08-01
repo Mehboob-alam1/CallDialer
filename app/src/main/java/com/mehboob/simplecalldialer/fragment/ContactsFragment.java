@@ -1,20 +1,14 @@
 package com.mehboob.simplecalldialer.fragment;
 
 
-import android.Manifest;
-import android.annotation.SuppressLint;
-import android.content.ContentResolver;
-import android.content.pm.PackageManager;
-import android.database.Cursor;
+
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -22,9 +16,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.database.FirebaseDatabase;
 import com.mehboob.simplecalldialer.R;
-import com.mehboob.simplecalldialer.adapters.ContactAdapter;
-import com.mehboob.simplecalldialer.models.Contact;
 
 import java.util.ArrayList;
 import java.util.List;

