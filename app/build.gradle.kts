@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "com.mehboob.simplecalldialer"
+    namespace = "com.mehboob.dialeradmin"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.mehboob.simplecalldialer"
+        applicationId = "com.mehboob.dialeradmin"
         minSdk = 24
         targetSdk = 35
         versionCode = 1
@@ -31,6 +31,9 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
+    buildFeatures {
+        viewBinding = true
+    }
 }
 
 dependencies {
@@ -41,7 +44,10 @@ dependencies {
     implementation(libs.constraintlayout)
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.database)
+    implementation(libs.navigation.fragment)
+    implementation(libs.navigation.ui)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
+    implementation("com.android.billingclient:billing:8.0.0")
 }
