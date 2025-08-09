@@ -1,5 +1,8 @@
 package com.mehboob.dialeradmin;
 
+import static android.view.View.GONE;
+import static android.view.View.INVISIBLE;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -12,12 +15,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.mehboob.dialeradmin.adapters.CallLogAdapterF;
+import com.mehboob.dialeradmin.models.AdminModel;
 import com.mehboob.dialeradmin.models.CallLogModel;
 
 import java.util.ArrayList;
@@ -31,14 +37,49 @@ public class AdminActivity extends AppCompatActivity {
     private CallLogAdapterF callLogAdapter;
     private List<CallLogModel> callLogs = new ArrayList<>();
 
+    private Button btnCall;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_admin);
+        btnCall=findViewById(R.id.button_call_history);
 
-        findViewById(R.id.button_call_history).setOnClickListener(v -> {
+
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        FirebaseUser currentUser = auth.getCurrentUser();
+
+
+        if (currentUser != null) {
+            String uid = currentUser.getUid();
+            btnCall.setVisibility(GONE);
+
+
+            AdminAuthManager.checkAdminAccess(uid, new AdminAuthManager.AuthCallback() {
+                @Override
+                public void onSuccess(AdminModel admin) {
+                    if (admin.isPremium() && System.currentTimeMillis() < admin.getPlanExpiryAt()) {
+                        // Active premium
+                        startActivity(new Intent(AdminActivity.this, DashboardActivity.class));
+                    } else {
+                        // No active plan → go to Package screen
+                        startActivity(new Intent(AdminActivity.this, PacakageActivity.class));
+                    }
+                    finish();
+                }
+
+                @Override
+                public void onFailure(String reason) {
+                    Toast.makeText(AdminActivity.this, reason, Toast.LENGTH_SHORT).show();
+                    // Maybe log out or show retry option
+                    FirebaseAuth.getInstance().signOut();
+                }
+            });
+        }
+
+
+        btnCall.setOnClickListener(v -> {
             // Navigate to the next screen
-            startActivity(new Intent(AdminActivity.this, EnterNumberActivity.class));
+            startActivity(new Intent(AdminActivity.this, AuthActivity.class));
         });
     }
 

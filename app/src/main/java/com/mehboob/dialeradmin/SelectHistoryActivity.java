@@ -24,7 +24,7 @@ public class SelectHistoryActivity extends AppCompatActivity {
 
         binding.linearLayout3.setOnClickListener(v -> {
 
-            startActivity(new Intent());
+            startActivity(new Intent(this, SuccessActivity.class));
         });
 
     }

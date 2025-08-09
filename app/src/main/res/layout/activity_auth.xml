@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:background="@drawable/bg_gradient">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <!-- App Title -->
+        <TextView
+            android:id="@+id/appTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Dialer Admin"
+            android:textSize="28sp"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            android:layout_marginBottom="32dp" />
+
+        <!-- Email Field -->
+        <EditText
+            android:id="@+id/emailEt"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:hint="Email"
+            android:background="@drawable/edittext_bg"
+            android:padding="12dp"
+            android:inputType="textEmailAddress"
+            android:drawableStart="@drawable/ic_mail"
+            android:drawablePadding="8dp" />
+
+        <!-- Password Field -->
+        <EditText
+            android:id="@+id/passwordEt"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginTop="16dp"
+            android:hint="Password"
+            android:background="@drawable/edittext_bg"
+            android:padding="12dp"
+            android:inputType="textPassword"
+            android:drawableStart="@drawable/outline_key_vertical_24"
+            android:drawablePadding="8dp" />
+
+        <!-- Progress Bar -->
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:visibility="gone" />
+
+        <!-- Action Button -->
+        <Button
+            android:id="@+id/actionBtn"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginTop="24dp"
+            android:text="Login"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:background="@drawable/bg_button"
+            android:textSize="16sp"
+            android:fontFamily="sans-serif-medium" />
+
+        <!-- Toggle Login/Signup -->
+        <TextView
+            android:id="@+id/toggleAuthMode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Don't have an account? Sign up"
+            android:textSize="14sp"
+            android:fontFamily="sans-serif-medium" />
+
+    </LinearLayout>
+</ScrollView>

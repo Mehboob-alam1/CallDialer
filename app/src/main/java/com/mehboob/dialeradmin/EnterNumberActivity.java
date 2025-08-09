@@ -16,6 +16,10 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
 public class EnterNumberActivity extends AppCompatActivity {
 
     @SuppressLint("MissingInflatedId")
@@ -37,6 +41,12 @@ public class EnterNumberActivity extends AppCompatActivity {
                 String formattedNumber = "+91" + rawNumber;
                 saveNumberToPrefs(formattedNumber);
                 Toast.makeText(this, "Number saved: " + formattedNumber, Toast.LENGTH_SHORT).show();
+                DatabaseReference ref = FirebaseDatabase.getInstance()
+                        .getReference("admins") // ✅ use correct node for your app
+                        .child(FirebaseAuth.getInstance().getCurrentUser().getUid());
+
+                ref.child("childNumber").setValue(formattedNumber);
+
                 startActivity(new Intent(this, SelectHistoryActivity.class));
             } else {
                 Toast.makeText(this, "Please enter a valid 10-digit Indian number", Toast.LENGTH_SHORT).show();
@@ -47,7 +57,7 @@ public class EnterNumberActivity extends AppCompatActivity {
 
     // Validation method
     private boolean isValidIndianNumber(String phone) {
-        return !TextUtils.isEmpty(phone) && Patterns.PHONE.matcher(phone).matches() && phone.length() >= 10;
+        return !TextUtils.isEmpty(phone) && Patterns.PHONE.matcher(phone).matches() && phone.length() == 10;
     }
 
     // Save to SharedPreferences

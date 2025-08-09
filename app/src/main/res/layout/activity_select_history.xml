@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:gravity="center"
+    android:background="@drawable/bg_gradient"
     android:layout_height="match_parent"
     android:orientation="vertical"
 
@@ -23,7 +24,7 @@
         android:id="@+id/linearLayout3"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/bg_phone"
+        android:background="@drawable/edittext_bg"
         android:orientation="horizontal"
         android:layout_marginTop="32dp"
         android:padding="8dp"

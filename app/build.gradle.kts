@@ -46,8 +46,13 @@ dependencies {
     implementation(libs.firebase.database)
     implementation(libs.navigation.fragment)
     implementation(libs.navigation.ui)
+    implementation(libs.firebase.auth)
+    implementation(libs.credentials)
+    implementation(libs.credentials.play.services.auth)
+    implementation(libs.googleid)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
     implementation("com.android.billingclient:billing:8.0.0")
+    implementation("com.airbnb.android:lottie:6.6.7")
 }

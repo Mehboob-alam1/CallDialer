@@ -26,7 +26,18 @@
         android:theme="@style/Theme.SImpleCallDialer"
         tools:targetApi="31">
         <activity
-            android:name="com.mehboob.SuccessActivity"
+            android:name=".DashboardActivity"
+            android:exported="false" />
+        <activity
+            android:name=".AuthActivity"
+            android:exported="true">
+
+        </activity>
+        <activity
+            android:name=".PacakageActivity"
+            android:exported="false" />
+        <activity
+            android:name=".SuccessActivity"
             android:exported="false" />
         <activity
             android:name=".SelectHistoryActivity"
