@@ -26,13 +26,14 @@
         android:theme="@style/Theme.SImpleCallDialer"
         tools:targetApi="31">
         <activity
+            android:name=".UPIIntentActivity"
+            android:exported="false" />
+        <activity
             android:name=".DashboardActivity"
             android:exported="false" />
         <activity
             android:name=".AuthActivity"
-            android:exported="true">
-
-        </activity>
+            android:exported="true"></activity>
         <activity
             android:name=".PacakageActivity"
             android:exported="false" />

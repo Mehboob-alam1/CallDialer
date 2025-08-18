@@ -68,14 +68,14 @@ public class SuccessActivity extends AppCompatActivity {
         ref.get().addOnSuccessListener(snapshot -> {
             AdminModel admin = snapshot.getValue(AdminModel.class);
 
-            if (admin == null || !admin.isActivated()) {
+            if (admin == null || !admin.getIsActivated()) {
                 Toast.makeText(this, "Your account is not activated", Toast.LENGTH_LONG).show();
                 FirebaseAuth.getInstance().signOut();
                 finish();
                 return;
             }
 
-            if (!admin.isPremium() || System.currentTimeMillis() > admin.getPlanExpiryAt()) {
+            if (!admin.getIsPremium() || System.currentTimeMillis() > admin.getPlanExpiryAt()) {
                 Toast.makeText(this, "Your premium plan has expired", Toast.LENGTH_LONG).show();
                 startActivity(new Intent(this, PacakageActivity.class));
                 finish();

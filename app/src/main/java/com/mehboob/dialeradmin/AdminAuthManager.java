@@ -34,13 +34,13 @@ public class AdminAuthManager {
                 }
 
                 // Check activation
-                if (!admin.isActivated()) {
+                if (!admin.getIsActivated()) {
                     callback.onFailure("Admin account is not activated.");
                     return;
                 }
 
                 // Check premium status
-                if (admin.isPremium() && System.currentTimeMillis() > admin.getPlanExpiryAt()) {
+                if (admin.getIsPremium() && System.currentTimeMillis() > admin.getPlanExpiryAt()) {
                     callback.onFailure("Premium plan expired.");
                     return;
                 }

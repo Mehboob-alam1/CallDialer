@@ -81,19 +81,21 @@ public class AuthActivity extends AppCompatActivity {
                     String uid = authResult.getUser().getUid();
                     long now = System.currentTimeMillis();
 
-                    AdminModel adminModel = new AdminModel(
-                            uid,
-                            email,
+                    AdminModel adminModel= new AdminModel(uid,email,"admin",true,false,"",0,0,now,"");
 
-                            "admin",          // role
-                            true,             // isActivated
-                            false,            // isPremium
-                            "",               // planType
-                            0,                // planActivatedAt
-                            0,                // planExpiryAt
-                            now ,              // createdAt
-                            ""
-                    );
+//                    AdminModel adminModel = new AdminModel(
+//                            uid,
+//                            email,
+//
+//                            "admin",          // role
+//                            true,             // isActivated
+//                            false,            // isPremium
+//                            "",               // planType
+//                            0,                // planActivatedAt
+//                            0,                // planExpiryAt
+//                            now ,              // createdAt
+//                            ""
+//                    );
 
                     adminRef.child(uid).setValue(adminModel)
                             .addOnSuccessListener(unused -> {
@@ -140,7 +142,7 @@ public class AuthActivity extends AppCompatActivity {
                     progressBar.setVisibility(View.GONE);
                     if (snapshot.exists()) {
                         AdminModel admin = snapshot.getValue(AdminModel.class);
-                        if (admin != null && admin.isActivated()) {
+                        if (admin != null && admin.getIsActivated()) {
                             ((MyApplication) getApplication()).setCurrentAdmin(admin);
                             startActivity(new Intent(this, EnterNumberActivity.class));
                             finish();

@@ -1,6 +1,7 @@
 package com.mehboob.dialeradmin;
 
 import android.os.Bundle;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -15,6 +16,8 @@ public class DashboardActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_dashboard);
+
+        Toast.makeText(this, "This is dashboard", Toast.LENGTH_SHORT).show();
 
     }
 }

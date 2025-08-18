@@ -24,6 +24,8 @@ public class MyApplication extends Application {
         instance = this;
         FirebaseApp.initializeApp(this);
 
+
+
         loadCurrentAdmin();
     }
 
@@ -41,12 +43,12 @@ public class MyApplication extends Application {
 
     public boolean isPremiumActive() {
         return currentAdmin != null
-                && currentAdmin.isPremium()
+                && currentAdmin.getIsPremium()
                 && System.currentTimeMillis() <= currentAdmin.getPlanExpiryAt();
     }
 
     public boolean isAdminActivated() {
-        return currentAdmin != null && currentAdmin.isActivated();
+        return currentAdmin != null && currentAdmin.getIsActivated();
     }
 
     public String getActivePlanName() {

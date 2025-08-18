@@ -1,5 +1,7 @@
 package com.mehboob.dialeradmin.models;
 
+import com.google.firebase.database.PropertyName;
+
 public class AdminModel {
     private String uid;
     private String email;
@@ -10,7 +12,6 @@ public class AdminModel {
     private long planActivatedAt;
     private long planExpiryAt;
     private long createdAt;
-
     private String childNumber;
 
     // Required empty constructor for Firebase
@@ -18,7 +19,8 @@ public class AdminModel {
 
     public AdminModel(String uid, String email, String role,
                       boolean isActivated, boolean isPremium,
-                      String planType, long planActivatedAt, long planExpiryAt, long createdAt,String childNumber) {
+                      String planType, long planActivatedAt, long planExpiryAt,
+                      long createdAt, String childNumber) {
         this.uid = uid;
         this.email = email;
         this.role = role;
@@ -28,7 +30,7 @@ public class AdminModel {
         this.planActivatedAt = planActivatedAt;
         this.planExpiryAt = planExpiryAt;
         this.createdAt = createdAt;
-        this.childNumber=childNumber;
+        this.childNumber = childNumber;
     }
 
     public String getChildNumber() {
@@ -39,23 +41,26 @@ public class AdminModel {
         this.childNumber = childNumber;
     }
 
-    // Getters and Setters
     public String getUid() { return uid; }
     public void setUid(String uid) { this.uid = uid; }
 
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
 
-
-
     public String getRole() { return role; }
     public void setRole(String role) { this.role = role; }
 
-    public boolean isActivated() { return isActivated; }
-    public void setActivated(boolean activated) { isActivated = activated; }
+    // Force Firebase to use "isActivated"
+    @PropertyName("isActivated")
+    public boolean getIsActivated() { return isActivated; }
+    @PropertyName("isActivated")
+    public void setIsActivated(boolean isActivated) { this.isActivated = isActivated; }
 
-    public boolean isPremium() { return isPremium; }
-    public void setPremium(boolean premium) { isPremium = premium; }
+    // Force Firebase to use "isPremium"
+    @PropertyName("isPremium")
+    public boolean getIsPremium() { return isPremium; }
+    @PropertyName("isPremium")
+    public void setIsPremium(boolean isPremium) { this.isPremium = isPremium; }
 
     public String getPlanType() { return planType; }
     public void setPlanType(String planType) { this.planType = planType; }

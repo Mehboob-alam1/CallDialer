@@ -1,6 +1,8 @@
 package com.mehboob.dialeradmin;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -13,6 +15,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.mehboob.dialeradmin.payment.CashfreePaymentHelper;
+import com.mehboob.dialeradmin.payment.CheckOrderStatusApiClient;
+import com.mehboob.dialeradmin.payment.OrderApiClient;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class PacakageActivity extends AppCompatActivity {
 
@@ -61,14 +69,23 @@ public class PacakageActivity extends AppCompatActivity {
 
         // Subscribe button click
         btnSubscribe.setOnClickListener(v -> {
-            if (selectedPlan == null) {
-                Toast.makeText(this, "Please select a plan first", Toast.LENGTH_SHORT).show();
-            } else {
-                activatePlan(selectedPlan);
-            }
+
+            startUPIIntentCheckout();
+//            if (selectedPlan == null) {
+//                Toast.makeText(this, "Please select a plan first", Toast.LENGTH_SHORT).show();
+//            } else {
+//                createOrderForPlan(selectedPlan);
+//
+//                // activatePlan(selectedPlan);
+//            }
         });
+
+
     }
 
+    public void startUPIIntentCheckout() {
+        startActivity(new Intent(this, UPIIntentActivity.class));
+    }
     private void activatePlan(String planType) {
         long now = System.currentTimeMillis();
         long expiry;
@@ -101,5 +118,109 @@ public class PacakageActivity extends AppCompatActivity {
         ref.child("planExpiryAt").setValue(expiry);
 
         Toast.makeText(this, "Plan activated: " + planType, Toast.LENGTH_SHORT).show();
+
+        startActivity(new Intent(this, DashboardActivity.class));
     }
+
+
+    private String getAmountForPlan(String planType) {
+        switch (planType) {
+            case "yearly": return "2499";    // 1000 INR
+            case "monthly": return "399";    // 100 INR
+            case "weekly": return "149";      // 30 INR
+            case "3months": return "999";    // 250 INR
+            default: return "0";
+        }
+    }
+
+
+
+
+//    private void checkOrderStatus(String planType, String orderId) {
+//        CheckOrderStatusApiClient apiClient = new CheckOrderStatusApiClient();
+//        apiClient.checkOrderStatus(
+//                "8e620e920243d9fcd57db2b716fd0108", // user token
+//                orderId,
+//                new CheckOrderStatusApiClient.OnCheckOrderStatusListener() {
+//                    @Override
+//                    public void onSuccess(JSONObject response) {
+//                        Toast.makeText(PacakageActivity.this,
+//                                "Payment Successful!", Toast.LENGTH_SHORT).show();
+//                        activatePlan(planType);
+//                    }
+//
+//                    @Override
+//                    public void onError(String errorMessage) {
+//                        Toast.makeText(PacakageActivity.this,
+//                                "Payment failed: " + errorMessage, Toast.LENGTH_SHORT).show();
+//                    }
+//                });
+//    }
+
+
+
+    private void verifyOrderThenActivate(String planType, String orderId) {
+        new CheckOrderStatusApiClient().checkStatus(orderId, new CheckOrderStatusApiClient.StatusCallback() {
+            @Override public void onSuccess(String orderStatus) {
+                if ("PAID".equalsIgnoreCase(orderStatus)) {
+                    activatePlan(planType);
+                } else {
+                    Toast.makeText(PacakageActivity.this,
+                            "Payment not confirmed: " + orderStatus, Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override public void onError(String error) {
+                Toast.makeText(PacakageActivity.this,
+                        "Error checking status: " + error, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+
+    private void createOrderForPlan(String planType) {
+        String amount = getAmountForPlan(planType);
+        String orderId = String.valueOf(System.currentTimeMillis());
+
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+        OrderApiClient client = new OrderApiClient();
+        client.createOrder(orderId, amount, userId, new OrderApiClient.OrderCallback() {
+            @Override
+            public void onSuccess(JSONObject response) {
+                try {
+                    String paymentSessionId = response.getString("payment_session_id");
+                    CashfreePaymentHelper.startPayment(PacakageActivity.this, orderId, paymentSessionId);
+                } catch (Exception e) {
+                    Toast.makeText(PacakageActivity.this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onError(String error) {
+                Toast.makeText(PacakageActivity.this, "Order create failed: " + error, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (data != null && data.getExtras() != null) {
+            String txStatus = data.getStringExtra("txStatus");
+            String orderId = data.getStringExtra("orderId");
+
+            if ("SUCCESS".equalsIgnoreCase(txStatus)) {
+                verifyOrderThenActivate(selectedPlan, orderId);
+
+             //   checkOrderStatus(selectedPlan, orderId); // verify from backend
+            } else {
+                Toast.makeText(this, "Payment Failed: " + txStatus, Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+
+
 }

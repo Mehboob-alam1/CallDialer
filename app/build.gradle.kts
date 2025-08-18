@@ -1,16 +1,19 @@
+import org.gradle.kotlin.dsl.implementation
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.google.gms.google.services)
+    alias(libs.plugins.kotlin.android)
 }
 
 android {
     namespace = "com.mehboob.dialeradmin"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.mehboob.dialeradmin"
         minSdk = 24
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0"
 
@@ -34,6 +37,9 @@ android {
     buildFeatures {
         viewBinding = true
     }
+    kotlinOptions {
+        jvmTarget = "17"
+    }
 }
 
 dependencies {
@@ -50,9 +56,14 @@ dependencies {
     implementation(libs.credentials)
     implementation(libs.credentials.play.services.auth)
     implementation(libs.googleid)
+    implementation(libs.core.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
-    implementation("com.android.billingclient:billing:8.0.0")
+    implementation("com.cashfree.pg:api:2.2.8")
     implementation("com.airbnb.android:lottie:6.6.7")
+
+    implementation(platform("com.squareup.okhttp3:okhttp-bom:4.10.0"))
+    implementation("com.squareup.okhttp3:okhttp")
+    implementation("com.squareup.okhttp3:logging-interceptor")
 }
