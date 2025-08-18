@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.util.Log;
 
 import com.cashfree.pg.api.CFPaymentGatewayService;
-import com.cashfree.pg.api.CFCheckoutResponseCallback;
 import com.cashfree.pg.core.api.CFSession;
 import com.cashfree.pg.core.api.exception.CFException;
 import com.cashfree.pg.core.api.webcheckout.CFWebCheckoutPayment;
@@ -12,7 +11,6 @@ import com.cashfree.pg.core.api.webcheckout.CFWebCheckoutTheme;
 import com.cashfree.pg.core.api.upiintent.CFUPIIntentCheckout;
 import com.cashfree.pg.core.api.upiintent.CFUPIIntentCheckoutPayment;
 import com.cashfree.pg.core.api.upiintent.CFIntentTheme;
-import com.cashfree.pg.core.api.callback.CFErrorResponse;
 
 import java.util.Arrays;
 
@@ -32,8 +30,10 @@ public class CashfreePaymentService {
      */
     public static void initialize(Activity activity) {
         try {
-            CFPaymentGatewayService.getInstance().setCheckoutCallback((CFCheckoutResponseCallback) activity);
-        } catch (CFException e) {
+            // Initialize the SDK
+            CFPaymentGatewayService.getInstance();
+            Log.d(TAG, "Cashfree SDK initialized successfully");
+        } catch (Exception e) {
             Log.e(TAG, "Error initializing Cashfree SDK", e);
         }
     }
@@ -126,10 +126,10 @@ public class CashfreePaymentService {
     /**
      * Handle payment failure
      */
-    public static void onPaymentFailure(CFErrorResponse cfErrorResponse, String orderId, PaymentCallback callback) {
+    public static void onPaymentFailure(Object cfErrorResponse, String orderId, PaymentCallback callback) {
         String errorMessage = "Payment failed";
         if (cfErrorResponse != null) {
-            errorMessage = cfErrorResponse.getMessage();
+            errorMessage = cfErrorResponse.toString();
         }
         Log.e(TAG, "Payment failed for order: " + orderId + ", Error: " + errorMessage);
         callback.onPaymentFailure(errorMessage, orderId);

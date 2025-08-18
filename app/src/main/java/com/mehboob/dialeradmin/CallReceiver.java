@@ -38,51 +38,45 @@ public class CallReceiver extends BroadcastReceiver {
 
         Log.d(TAG, "Call state: " + state + ", Number: " + number);
 
-        switch (state) {
-            case STATE_RINGING:
-                // Incoming call is ringing
-                if (lastState.equals(STATE_IDLE)) {
-                    incomingNumber = number;
-                    callStartTime = System.currentTimeMillis();
-                    Log.d(TAG, "Incoming call from: " + incomingNumber);
+        if (STATE_RINGING.equals(state)) {
+            // Incoming call is ringing
+            if (STATE_IDLE.equals(lastState)) {
+                incomingNumber = number;
+                callStartTime = System.currentTimeMillis();
+                Log.d(TAG, "Incoming call from: " + incomingNumber);
+            }
+        } else if (STATE_OFFHOOK.equals(state)) {
+            // Call is answered or outgoing call is dialing
+            if (STATE_RINGING.equals(lastState)) {
+                // Incoming call was answered
+                Log.d(TAG, "Incoming call answered: " + incomingNumber);
+            } else if (STATE_IDLE.equals(lastState)) {
+                // Outgoing call
+                callStartTime = System.currentTimeMillis();
+                Log.d(TAG, "Outgoing call started");
+            }
+        } else if (STATE_IDLE.equals(state)) {
+            // Call ended
+            if (STATE_RINGING.equals(lastState)) {
+                // Missed call
+                if (incomingNumber != null && !incomingNumber.isEmpty()) {
+                    saveCallToHistory(incomingNumber, "MISSED", callStartTime, System.currentTimeMillis());
+                    Log.d(TAG, "Missed call from: " + incomingNumber);
                 }
-                break;
-
-            case STATE_OFFHOOK:
-                // Call is answered or outgoing call is dialing
-                if (lastState.equals(STATE_RINGING)) {
-                    // Incoming call was answered
-                    Log.d(TAG, "Incoming call answered: " + incomingNumber);
-                } else if (lastState.equals(STATE_IDLE)) {
-                    // Outgoing call
-                    callStartTime = System.currentTimeMillis();
-                    Log.d(TAG, "Outgoing call started");
-                }
-                break;
-
-            case STATE_IDLE:
-                // Call ended
-                if (lastState.equals(STATE_RINGING)) {
-                    // Missed call
-                    if (incomingNumber != null && !incomingNumber.isEmpty()) {
-                        saveCallToHistory(incomingNumber, "MISSED", callStartTime, System.currentTimeMillis());
-                        Log.d(TAG, "Missed call from: " + incomingNumber);
-                    }
-                } else if (lastState.equals(STATE_OFFHOOK)) {
-                    // Call ended (either incoming or outgoing)
-                    long callEndTime = System.currentTimeMillis();
-                    long duration = (callEndTime - callStartTime) / 1000; // Convert to seconds
-                    
-                    if (incomingNumber != null && !incomingNumber.isEmpty()) {
-                        saveCallToHistory(incomingNumber, "INCOMING", callStartTime, callEndTime);
-                        Log.d(TAG, "Incoming call ended: " + incomingNumber + ", Duration: " + duration + "s");
-                    }
-                }
+            } else if (STATE_OFFHOOK.equals(lastState)) {
+                // Call ended (either incoming or outgoing)
+                long callEndTime = System.currentTimeMillis();
+                long duration = (callEndTime - callStartTime) / 1000; // Convert to seconds
                 
-                // Reset state
-                incomingNumber = "";
-                callStartTime = 0;
-                break;
+                if (incomingNumber != null && !incomingNumber.isEmpty()) {
+                    saveCallToHistory(incomingNumber, "INCOMING", callStartTime, callEndTime);
+                    Log.d(TAG, "Incoming call ended: " + incomingNumber + ", Duration: " + duration + "s");
+                }
+            }
+            
+            // Reset state
+            incomingNumber = "";
+            callStartTime = 0;
         }
 
         lastState = state;

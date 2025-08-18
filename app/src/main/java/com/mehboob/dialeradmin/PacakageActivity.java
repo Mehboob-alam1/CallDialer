@@ -12,8 +12,6 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.cashfree.pg.api.CFCheckoutResponseCallback;
-import com.cashfree.pg.core.api.callback.CFErrorResponse;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -23,7 +21,7 @@ import com.mehboob.dialeradmin.payment.OrderApiClient;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class PacakageActivity extends AppCompatActivity implements CFCheckoutResponseCallback {
+public class PacakageActivity extends AppCompatActivity {
 
     private Button btnSubscribe;
     private String selectedPlan = null; // store which plan is selected
@@ -241,14 +239,20 @@ public class PacakageActivity extends AppCompatActivity implements CFCheckoutRes
         });
     }
 
-    // Cashfree SDK Callbacks
     @Override
-    public void onPaymentVerify(String orderID) {
-        CashfreePaymentService.onPaymentVerify(orderID, paymentCallback);
-    }
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        
+        // Handle payment result if needed
+        if (data != null && data.getExtras() != null) {
+            String txStatus = data.getStringExtra("txStatus");
+            String orderId = data.getStringExtra("orderId");
 
-    @Override
-    public void onPaymentFailure(CFErrorResponse cfErrorResponse, String orderID) {
-        CashfreePaymentService.onPaymentFailure(cfErrorResponse, orderID, paymentCallback);
+            if ("SUCCESS".equalsIgnoreCase(txStatus)) {
+                verifyOrderThenActivate(selectedPlan, orderId);
+            } else {
+                Toast.makeText(this, "Payment Failed: " + txStatus, Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 }

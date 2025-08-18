@@ -4,7 +4,6 @@ import android.app.Application;
 import android.util.Log;
 
 import com.cashfree.pg.api.CFPaymentGatewayService;
-import com.cashfree.pg.core.api.exception.CFException;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -39,9 +38,9 @@ public class MyApplication extends Application {
             // Initialize Cashfree SDK in background thread
             Executors.newSingleThreadExecutor().execute(() -> {
                 try {
-                    CFPaymentGatewayService.initialize(getApplicationContext());
+                    CFPaymentGatewayService.getInstance();
                     Log.d("MyApplication", "Cashfree SDK initialized successfully");
-                } catch (CFException e) {
+                } catch (Exception e) {
                     Log.e("MyApplication", "Error initializing Cashfree SDK", e);
                 }
             });
