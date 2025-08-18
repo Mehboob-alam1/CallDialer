@@ -48,6 +48,9 @@ public class PacakageActivity extends AppCompatActivity {
             Toast.makeText(this, "Current Plan: " + plan, Toast.LENGTH_SHORT).show();
         }
 
+        // Show configuration status
+        Toast.makeText(this, Config.getConfigStatus(), Toast.LENGTH_LONG).show();
+
         LinearLayout[] buttons = {btn1, btn2, btn3, btn4};
         if (MyApplication.getInstance().isPremiumActive()){
             showPremiumActiveDialog();
@@ -125,12 +128,21 @@ public class PacakageActivity extends AppCompatActivity {
     }
 
     private void createOrderForPlan(String planType) {
+        // First check if Cashfree is configured
+        if (!Config.isCashfreeConfigured()) {
+            Toast.makeText(this, Config.getConfigStatus(), Toast.LENGTH_LONG).show();
+            return;
+        }
+        
         String amount = getAmountForPlan(planType);
         String orderId = "order_" + System.currentTimeMillis();
 
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         String phoneNumber = MyApplication.getInstance().getCurrentAdmin() != null ? 
                            MyApplication.getInstance().getCurrentAdmin().getPhoneNumber() : "";
+
+        // Show loading message
+        Toast.makeText(this, "Creating payment order...", Toast.LENGTH_SHORT).show();
 
         OrderApiClient client = new OrderApiClient();
         client.createOrder(orderId, amount, userId, phoneNumber, new OrderApiClient.OrderCallback() {
@@ -143,13 +155,25 @@ public class PacakageActivity extends AppCompatActivity {
                     showPaymentInstructions(paymentSessionId, orderId);
                     
                 } catch (JSONException e) {
-                    Toast.makeText(PacakageActivity.this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(PacakageActivity.this, "Error parsing response: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onError(String error) {
-                Toast.makeText(PacakageActivity.this, "Order create failed: " + error, Toast.LENGTH_SHORT).show();
+                // Show detailed error message
+                String errorMsg = "Order creation failed: " + error;
+                if (error.contains("401")) {
+                    errorMsg = "Authentication failed. Please check your Cashfree credentials.";
+                } else if (error.contains("400")) {
+                    errorMsg = "Invalid request. Please check the order details.";
+                } else if (error.contains("403")) {
+                    errorMsg = "Access denied. Please check your Cashfree account permissions.";
+                } else if (error.contains("Network Error")) {
+                    errorMsg = "Network error. Please check your internet connection.";
+                }
+                
+                Toast.makeText(PacakageActivity.this, errorMsg, Toast.LENGTH_LONG).show();
             }
         });
     }

@@ -60,7 +60,9 @@ public class OrderApiClient {
             // Order note
             orderRequest.put("order_note", "Premium subscription for " + Config.APP_NAME);
 
-            Log.d(TAG, "Creating order: " + orderRequest.toString());
+            Log.d(TAG, "Creating order with URL: " + Config.CASHFREE_BASE_URL);
+            Log.d(TAG, "App ID: " + Config.CASHFREE_APP_ID);
+            Log.d(TAG, "Order request: " + orderRequest.toString());
 
             RequestBody body = RequestBody.create(JSON, orderRequest.toString());
 
@@ -84,6 +86,8 @@ public class OrderApiClient {
                 @Override 
                 public void onResponse(Call call, Response response) throws IOException {
                     String responseBody = response.body().string();
+                    Log.d(TAG, "Response code: " + response.code());
+                    Log.d(TAG, "Response headers: " + response.headers());
                     Log.d(TAG, "Order creation response: " + responseBody);
                     
                     try {
@@ -96,14 +100,20 @@ public class OrderApiClient {
                             String errorMessage = "API Error: " + response.code();
                             if (responseJson.has("message")) {
                                 errorMessage = responseJson.getString("message");
+                            } else if (responseJson.has("error")) {
+                                errorMessage = responseJson.getString("error");
+                            } else if (responseJson.has("error_description")) {
+                                errorMessage = responseJson.getString("error_description");
                             }
+                            Log.e(TAG, "API Error: " + errorMessage);
                             new Handler(Looper.getMainLooper()).post(() ->
                                     callback.onError(errorMessage));
                         }
                     } catch (JSONException e) {
                         Log.e(TAG, "Error parsing response", e);
+                        Log.e(TAG, "Raw response: " + responseBody);
                         new Handler(Looper.getMainLooper()).post(() ->
-                                callback.onError("Parse Error: " + e.getMessage()));
+                                callback.onError("Parse Error: " + e.getMessage() + "\nResponse: " + responseBody));
                     }
                 }
             });
@@ -125,8 +135,11 @@ public class OrderApiClient {
     public void checkOrderStatus(String orderId, OrderCallback callback) {
         OkHttpClient client = new OkHttpClient();
 
+        String url = Config.CASHFREE_BASE_URL + "/" + orderId;
+        Log.d(TAG, "Checking order status: " + url);
+
         Request request = new Request.Builder()
-                .url(Config.CASHFREE_BASE_URL + "/" + orderId)
+                .url(url)
                 .addHeader(CLIENT_ID_HEADER, Config.CASHFREE_APP_ID)
                 .addHeader(CLIENT_SECRET_HEADER, Config.CASHFREE_SECRET_KEY)
                 .addHeader(API_VERSION_HEADER, Config.CASHFREE_API_VERSION)
@@ -144,6 +157,7 @@ public class OrderApiClient {
             @Override 
             public void onResponse(Call call, Response response) throws IOException {
                 String responseBody = response.body().string();
+                Log.d(TAG, "Order status response code: " + response.code());
                 Log.d(TAG, "Order status response: " + responseBody);
                 
                 try {
@@ -156,6 +170,8 @@ public class OrderApiClient {
                         String errorMessage = "API Error: " + response.code();
                         if (responseJson.has("message")) {
                             errorMessage = responseJson.getString("message");
+                        } else if (responseJson.has("error")) {
+                            errorMessage = responseJson.getString("error");
                         }
                         new Handler(Looper.getMainLooper()).post(() ->
                                 callback.onError(errorMessage));
