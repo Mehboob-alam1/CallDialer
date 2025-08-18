@@ -138,13 +138,10 @@ public class PacakageActivity extends AppCompatActivity {
             public void onSuccess(JSONObject response) {
                 try {
                     String paymentSessionId = response.getString("payment_session_id");
-                    // Start UPI Intent checkout
-                    CashfreePaymentService.startUPIIntentCheckout(
-                            PacakageActivity.this, 
-                            orderId, 
-                            paymentSessionId, 
-                            paymentCallback
-                    );
+                    
+                    // Show payment instructions
+                    showPaymentInstructions(paymentSessionId, orderId);
+                    
                 } catch (JSONException e) {
                     Toast.makeText(PacakageActivity.this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
@@ -155,6 +152,23 @@ public class PacakageActivity extends AppCompatActivity {
                 Toast.makeText(PacakageActivity.this, "Order create failed: " + error, Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void showPaymentInstructions(String paymentSessionId, String orderId) {
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("Payment Instructions")
+                .setMessage("Your payment session has been created. Click 'Pay Now' to complete the payment.")
+                .setPositiveButton("Pay Now", (dialog, which) -> {
+                    // Start web checkout
+                    CashfreePaymentService.startWebCheckout(
+                            PacakageActivity.this, 
+                            orderId, 
+                            paymentSessionId, 
+                            paymentCallback
+                    );
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
     }
     
     private void activatePlan(String planType) {

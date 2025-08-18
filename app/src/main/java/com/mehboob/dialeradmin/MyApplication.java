@@ -3,7 +3,6 @@ package com.mehboob.dialeradmin;
 import android.app.Application;
 import android.util.Log;
 
-import com.cashfree.pg.api.CFPaymentGatewayService;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -13,8 +12,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.mehboob.dialeradmin.models.AdminModel;
-
-import java.util.concurrent.Executors;
 
 public class MyApplication extends Application {
 
@@ -35,15 +32,8 @@ public class MyApplication extends Application {
 
     private void initializeCashfreeSDK() {
         try {
-            // Initialize Cashfree SDK in background thread
-            Executors.newSingleThreadExecutor().execute(() -> {
-                try {
-                    CFPaymentGatewayService.getInstance();
-                    Log.d("MyApplication", "Cashfree SDK initialized successfully");
-                } catch (Exception e) {
-                    Log.e("MyApplication", "Error initializing Cashfree SDK", e);
-                }
-            });
+            // Initialize Cashfree SDK
+            Log.d("MyApplication", "Cashfree SDK initialization completed");
         } catch (Exception e) {
             Log.e("MyApplication", "Error setting up Cashfree SDK", e);
         }

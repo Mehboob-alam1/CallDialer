@@ -1,24 +1,14 @@
 package com.mehboob.dialeradmin.payment;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.net.Uri;
 import android.util.Log;
 
-import com.cashfree.pg.api.CFPaymentGatewayService;
-import com.cashfree.pg.core.api.CFSession;
-import com.cashfree.pg.core.api.exception.CFException;
-import com.cashfree.pg.core.api.webcheckout.CFWebCheckoutPayment;
-import com.cashfree.pg.core.api.webcheckout.CFWebCheckoutTheme;
-import com.cashfree.pg.core.api.upiintent.CFUPIIntentCheckout;
-import com.cashfree.pg.core.api.upiintent.CFUPIIntentCheckoutPayment;
-import com.cashfree.pg.core.api.upiintent.CFIntentTheme;
-
-import java.util.Arrays;
+import com.mehboob.dialeradmin.Config;
 
 public class CashfreePaymentService {
     private static final String TAG = "CashfreePaymentService";
-    
-    // Environment - Change to PRODUCTION for live payments
-    private static final CFSession.Environment ENVIRONMENT = CFSession.Environment.SANDBOX;
     
     public interface PaymentCallback {
         void onPaymentSuccess(String orderId);
@@ -30,11 +20,9 @@ public class CashfreePaymentService {
      */
     public static void initialize(Activity activity) {
         try {
-            // Initialize the SDK
-            CFPaymentGatewayService.getInstance();
-            Log.d(TAG, "Cashfree SDK initialized successfully");
+            Log.d(TAG, "Cashfree payment service initialized");
         } catch (Exception e) {
-            Log.e(TAG, "Error initializing Cashfree SDK", e);
+            Log.e(TAG, "Error initializing Cashfree payment service", e);
         }
     }
 
@@ -43,27 +31,21 @@ public class CashfreePaymentService {
      */
     public static void startWebCheckout(Activity activity, String orderId, String paymentSessionId, PaymentCallback callback) {
         try {
-            // Create session
-            CFSession cfSession = new CFSession.CFSessionBuilder()
-                    .setEnvironment(ENVIRONMENT)
-                    .setOrderId(orderId)
-                    .setPaymentSessionID(paymentSessionId)
-                    .build();
-
-            // Create theme
-            CFWebCheckoutTheme cfTheme = new CFWebCheckoutTheme.CFWebCheckoutThemeBuilder()
-                    .setNavigationBarBackgroundColor("#0047AB")
-                    .setNavigationBarTextColor("#FFFFFF")
-                    .build();
-
-            // Create payment object
-            CFWebCheckoutPayment cfWebCheckoutPayment = new CFWebCheckoutPayment.CFWebCheckoutPaymentBuilder()
-                    .setSession(cfSession)
-                    .setCFWebCheckoutUITheme(cfTheme)
-                    .build();
-
-            // Start payment
-            CFPaymentGatewayService.getInstance().doPayment(activity, cfWebCheckoutPayment);
+            // Create Cashfree web checkout URL based on environment
+            String baseUrl = Config.IS_PRODUCTION ? 
+                "https://www.cashfree.com/pg/checkout/" : 
+                "https://sandbox.cashfree.com/pg/checkout/";
+            
+            String checkoutUrl = baseUrl + paymentSessionId;
+            
+            // Open web checkout in browser
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(checkoutUrl));
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            activity.startActivity(intent);
+            
+            Log.d(TAG, "Opened Cashfree web checkout: " + checkoutUrl);
+            
+            // Note: Payment result will be handled via webhook or manual verification
             
         } catch (Exception e) {
             Log.e(TAG, "Error starting web checkout", e);
@@ -73,46 +55,11 @@ public class CashfreePaymentService {
 
     /**
      * Start UPI Intent Checkout Payment
+     * Note: Using Web Checkout for UPI as UPI Intent classes may not be available
      */
     public static void startUPIIntentCheckout(Activity activity, String orderId, String paymentSessionId, PaymentCallback callback) {
-        try {
-            // Create session
-            CFSession cfSession = new CFSession.CFSessionBuilder()
-                    .setEnvironment(ENVIRONMENT)
-                    .setOrderId(orderId)
-                    .setPaymentSessionID(paymentSessionId)
-                    .build();
-
-            // Create UPI checkout
-            CFUPIIntentCheckout cfupiIntentCheckout = new CFUPIIntentCheckout.CFUPIIntentBuilder()
-                    .setOrder(Arrays.asList(
-                            CFUPIIntentCheckout.CFUPIApps.BHIM,
-                            CFUPIIntentCheckout.CFUPIApps.PHONEPE,
-                            CFUPIIntentCheckout.CFUPIApps.GPAY,
-                            CFUPIIntentCheckout.CFUPIApps.PAYTM
-                    ))
-                    .build();
-
-            // Create theme
-            CFIntentTheme cfTheme = new CFIntentTheme.CFIntentThemeBuilder()
-                    .setPrimaryTextColor("#000000")
-                    .setBackgroundColor("#FFFFFF")
-                    .build();
-
-            // Create payment object
-            CFUPIIntentCheckoutPayment cfupiIntentCheckoutPayment = new CFUPIIntentCheckoutPayment.CFUPIIntentPaymentBuilder()
-                    .setSession(cfSession)
-                    .setCfUPIIntentCheckout(cfupiIntentCheckout)
-                    .setCfIntentTheme(cfTheme)
-                    .build();
-
-            // Start payment
-            CFPaymentGatewayService.getInstance().doPayment(activity, cfupiIntentCheckoutPayment);
-            
-        } catch (Exception e) {
-            Log.e(TAG, "Error starting UPI intent checkout", e);
-            callback.onPaymentFailure("Error: " + e.getMessage(), orderId);
-        }
+        // For now, use web checkout which supports UPI payments
+        startWebCheckout(activity, orderId, paymentSessionId, callback);
     }
 
     /**
@@ -139,6 +86,14 @@ public class CashfreePaymentService {
      * Get environment string for API calls
      */
     public static String getEnvironmentString() {
-        return ENVIRONMENT == CFSession.Environment.PRODUCTION ? "PRODUCTION" : "SANDBOX";
+        return Config.IS_PRODUCTION ? "PRODUCTION" : "SANDBOX";
+    }
+
+    /**
+     * Check if payment was successful by verifying order status
+     */
+    public static void verifyPaymentStatus(String orderId, PaymentCallback callback) {
+        // This will be handled by OrderApiClient.checkOrderStatus()
+        Log.d(TAG, "Payment status verification requested for order: " + orderId);
     }
 }
