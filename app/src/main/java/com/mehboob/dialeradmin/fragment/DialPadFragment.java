@@ -21,6 +21,7 @@ import androidx.fragment.app.Fragment;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.mehboob.dialeradmin.CallManager;
 import com.mehboob.dialeradmin.R;
 
 public class DialPadFragment extends Fragment {
@@ -30,6 +31,7 @@ public class DialPadFragment extends Fragment {
     private ImageView deleteButton;
     private FloatingActionButton callButton;
     private String phoneNumber = "";
+    private long callStartTime = 0;
 
     // Permission launcher for newer API
     private final ActivityResultLauncher<String> requestPermissionLauncher =
@@ -120,13 +122,15 @@ public class DialPadFragment extends Fragment {
 
     private void makePhoneCall() {
         try {
+            callStartTime = System.currentTimeMillis();
+            
             Intent callIntent = new Intent(Intent.ACTION_CALL);
             callIntent.setData(Uri.parse("tel:" + phoneNumber));
 
             // Verify that the intent will resolve to an activity
             if (callIntent.resolveActivity(requireActivity().getPackageManager()) != null) {
                 startActivity(callIntent);
-                addToCallHistory(phoneNumber, "OUTGOING");
+                saveCallToHistory(phoneNumber, "OUTGOING");
             } else {
                 Toast.makeText(getContext(), "No app can handle this call", Toast.LENGTH_SHORT).show();
             }
@@ -172,8 +176,51 @@ public class DialPadFragment extends Fragment {
         // contactNameTextView.setVisibility(View.VISIBLE);
     }
 
-    private void addToCallHistory(String number, String type) {
-        // Implement call history saving logic
-        // You can save to database or shared preferences
+    private void saveCallToHistory(String number, String type) {
+        long endTime = System.currentTimeMillis();
+        long duration = (endTime - callStartTime) / 1000; // Convert to seconds
+        
+        String contactName = getContactName(number);
+        
+        // Save call to Firebase via CallManager
+        CallManager.getInstance().saveCallToFirebase(
+                number, 
+                contactName, 
+                type, 
+                callStartTime, 
+                endTime, 
+                duration
+        );
+    }
+
+    private String getContactName(String phoneNumber) {
+        try {
+            android.database.Cursor cursor = requireContext().getContentResolver().query(
+                    android.provider.ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                    new String[]{android.provider.ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME},
+                    android.provider.ContactsContract.CommonDataKinds.Phone.NUMBER + "=?",
+                    new String[]{phoneNumber},
+                    null
+            );
+
+            if (cursor != null && cursor.moveToFirst()) {
+                String name = cursor.getString(cursor.getColumnIndex(android.provider.ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
+                cursor.close();
+                return name != null ? name : "Unknown";
+            }
+            if (cursor != null) {
+                cursor.close();
+            }
+        } catch (Exception e) {
+            // Handle exception
+        }
+        return "Unknown";
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        // Sync call logs when fragment resumes
+        CallManager.getInstance().syncCallLogs(requireContext());
     }
 }

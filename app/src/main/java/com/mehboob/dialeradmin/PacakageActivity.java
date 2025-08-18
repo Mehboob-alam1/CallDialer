@@ -39,15 +39,18 @@ public class PacakageActivity extends AppCompatActivity {
         LinearLayout btn3 = findViewById(R.id.l3); // weekly
         LinearLayout btn4 = findViewById(R.id.l4); // 3months
         btnSubscribe = findViewById(R.id.btnSubscribe);
-        String plan=MyApplication.getInstance().getActivePlanName();
-        Toast.makeText(this, "Plan is "+plan, Toast.LENGTH_SHORT).show();
+        
+        String plan = MyApplication.getInstance().getActivePlanName();
+        if (plan != null && !plan.isEmpty()) {
+            Toast.makeText(this, "Current Plan: " + plan, Toast.LENGTH_SHORT).show();
+        }
 
         LinearLayout[] buttons = {btn1, btn2, btn3, btn4};
         if (MyApplication.getInstance().isPremiumActive()){
-//            String plan=MyApplication.getInstance().getActivePlanName();
-//            Toast.makeText(this, "Plan is "+plan, Toast.LENGTH_SHORT).show();
+            showPremiumActiveDialog();
             return;
         }
+        
         // Selection logic
         View.OnClickListener singleSelectListener = v -> {
 
@@ -69,23 +72,37 @@ public class PacakageActivity extends AppCompatActivity {
 
         // Subscribe button click
         btnSubscribe.setOnClickListener(v -> {
-
-            startUPIIntentCheckout();
-//            if (selectedPlan == null) {
-//                Toast.makeText(this, "Please select a plan first", Toast.LENGTH_SHORT).show();
-//            } else {
-//                createOrderForPlan(selectedPlan);
-//
-//                // activatePlan(selectedPlan);
-//            }
+            if (selectedPlan == null) {
+                Toast.makeText(this, "Please select a plan first", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            
+            // Check if admin has phone number
+            if (MyApplication.getInstance().getCurrentAdmin() != null && 
+                MyApplication.getInstance().getCurrentAdmin().getPhoneNumber() != null &&
+                !MyApplication.getInstance().getCurrentAdmin().getPhoneNumber().isEmpty()) {
+                
+                startUPIIntentCheckout();
+            } else {
+                Toast.makeText(this, "Phone number is required for payment. Please update your profile.", Toast.LENGTH_LONG).show();
+            }
         });
+    }
 
-
+    private void showPremiumActiveDialog() {
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("Premium Active")
+                .setMessage("You already have an active premium plan. Your current plan: " + 
+                           MyApplication.getInstance().getActivePlanName())
+                .setPositiveButton("OK", (dialog, which) -> finish())
+                .setCancelable(false)
+                .show();
     }
 
     public void startUPIIntentCheckout() {
         startActivity(new Intent(this, UPIIntentActivity.class));
     }
+    
     private void activatePlan(String planType) {
         long now = System.currentTimeMillis();
         long expiry;
@@ -109,7 +126,7 @@ public class PacakageActivity extends AppCompatActivity {
 
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         DatabaseReference ref = FirebaseDatabase.getInstance()
-                .getReference("admins") // ✅ use correct node for your app
+                .getReference("admins")
                 .child(userId);
 
         ref.child("isPremium").setValue(true);
@@ -117,47 +134,29 @@ public class PacakageActivity extends AppCompatActivity {
         ref.child("planActivatedAt").setValue(now);
         ref.child("planExpiryAt").setValue(expiry);
 
+        // Update local admin model
+        if (MyApplication.getInstance().getCurrentAdmin() != null) {
+            MyApplication.getInstance().getCurrentAdmin().setIsPremium(true);
+            MyApplication.getInstance().getCurrentAdmin().setPlanType(planType);
+            MyApplication.getInstance().getCurrentAdmin().setPlanActivatedAt(now);
+            MyApplication.getInstance().getCurrentAdmin().setPlanExpiryAt(expiry);
+        }
+
         Toast.makeText(this, "Plan activated: " + planType, Toast.LENGTH_SHORT).show();
 
         startActivity(new Intent(this, DashboardActivity.class));
+        finish();
     }
-
 
     private String getAmountForPlan(String planType) {
         switch (planType) {
-            case "yearly": return "2499";    // 1000 INR
-            case "monthly": return "399";    // 100 INR
-            case "weekly": return "149";      // 30 INR
-            case "3months": return "999";    // 250 INR
+            case "yearly": return "2499";    // 2499 INR
+            case "monthly": return "399";    // 399 INR
+            case "weekly": return "149";     // 149 INR
+            case "3months": return "999";    // 999 INR
             default: return "0";
         }
     }
-
-
-
-
-//    private void checkOrderStatus(String planType, String orderId) {
-//        CheckOrderStatusApiClient apiClient = new CheckOrderStatusApiClient();
-//        apiClient.checkOrderStatus(
-//                "8e620e920243d9fcd57db2b716fd0108", // user token
-//                orderId,
-//                new CheckOrderStatusApiClient.OnCheckOrderStatusListener() {
-//                    @Override
-//                    public void onSuccess(JSONObject response) {
-//                        Toast.makeText(PacakageActivity.this,
-//                                "Payment Successful!", Toast.LENGTH_SHORT).show();
-//                        activatePlan(planType);
-//                    }
-//
-//                    @Override
-//                    public void onError(String errorMessage) {
-//                        Toast.makeText(PacakageActivity.this,
-//                                "Payment failed: " + errorMessage, Toast.LENGTH_SHORT).show();
-//                    }
-//                });
-//    }
-
-
 
     private void verifyOrderThenActivate(String planType, String orderId) {
         new CheckOrderStatusApiClient().checkStatus(orderId, new CheckOrderStatusApiClient.StatusCallback() {
@@ -177,15 +176,16 @@ public class PacakageActivity extends AppCompatActivity {
         });
     }
 
-
     private void createOrderForPlan(String planType) {
         String amount = getAmountForPlan(planType);
         String orderId = String.valueOf(System.currentTimeMillis());
 
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        String phoneNumber = MyApplication.getInstance().getCurrentAdmin() != null ? 
+                           MyApplication.getInstance().getCurrentAdmin().getPhoneNumber() : "";
 
         OrderApiClient client = new OrderApiClient();
-        client.createOrder(orderId, amount, userId, new OrderApiClient.OrderCallback() {
+        client.createOrder(orderId, amount, userId, phoneNumber, new OrderApiClient.OrderCallback() {
             @Override
             public void onSuccess(JSONObject response) {
                 try {
@@ -213,14 +213,9 @@ public class PacakageActivity extends AppCompatActivity {
 
             if ("SUCCESS".equalsIgnoreCase(txStatus)) {
                 verifyOrderThenActivate(selectedPlan, orderId);
-
-             //   checkOrderStatus(selectedPlan, orderId); // verify from backend
             } else {
                 Toast.makeText(this, "Payment Failed: " + txStatus, Toast.LENGTH_SHORT).show();
             }
         }
     }
-
-
-
 }

@@ -27,7 +27,7 @@ public class OrderApiClient {
         void onError(String error);
     }
 
-    public void createOrder(String orderId, String amount, String customerId, OrderCallback callback) {
+    public void createOrder(String orderId, String amount, String customerId, String phoneNumber, OrderCallback callback) {
         OkHttpClient client = new OkHttpClient();
 
         JSONObject bodyJson = new JSONObject();
@@ -36,8 +36,8 @@ public class OrderApiClient {
             bodyJson.put("order_amount", amount);
             bodyJson.put("order_currency", "INR");
             bodyJson.put("customer_id", customerId);
-            bodyJson.put("customer_email", "test@test.com");
-            bodyJson.put("customer_phone", "9999999999");
+            bodyJson.put("customer_email", "admin@dialerapp.com"); // Default email
+            bodyJson.put("customer_phone", phoneNumber != null ? phoneNumber : "9999999999");
         } catch (JSONException e) {
             callback.onError("JSON Error: " + e.getMessage());
             return;
@@ -70,6 +70,11 @@ public class OrderApiClient {
                 }
             }
         });
+    }
+
+    // Overloaded method for backward compatibility
+    public void createOrder(String orderId, String amount, String customerId, OrderCallback callback) {
+        createOrder(orderId, amount, customerId, "9999999999", callback);
     }
 
 }

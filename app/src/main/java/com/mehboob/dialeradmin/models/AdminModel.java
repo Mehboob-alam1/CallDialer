@@ -5,6 +5,7 @@ import com.google.firebase.database.PropertyName;
 public class AdminModel {
     private String uid;
     private String email;
+    private String phoneNumber; // Added for payment integration
     private String role; // "admin"
     private boolean isActivated;
     private boolean isPremium;
@@ -17,12 +18,13 @@ public class AdminModel {
     // Required empty constructor for Firebase
     public AdminModel() {}
 
-    public AdminModel(String uid, String email, String role,
+    public AdminModel(String uid, String email, String phoneNumber, String role,
                       boolean isActivated, boolean isPremium,
                       String planType, long planActivatedAt, long planExpiryAt,
                       long createdAt, String childNumber) {
         this.uid = uid;
         this.email = email;
+        this.phoneNumber = phoneNumber;
         this.role = role;
         this.isActivated = isActivated;
         this.isPremium = isPremium;
@@ -31,6 +33,14 @@ public class AdminModel {
         this.planExpiryAt = planExpiryAt;
         this.createdAt = createdAt;
         this.childNumber = childNumber;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 
     public String getChildNumber() {

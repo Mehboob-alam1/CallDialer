@@ -35,6 +35,20 @@
             android:drawableStart="@drawable/ic_mail"
             android:drawablePadding="8dp" />
 
+        <!-- Phone Number Field -->
+        <EditText
+            android:id="@+id/phoneEt"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginTop="16dp"
+            android:hint="Phone Number"
+            android:background="@drawable/edittext_bg"
+            android:padding="12dp"
+            android:inputType="phone"
+            android:drawableStart="@drawable/ic_phone"
+            android:drawablePadding="8dp"
+            android:visibility="gone" />
+
         <!-- Password Field -->
         <EditText
             android:id="@+id/passwordEt"
