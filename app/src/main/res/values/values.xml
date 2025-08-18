@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Cashfree SDK Configuration -->
+    
+    <!-- Enable SDK logging for debugging -->
+    <integer name="cashfree_pg_logging_level">3</integer>
+    
+    <!-- Enable auto-initialization (recommended) -->
+    <bool name="cashfree_pg_core_auto_initialize_enabled">true</bool>
+    
+    <!-- Enable encrypted shared preferences for security -->
+    <bool name="cashfree_pg_core_encrypt_pref_enabled">true</bool>
+    
+    <!-- Enable quick checkout in payment page -->
+    <bool name="cf_quick_checkout_enabled">true</bool>
+</resources>

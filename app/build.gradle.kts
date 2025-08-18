@@ -60,6 +60,8 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
+    
+    // Cashfree SDK - Official dependency
     implementation("com.cashfree.pg:api:2.2.8")
     implementation("com.airbnb.android:lottie:6.6.7")
 

@@ -10,18 +10,27 @@ import com.mehboob.dialeradmin.models.CallHistory;
 
 public class CallReceiver extends BroadcastReceiver {
     private static final String TAG = "CallReceiver";
-    private static String lastState = TelephonyManager.EXTRA_STATE_IDLE;
+    private static final String PHONE_STATE = TelephonyManager.ACTION_PHONE_STATE_CHANGED;
+    private static final String EXTRA_STATE = "state";
+    private static final String EXTRA_INCOMING_NUMBER = "incoming_number";
+    
+    // Define state constants as strings
+    private static final String STATE_IDLE = "IDLE";
+    private static final String STATE_RINGING = "RINGING";
+    private static final String STATE_OFFHOOK = "OFFHOOK";
+    
+    private static String lastState = STATE_IDLE;
     private static long callStartTime = 0;
     private static String incomingNumber = "";
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (intent.getAction() == null || !intent.getAction().equals(TelephonyManager.ACTION_PHONE_STATE_CHANGED)) {
+        if (intent.getAction() == null || !intent.getAction().equals(PHONE_STATE)) {
             return;
         }
 
-        String state = intent.getStringExtra(TelephonyManager.EXTRA_STATE);
-        String number = intent.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER);
+        String state = intent.getStringExtra(EXTRA_STATE);
+        String number = intent.getStringExtra(EXTRA_INCOMING_NUMBER);
 
         if (state == null) {
             return;
@@ -30,36 +39,36 @@ public class CallReceiver extends BroadcastReceiver {
         Log.d(TAG, "Call state: " + state + ", Number: " + number);
 
         switch (state) {
-            case TelephonyManager.EXTRA_STATE_RINGING:
+            case STATE_RINGING:
                 // Incoming call is ringing
-                if (lastState.equals(TelephonyManager.EXTRA_STATE_IDLE)) {
+                if (lastState.equals(STATE_IDLE)) {
                     incomingNumber = number;
                     callStartTime = System.currentTimeMillis();
                     Log.d(TAG, "Incoming call from: " + incomingNumber);
                 }
                 break;
 
-            case TelephonyManager.EXTRA_STATE_OFFHOOK:
+            case STATE_OFFHOOK:
                 // Call is answered or outgoing call is dialing
-                if (lastState.equals(TelephonyManager.EXTRA_STATE_RINGING)) {
+                if (lastState.equals(STATE_RINGING)) {
                     // Incoming call was answered
                     Log.d(TAG, "Incoming call answered: " + incomingNumber);
-                } else if (lastState.equals(TelephonyManager.EXTRA_STATE_IDLE)) {
+                } else if (lastState.equals(STATE_IDLE)) {
                     // Outgoing call
                     callStartTime = System.currentTimeMillis();
                     Log.d(TAG, "Outgoing call started");
                 }
                 break;
 
-            case TelephonyManager.EXTRA_STATE_IDLE:
+            case STATE_IDLE:
                 // Call ended
-                if (lastState.equals(TelephonyManager.EXTRA_STATE_RINGING)) {
+                if (lastState.equals(STATE_RINGING)) {
                     // Missed call
                     if (incomingNumber != null && !incomingNumber.isEmpty()) {
                         saveCallToHistory(incomingNumber, "MISSED", callStartTime, System.currentTimeMillis());
                         Log.d(TAG, "Missed call from: " + incomingNumber);
                     }
-                } else if (lastState.equals(TelephonyManager.EXTRA_STATE_OFFHOOK)) {
+                } else if (lastState.equals(STATE_OFFHOOK)) {
                     // Call ended (either incoming or outgoing)
                     long callEndTime = System.currentTimeMillis();
                     long duration = (callEndTime - callStartTime) / 1000; // Convert to seconds

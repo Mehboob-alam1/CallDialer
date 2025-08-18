@@ -12,20 +12,22 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.cashfree.pg.api.CFCheckoutResponseCallback;
+import com.cashfree.pg.core.api.callback.CFErrorResponse;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.mehboob.dialeradmin.payment.CashfreePaymentHelper;
-import com.mehboob.dialeradmin.payment.CheckOrderStatusApiClient;
+import com.mehboob.dialeradmin.payment.CashfreePaymentService;
 import com.mehboob.dialeradmin.payment.OrderApiClient;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class PacakageActivity extends AppCompatActivity {
+public class PacakageActivity extends AppCompatActivity implements CFCheckoutResponseCallback {
 
     private Button btnSubscribe;
     private String selectedPlan = null; // store which plan is selected
+    private CashfreePaymentService.PaymentCallback paymentCallback;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -33,6 +35,9 @@ public class PacakageActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_pacakage);
+
+        // Initialize Cashfree SDK
+        CashfreePaymentService.initialize(this);
 
         LinearLayout btn1 = findViewById(R.id.l1); // yearly
         LinearLayout btn2 = findViewById(R.id.l2); // monthly
@@ -59,10 +64,10 @@ public class PacakageActivity extends AppCompatActivity {
             }
 
             // set selected plan name
-            if (v == btn1) selectedPlan = "yearly";
-            else if (v == btn2) selectedPlan = "monthly";
-            else if (v == btn3) selectedPlan = "weekly";
-            else if (v == btn4) selectedPlan = "3months";
+            if (v == btn1) selectedPlan = Config.PLAN_YEARLY;
+            else if (v == btn2) selectedPlan = Config.PLAN_MONTHLY;
+            else if (v == btn3) selectedPlan = Config.PLAN_WEEKLY;
+            else if (v == btn4) selectedPlan = Config.PLAN_3MONTHS;
         };
 
         btn1.setOnClickListener(singleSelectListener);
@@ -82,11 +87,33 @@ public class PacakageActivity extends AppCompatActivity {
                 MyApplication.getInstance().getCurrentAdmin().getPhoneNumber() != null &&
                 !MyApplication.getInstance().getCurrentAdmin().getPhoneNumber().isEmpty()) {
                 
-                startUPIIntentCheckout();
+                createOrderForPlan(selectedPlan);
             } else {
                 Toast.makeText(this, "Phone number is required for payment. Please update your profile.", Toast.LENGTH_LONG).show();
             }
         });
+
+        // Setup payment callback
+        setupPaymentCallback();
+    }
+
+    private void setupPaymentCallback() {
+        paymentCallback = new CashfreePaymentService.PaymentCallback() {
+            @Override
+            public void onPaymentSuccess(String orderId) {
+                runOnUiThread(() -> {
+                    Toast.makeText(PacakageActivity.this, "Payment successful!", Toast.LENGTH_SHORT).show();
+                    verifyOrderThenActivate(selectedPlan, orderId);
+                });
+            }
+
+            @Override
+            public void onPaymentFailure(String errorMessage, String orderId) {
+                runOnUiThread(() -> {
+                    Toast.makeText(PacakageActivity.this, "Payment failed: " + errorMessage, Toast.LENGTH_SHORT).show();
+                });
+            }
+        };
     }
 
     private void showPremiumActiveDialog() {
@@ -99,8 +126,37 @@ public class PacakageActivity extends AppCompatActivity {
                 .show();
     }
 
-    public void startUPIIntentCheckout() {
-        startActivity(new Intent(this, UPIIntentActivity.class));
+    private void createOrderForPlan(String planType) {
+        String amount = getAmountForPlan(planType);
+        String orderId = "order_" + System.currentTimeMillis();
+
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        String phoneNumber = MyApplication.getInstance().getCurrentAdmin() != null ? 
+                           MyApplication.getInstance().getCurrentAdmin().getPhoneNumber() : "";
+
+        OrderApiClient client = new OrderApiClient();
+        client.createOrder(orderId, amount, userId, phoneNumber, new OrderApiClient.OrderCallback() {
+            @Override
+            public void onSuccess(JSONObject response) {
+                try {
+                    String paymentSessionId = response.getString("payment_session_id");
+                    // Start UPI Intent checkout
+                    CashfreePaymentService.startUPIIntentCheckout(
+                            PacakageActivity.this, 
+                            orderId, 
+                            paymentSessionId, 
+                            paymentCallback
+                    );
+                } catch (JSONException e) {
+                    Toast.makeText(PacakageActivity.this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onError(String error) {
+                Toast.makeText(PacakageActivity.this, "Order create failed: " + error, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
     
     private void activatePlan(String planType) {
@@ -108,16 +164,16 @@ public class PacakageActivity extends AppCompatActivity {
         long expiry;
 
         switch (planType) {
-            case "yearly":
+            case Config.PLAN_YEARLY:
                 expiry = now + (365L * 24 * 60 * 60 * 1000);
                 break;
-            case "monthly":
+            case Config.PLAN_MONTHLY:
                 expiry = now + (30L * 24 * 60 * 60 * 1000);
                 break;
-            case "weekly":
+            case Config.PLAN_WEEKLY:
                 expiry = now + (7L * 24 * 60 * 60 * 1000);
                 break;
-            case "3months":
+            case Config.PLAN_3MONTHS:
                 expiry = now + (90L * 24 * 60 * 60 * 1000);
                 break;
             default:
@@ -126,7 +182,7 @@ public class PacakageActivity extends AppCompatActivity {
 
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         DatabaseReference ref = FirebaseDatabase.getInstance()
-                .getReference("admins")
+                .getReference(Config.FIREBASE_ADMINS_NODE)
                 .child(userId);
 
         ref.child("isPremium").setValue(true);
@@ -150,72 +206,49 @@ public class PacakageActivity extends AppCompatActivity {
 
     private String getAmountForPlan(String planType) {
         switch (planType) {
-            case "yearly": return "2499";    // 2499 INR
-            case "monthly": return "399";    // 399 INR
-            case "weekly": return "149";     // 149 INR
-            case "3months": return "999";    // 999 INR
+            case Config.PLAN_YEARLY: return Config.AMOUNT_YEARLY;
+            case Config.PLAN_MONTHLY: return Config.AMOUNT_MONTHLY;
+            case Config.PLAN_WEEKLY: return Config.AMOUNT_WEEKLY;
+            case Config.PLAN_3MONTHS: return Config.AMOUNT_3MONTHS;
             default: return "0";
         }
     }
 
     private void verifyOrderThenActivate(String planType, String orderId) {
-        new CheckOrderStatusApiClient().checkStatus(orderId, new CheckOrderStatusApiClient.StatusCallback() {
-            @Override public void onSuccess(String orderStatus) {
-                if ("PAID".equalsIgnoreCase(orderStatus)) {
-                    activatePlan(planType);
-                } else {
+        OrderApiClient client = new OrderApiClient();
+        client.checkOrderStatus(orderId, new OrderApiClient.OrderCallback() {
+            @Override
+            public void onSuccess(JSONObject response) {
+                try {
+                    String orderStatus = response.getString("order_status");
+                    if ("PAID".equalsIgnoreCase(orderStatus)) {
+                        activatePlan(planType);
+                    } else {
+                        Toast.makeText(PacakageActivity.this,
+                                "Payment not confirmed: " + orderStatus, Toast.LENGTH_SHORT).show();
+                    }
+                } catch (JSONException e) {
                     Toast.makeText(PacakageActivity.this,
-                            "Payment not confirmed: " + orderStatus, Toast.LENGTH_SHORT).show();
+                            "Error checking payment status", Toast.LENGTH_SHORT).show();
                 }
             }
 
-            @Override public void onError(String error) {
+            @Override
+            public void onError(String error) {
                 Toast.makeText(PacakageActivity.this,
                         "Error checking status: " + error, Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-    private void createOrderForPlan(String planType) {
-        String amount = getAmountForPlan(planType);
-        String orderId = String.valueOf(System.currentTimeMillis());
-
-        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        String phoneNumber = MyApplication.getInstance().getCurrentAdmin() != null ? 
-                           MyApplication.getInstance().getCurrentAdmin().getPhoneNumber() : "";
-
-        OrderApiClient client = new OrderApiClient();
-        client.createOrder(orderId, amount, userId, phoneNumber, new OrderApiClient.OrderCallback() {
-            @Override
-            public void onSuccess(JSONObject response) {
-                try {
-                    String paymentSessionId = response.getString("payment_session_id");
-                    CashfreePaymentHelper.startPayment(PacakageActivity.this, orderId, paymentSessionId);
-                } catch (Exception e) {
-                    Toast.makeText(PacakageActivity.this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onError(String error) {
-                Toast.makeText(PacakageActivity.this, "Order create failed: " + error, Toast.LENGTH_SHORT).show();
-            }
-        });
+    // Cashfree SDK Callbacks
+    @Override
+    public void onPaymentVerify(String orderID) {
+        CashfreePaymentService.onPaymentVerify(orderID, paymentCallback);
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (data != null && data.getExtras() != null) {
-            String txStatus = data.getStringExtra("txStatus");
-            String orderId = data.getStringExtra("orderId");
-
-            if ("SUCCESS".equalsIgnoreCase(txStatus)) {
-                verifyOrderThenActivate(selectedPlan, orderId);
-            } else {
-                Toast.makeText(this, "Payment Failed: " + txStatus, Toast.LENGTH_SHORT).show();
-            }
-        }
+    public void onPaymentFailure(CFErrorResponse cfErrorResponse, String orderID) {
+        CashfreePaymentService.onPaymentFailure(cfErrorResponse, orderID, paymentCallback);
     }
 }
