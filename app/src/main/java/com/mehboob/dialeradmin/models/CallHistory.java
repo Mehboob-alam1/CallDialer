@@ -1,6 +1,8 @@
 package com.mehboob.dialeradmin.models;
 
-import com.google.firebase.database.PropertyName;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public class CallHistory {
     private String id;
@@ -8,10 +10,10 @@ public class CallHistory {
     private String childNumber;
     private String contactNumber;
     private String contactName;
-    private String callType; // "INCOMING", "OUTGOING", "MISSED"
+    private String callType; // INCOMING, OUTGOING, MISSED
     private long callStartTime;
     private long callEndTime;
-    private long callDuration; // in seconds
+    private long callDuration;
     private boolean isPremiumCall;
     private String planType;
     private long createdAt;
@@ -36,6 +38,7 @@ public class CallHistory {
         this.createdAt = createdAt;
     }
 
+    // Getters and Setters
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
 
@@ -63,9 +66,7 @@ public class CallHistory {
     public long getCallDuration() { return callDuration; }
     public void setCallDuration(long callDuration) { this.callDuration = callDuration; }
 
-    @PropertyName("isPremiumCall")
-    public boolean getIsPremiumCall() { return isPremiumCall; }
-    @PropertyName("isPremiumCall")
+    public boolean isPremiumCall() { return isPremiumCall; }
     public void setIsPremiumCall(boolean isPremiumCall) { this.isPremiumCall = isPremiumCall; }
 
     public String getPlanType() { return planType; }
@@ -74,22 +75,59 @@ public class CallHistory {
     public long getCreatedAt() { return createdAt; }
     public void setCreatedAt(long createdAt) { this.createdAt = createdAt; }
 
-    // Helper method to format duration
+    // Helper methods
     public String getFormattedDuration() {
-        long hours = callDuration / 3600;
-        long minutes = (callDuration % 3600) / 60;
-        long seconds = callDuration % 60;
+        if (callDuration <= 0) return "0:00";
         
-        if (hours > 0) {
-            return String.format("%d:%02d:%02d", hours, minutes, seconds);
-        } else {
-            return String.format("%d:%02d", minutes, seconds);
-        }
+        long seconds = callDuration / 1000;
+        long minutes = seconds / 60;
+        seconds = seconds % 60;
+        
+        return String.format(Locale.getDefault(), "%d:%02d", minutes, seconds);
     }
 
-    // Helper method to get formatted date
     public String getFormattedDate() {
-        java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("dd MMM yyyy, HH:mm", java.util.Locale.getDefault());
-        return sdf.format(new java.util.Date(callStartTime));
+        if (createdAt == 0) return "Unknown";
+        
+        SimpleDateFormat sdf = new SimpleDateFormat("MMM dd, HH:mm", Locale.getDefault());
+        return sdf.format(new Date(createdAt));
+    }
+
+    public String getFormattedCallTime() {
+        if (callStartTime == 0) return "Unknown";
+        
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.getDefault());
+        return sdf.format(new Date(callStartTime));
+    }
+
+    public boolean isToday() {
+        if (createdAt == 0) return false;
+        
+        long now = System.currentTimeMillis();
+        long oneDay = 24 * 60 * 60 * 1000;
+        
+        return (now - createdAt) < oneDay;
+    }
+
+    public String getRelativeTime() {
+        if (createdAt == 0) return "Unknown";
+        
+        long now = System.currentTimeMillis();
+        long diff = now - createdAt;
+        
+        long seconds = diff / 1000;
+        long minutes = seconds / 60;
+        long hours = minutes / 60;
+        long days = hours / 24;
+        
+        if (days > 0) {
+            return days + " day" + (days > 1 ? "s" : "") + " ago";
+        } else if (hours > 0) {
+            return hours + " hour" + (hours > 1 ? "s" : "") + " ago";
+        } else if (minutes > 0) {
+            return minutes + " minute" + (minutes > 1 ? "s" : "") + " ago";
+        } else {
+            return "Just now";
+        }
     }
 }

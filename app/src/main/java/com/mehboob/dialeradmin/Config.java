@@ -1,6 +1,14 @@
 package com.mehboob.dialeradmin;
 
 public class Config {
+	// App Mode Configuration
+	public static final String FIREBASE_APP_CONFIG_NODE = "app_config";
+	public static final String FIREBASE_ADMIN_MODE_KEY = "admin_mode_enabled";
+	
+	// App Modes
+	public static final String MODE_DIALER = "dialer";
+	public static final String MODE_ADMIN = "admin";
+	
 	// Environment - toggle between SANDBOX and PRODUCTION
 	public static final boolean IS_PRODUCTION = true;
 

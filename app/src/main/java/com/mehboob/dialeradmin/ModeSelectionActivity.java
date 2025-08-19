@@ -1,0 +1,119 @@
+package com.mehboob.dialeradmin;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.util.Log;
+import android.view.View;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.mehboob.dialeradmin.Config;
+
+public class ModeSelectionActivity extends AppCompatActivity {
+    private static final String TAG = "ModeSelectionActivity";
+    private static final int SPLASH_DELAY = 2000; // 2 seconds
+    
+    private ProgressBar progressBar;
+    private TextView tvStatus;
+    private Handler handler;
+    private boolean modeChecked = false;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_mode_selection);
+        
+        initViews();
+        handler = new Handler(Looper.getMainLooper());
+        
+        // Start checking mode after a short delay
+        handler.postDelayed(this::checkAppMode, 500);
+    }
+
+    private void initViews() {
+        progressBar = findViewById(R.id.progressBar);
+        tvStatus = findViewById(R.id.tvStatus);
+    }
+
+    private void checkAppMode() {
+        tvStatus.setText("Checking app mode...");
+        
+        DatabaseReference configRef = FirebaseDatabase.getInstance()
+                .getReference(Config.FIREBASE_APP_CONFIG_NODE);
+        
+        configRef.child(Config.FIREBASE_ADMIN_MODE_KEY).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                modeChecked = true;
+                boolean isAdminMode = snapshot.exists() && snapshot.getValue(Boolean.class);
+                
+                Log.d(TAG, "App mode: " + (isAdminMode ? "ADMIN" : "DIALER"));
+                
+                if (isAdminMode) {
+                    launchAdminMode();
+                } else {
+                    launchDialerMode();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError error) {
+                modeChecked = true;
+                Log.e(TAG, "Error checking app mode: " + error.getMessage());
+                Toast.makeText(ModeSelectionActivity.this, "Error checking app mode", Toast.LENGTH_SHORT).show();
+                
+                // Default to dialer mode on error
+                launchDialerMode();
+            }
+        });
+        
+        // Fallback timeout
+        handler.postDelayed(() -> {
+            if (!modeChecked) {
+                Log.w(TAG, "Mode check timeout, defaulting to dialer mode");
+                launchDialerMode();
+            }
+        }, 10000); // 10 second timeout
+    }
+
+    private void launchAdminMode() {
+        tvStatus.setText("Launching Admin Mode...");
+        
+        // Small delay for better UX
+        handler.postDelayed(() -> {
+            Intent intent = new Intent(this, AuthActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+        }, 1000);
+    }
+
+    private void launchDialerMode() {
+        tvStatus.setText("Launching Dialer Mode...");
+        
+        // Small delay for better UX
+        handler.postDelayed(() -> {
+            Intent intent = new Intent(this, DialerActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+        }, 1000);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (handler != null) {
+            handler.removeCallbacksAndMessages(null);
+        }
+    }
+}

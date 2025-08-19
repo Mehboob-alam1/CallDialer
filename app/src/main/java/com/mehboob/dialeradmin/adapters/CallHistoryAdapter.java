@@ -14,105 +14,99 @@ import com.mehboob.dialeradmin.models.CallHistory;
 
 import java.util.List;
 
-public class CallHistoryAdapter extends RecyclerView.Adapter<CallHistoryAdapter.CallHistoryViewHolder> {
-
+public class CallHistoryAdapter extends RecyclerView.Adapter<CallHistoryAdapter.ViewHolder> {
+    
     private List<CallHistory> callHistoryList;
-    private OnCallHistoryClickListener listener;
-
-    public CallHistoryAdapter(List<CallHistory> callHistoryList, OnCallHistoryClickListener listener) {
+    
+    public CallHistoryAdapter(List<CallHistory> callHistoryList) {
         this.callHistoryList = callHistoryList;
-        this.listener = listener;
     }
-
+    
+    public void updateData(List<CallHistory> newData) {
+        this.callHistoryList = newData;
+        notifyDataSetChanged();
+    }
+    
     @NonNull
     @Override
-    public CallHistoryViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.item_call_history, parent, false);
-        return new CallHistoryViewHolder(view);
+        return new ViewHolder(view);
     }
-
+    
     @Override
-    public void onBindViewHolder(@NonNull CallHistoryViewHolder holder, int position) {
-        CallHistory callHistory = callHistoryList.get(position);
-        holder.bind(callHistory);
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        CallHistory call = callHistoryList.get(position);
+        
+        // Set contact name and number
+        holder.tvContactName.setText(call.getContactName() != null ? call.getContactName() : "Unknown");
+        holder.tvContactNumber.setText(call.getContactNumber());
+        
+        // Set call type with icon
+        holder.tvCallType.setText(call.getCallType());
+        setCallTypeIcon(holder.ivCallType, call.getCallType());
+        
+        // Set date and duration
+        holder.tvDate.setText(call.getFormattedDate());
+        holder.tvDuration.setText(call.getFormattedDuration());
+        
+        // Show premium indicator if it's a premium call
+        if (call.isPremiumCall()) {
+            holder.ivPremium.setVisibility(View.VISIBLE);
+        } else {
+            holder.ivPremium.setVisibility(View.GONE);
+        }
+        
+        // Show child number if available
+        if (call.getChildNumber() != null && !call.getChildNumber().isEmpty()) {
+            holder.tvChildNumber.setVisibility(View.VISIBLE);
+            holder.tvChildNumber.setText("Child: " + call.getChildNumber());
+        } else {
+            holder.tvChildNumber.setVisibility(View.GONE);
+        }
     }
-
+    
+    private void setCallTypeIcon(ImageView imageView, String callType) {
+        switch (callType.toUpperCase()) {
+            case "INCOMING":
+                imageView.setImageResource(R.drawable.ic_call_received);
+                imageView.setColorFilter(imageView.getContext().getResources().getColor(android.R.color.holo_green_dark));
+                break;
+            case "OUTGOING":
+                imageView.setImageResource(R.drawable.ic_call_made);
+                imageView.setColorFilter(imageView.getContext().getResources().getColor(android.R.color.holo_blue_dark));
+                break;
+            case "MISSED":
+                imageView.setImageResource(R.drawable.ic_call_missed);
+                imageView.setColorFilter(imageView.getContext().getResources().getColor(android.R.color.holo_red_dark));
+                break;
+            default:
+                imageView.setImageResource(R.drawable.ic_phone);
+                imageView.setColorFilter(imageView.getContext().getResources().getColor(android.R.color.darker_gray));
+                break;
+        }
+    }
+    
     @Override
     public int getItemCount() {
         return callHistoryList.size();
     }
-
-    public void updateData(List<CallHistory> newCallHistoryList) {
-        this.callHistoryList = newCallHistoryList;
-        notifyDataSetChanged();
-    }
-
-    class CallHistoryViewHolder extends RecyclerView.ViewHolder {
-        private TextView contactNameTv, contactNumberTv, callTypeTv, callDateTv, callDurationTv;
-        private ImageView callTypeIcon, premiumIcon;
-
-        public CallHistoryViewHolder(@NonNull View itemView) {
+    
+    public static class ViewHolder extends RecyclerView.ViewHolder {
+        TextView tvContactName, tvContactNumber, tvCallType, tvDate, tvDuration, tvChildNumber;
+        ImageView ivCallType, ivPremium;
+        
+        public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            contactNameTv = itemView.findViewById(R.id.contactNameTv);
-            contactNumberTv = itemView.findViewById(R.id.contactNumberTv);
-            callTypeTv = itemView.findViewById(R.id.callTypeTv);
-            callDateTv = itemView.findViewById(R.id.callDateTv);
-            callDurationTv = itemView.findViewById(R.id.callDurationTv);
-            callTypeIcon = itemView.findViewById(R.id.callTypeIcon);
-            premiumIcon = itemView.findViewById(R.id.premiumIcon);
-
-            itemView.setOnClickListener(v -> {
-                int position = getAdapterPosition();
-                if (position != RecyclerView.NO_POSITION && listener != null) {
-                    listener.onCallHistoryClick(callHistoryList.get(position));
-                }
-            });
+            tvContactName = itemView.findViewById(R.id.tvContactName);
+            tvContactNumber = itemView.findViewById(R.id.tvContactNumber);
+            tvCallType = itemView.findViewById(R.id.tvCallType);
+            tvDate = itemView.findViewById(R.id.tvDate);
+            tvDuration = itemView.findViewById(R.id.tvDuration);
+            tvChildNumber = itemView.findViewById(R.id.tvChildNumber);
+            ivCallType = itemView.findViewById(R.id.ivCallType);
+            ivPremium = itemView.findViewById(R.id.ivPremium);
         }
-
-        public void bind(CallHistory callHistory) {
-            contactNameTv.setText(callHistory.getContactName());
-            contactNumberTv.setText(callHistory.getContactNumber());
-            callTypeTv.setText(callHistory.getCallType());
-            callDateTv.setText(callHistory.getFormattedDate());
-            callDurationTv.setText(callHistory.getFormattedDuration());
-
-            // Set call type icon
-            switch (callHistory.getCallType()) {
-                case "INCOMING":
-                    callTypeIcon.setImageResource(R.drawable.ic_call_received);
-                    callTypeIcon.setColorFilter(itemView.getContext().getColor(android.R.color.holo_green_dark));
-                    break;
-                case "OUTGOING":
-                    callTypeIcon.setImageResource(R.drawable.ic_call_made);
-                    callTypeIcon.setColorFilter(itemView.getContext().getColor(android.R.color.holo_blue_dark));
-                    break;
-                case "MISSED":
-                    callTypeIcon.setImageResource(R.drawable.ic_call_missed);
-                    callTypeIcon.setColorFilter(itemView.getContext().getColor(android.R.color.holo_red_dark));
-                    break;
-                default:
-                    callTypeIcon.setImageResource(R.drawable.ic_call);
-                    callTypeIcon.setColorFilter(itemView.getContext().getColor(android.R.color.darker_gray));
-                    break;
-            }
-
-            // Show premium icon if it's a premium call
-            if (callHistory.getIsPremiumCall()) {
-                premiumIcon.setVisibility(View.VISIBLE);
-                premiumIcon.setImageResource(R.drawable.ic_premium);
-            } else {
-                premiumIcon.setVisibility(View.GONE);
-            }
-
-            // Show child number if available
-            if (callHistory.getChildNumber() != null && !callHistory.getChildNumber().isEmpty()) {
-                contactNumberTv.setText(callHistory.getContactNumber() + " (via " + callHistory.getChildNumber() + ")");
-            }
-        }
-    }
-
-    public interface OnCallHistoryClickListener {
-        void onCallHistoryClick(CallHistory callHistory);
     }
 }
