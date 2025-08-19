@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:background="@drawable/bg_gradient">
 
@@ -45,8 +46,8 @@
                         android:layout_width="48dp"
                         android:layout_height="48dp"
                         android:src="@drawable/ic_package"
-                        android:tint="@color/primary"
-                        android:layout_marginBottom="16dp" />
+                        android:layout_marginBottom="16dp"
+                        app:tint="@color/primary" />
 
                     <TextView
                         android:id="@+id/tvPlanInfo"
@@ -112,7 +113,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="50dp"
                         android:text="Add Number"
-                        android:background="@drawable/button_bg"
+                        android:background="@drawable/bg_button"
                         android:textColor="@android:color/white"
                         android:layout_marginTop="16dp"
                         android:enabled="false" />
