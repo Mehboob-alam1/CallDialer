@@ -1,8 +1,6 @@
 package com.mehboob.dialeradmin.payment;
 
 import android.app.Activity;
-import android.content.Intent;
-import android.net.Uri;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -61,23 +59,11 @@ public class CashfreePaymentService {
             CFPaymentGatewayService.getInstance().doPayment(activity, cfWebCheckoutPayment);
 
         } catch (Exception e) {
-            Log.e(TAG, "Error starting web checkout, falling back to browser", e);
-            Toast.makeText(activity, "Opening in browser...", Toast.LENGTH_SHORT).show();
-            openCheckoutInBrowser(activity, paymentSessionId);
+            Log.e(TAG, "Error starting web checkout", e);
+            Toast.makeText(activity, "Failed to open payment UI: " + e.getMessage(), Toast.LENGTH_LONG).show();
             if (callback != null) {
                 callback.onPaymentFailure("Error: " + e.getMessage(), orderId);
             }
-        }
-    }
-
-    public static void openCheckoutInBrowser(Activity activity, String paymentSessionId) {
-        if (paymentSessionId == null || paymentSessionId.trim().isEmpty()) return;
-        String base = Config.IS_PRODUCTION ? "https://www.cashfree.com/pg/checkout/" : "https://sandbox.cashfree.com/pg/checkout/";
-        String url = base + paymentSessionId;
-        try {
-            activity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
-        } catch (Exception ex) {
-            Log.e(TAG, "Failed to open browser checkout: " + url, ex);
         }
     }
 
