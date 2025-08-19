@@ -18,16 +18,27 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import okhttp3.logging.HttpLoggingInterceptor;
 
 public class OrderApiClient {
     private static final String TAG = "OrderApiClient";
-    
+
     // API Headers
     private static final String CLIENT_ID_HEADER = "x-client-id";
     private static final String CLIENT_SECRET_HEADER = "x-client-secret";
     private static final String API_VERSION_HEADER = "x-api-version";
-    
+
     private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+
+    private OkHttpClient buildClient() {
+        HttpLoggingInterceptor logging = new HttpLoggingInterceptor(message -> Log.d(TAG, message));
+        logging.setLevel(HttpLoggingInterceptor.Level.BODY);
+        return new OkHttpClient.Builder()
+                .addInterceptor(logging)
+                .followRedirects(true)
+                .followSslRedirects(true)
+                .build();
+    }
 
     public interface OrderCallback {
         void onSuccess(JSONObject response);
@@ -35,19 +46,23 @@ public class OrderApiClient {
     }
 
     public void createOrder(String orderId, String amount, String customerId, String phoneNumber, String customerName, String customerEmail, OrderCallback callback) {
-        OkHttpClient client = new OkHttpClient.Builder()
-                .followRedirects(true)
-                .followSslRedirects(true)
-                .build();
+        OkHttpClient client = buildClient();
 
         try {
+            double orderAmount;
+            try {
+                orderAmount = Double.parseDouble(amount);
+            } catch (Exception e) {
+                Log.w(TAG, "Invalid amount '" + amount + "', coercing to 0", e);
+                orderAmount = 0d;
+            }
+
             // Create order request body as per Cashfree API documentation
             JSONObject orderRequest = new JSONObject();
             orderRequest.put("order_id", orderId);
-            // Ensure numeric amount in JSON
-            orderRequest.put("order_amount", Double.parseDouble(amount));
+            orderRequest.put("order_amount", orderAmount);
             orderRequest.put("order_currency", Config.CURRENCY);
-            
+
             // Customer details
             JSONObject customerDetails = new JSONObject();
             customerDetails.put("customer_id", customerId);
@@ -55,18 +70,19 @@ public class OrderApiClient {
             customerDetails.put("customer_email", customerEmail != null && !customerEmail.isEmpty() ? customerEmail : "admin@dialerapp.com");
             customerDetails.put("customer_phone", phoneNumber != null && !phoneNumber.isEmpty() ? phoneNumber : "9999999999");
             orderRequest.put("customer_details", customerDetails);
-            
+
             // Order meta
             JSONObject orderMeta = new JSONObject();
             orderMeta.put("return_url", Config.RETURN_URL + "?order_id=" + orderId);
             orderRequest.put("order_meta", orderMeta);
-            
+
             // Order note
             orderRequest.put("order_note", "Premium subscription for " + Config.APP_NAME);
 
             Log.d(TAG, "Creating order with URL: " + Config.CASHFREE_BASE_URL);
             Log.d(TAG, "Env: " + (Config.IS_PRODUCTION ? "PRODUCTION" : "SANDBOX"));
-            Log.d(TAG, "Order request: " + orderRequest.toString());
+            Log.d(TAG, "Headers: {" + CLIENT_ID_HEADER + "=****, " + CLIENT_SECRET_HEADER + "=****, " + API_VERSION_HEADER + "=" + Config.CASHFREE_API_VERSION + "}");
+            Log.d(TAG, "Order request JSON: " + orderRequest.toString());
 
             RequestBody body = RequestBody.create(JSON, orderRequest.toString());
 
@@ -81,38 +97,38 @@ public class OrderApiClient {
                     .build();
 
             client.newCall(request).enqueue(new Callback() {
-                @Override 
+                @Override
                 public void onFailure(Call call, IOException e) {
                     Log.e(TAG, "Network error creating order", e);
                     new Handler(Looper.getMainLooper()).post(() ->
                             callback.onError("Network Error: " + e.getMessage()));
                 }
-                
-                @Override 
+
+                @Override
                 public void onResponse(Call call, Response response) throws IOException {
                     String responseBody = response.body() != null ? response.body().string() : "";
                     String contentType = response.header("Content-Type", "");
-                    Log.d(TAG, "Response code: " + response.code());
+                    int code = response.code();
+                    Log.d(TAG, "Response code: " + code);
                     Log.d(TAG, "Response headers: " + response.headers());
-                    Log.d(TAG, "Order creation raw response: " + (responseBody.length() > 400 ? responseBody.substring(0, 400) + "..." : responseBody));
+                    Log.d(TAG, "Order creation raw response (first 600): " + (responseBody.length() > 600 ? responseBody.substring(0, 600) + "..." : responseBody));
 
                     boolean isJson = contentType.contains("application/json") || responseBody.trim().startsWith("{") || responseBody.trim().startsWith("[");
                     if (!isJson) {
-                        String msg = "Non-JSON response from server (" + contentType + ") - first 200 chars: " +
-                                (responseBody.length() > 200 ? responseBody.substring(0, 200) + "..." : responseBody);
-                        Log.e(TAG, msg);
+                        String msg = "Non-JSON response (" + contentType + ", code=" + code + ")";
+                        Log.e(TAG, msg + ". Body(first 400): " + (responseBody.length() > 400 ? responseBody.substring(0, 400) + "..." : responseBody));
                         new Handler(Looper.getMainLooper()).post(() -> callback.onError(msg));
                         return;
                     }
-                    
+
                     try {
                         JSONObject responseJson = new JSONObject(responseBody);
-                        
+
                         if (response.isSuccessful()) {
                             new Handler(Looper.getMainLooper()).post(() ->
                                     callback.onSuccess(responseJson));
                         } else {
-                            String errorMessage = "API Error: " + response.code();
+                            String errorMessage = "API Error: " + code;
                             if (responseJson.has("message")) {
                                 errorMessage = responseJson.getString("message");
                             } else if (responseJson.has("error")) {
@@ -120,19 +136,20 @@ public class OrderApiClient {
                             } else if (responseJson.has("error_description")) {
                                 errorMessage = responseJson.getString("error_description");
                             }
-                            Log.e(TAG, "API Error: " + errorMessage);
+                            Log.e(TAG, "API Error: " + errorMessage + " | JSON: " + responseJson);
+                            String finalErrorMessage = errorMessage;
                             new Handler(Looper.getMainLooper()).post(() ->
-                                    callback.onError(errorMessage));
+                                    callback.onError(finalErrorMessage));
                         }
                     } catch (JSONException e) {
-                        Log.e(TAG, "Error parsing response", e);
+                        Log.e(TAG, "Error parsing JSON response", e);
                         Log.e(TAG, "Raw response: " + responseBody);
                         new Handler(Looper.getMainLooper()).post(() ->
-                                callback.onError("Parse Error: " + e.getMessage() + "\nResponse: " + responseBody));
+                                callback.onError("Parse Error: " + e.getMessage()));
                     }
                 }
             });
-            
+
         } catch (JSONException e) {
             Log.e(TAG, "Error creating order request", e);
             callback.onError("JSON Error: " + e.getMessage());
@@ -152,10 +169,7 @@ public class OrderApiClient {
      * Check order status
      */
     public void checkOrderStatus(String orderId, OrderCallback callback) {
-        OkHttpClient client = new OkHttpClient.Builder()
-                .followRedirects(true)
-                .followSslRedirects(true)
-                .build();
+        OkHttpClient client = buildClient();
 
         String url = Config.CASHFREE_BASE_URL + "/" + orderId;
         Log.d(TAG, "Checking order status: " + url);
@@ -170,44 +184,45 @@ public class OrderApiClient {
                 .build();
 
         client.newCall(request).enqueue(new Callback() {
-            @Override 
+            @Override
             public void onFailure(Call call, IOException e) {
                 Log.e(TAG, "Network error checking order status", e);
                 new Handler(Looper.getMainLooper()).post(() ->
                         callback.onError("Network Error: " + e.getMessage()));
             }
-            
-            @Override 
+
+            @Override
             public void onResponse(Call call, Response response) throws IOException {
                 String responseBody = response.body() != null ? response.body().string() : "";
                 String contentType = response.header("Content-Type", "");
-                Log.d(TAG, "Order status response code: " + response.code());
-                Log.d(TAG, "Order status raw response: " + (responseBody.length() > 400 ? responseBody.substring(0, 400) + "..." : responseBody));
-                
+                int code = response.code();
+                Log.d(TAG, "Order status response code: " + code);
+                Log.d(TAG, "Order status raw response (first 600): " + (responseBody.length() > 600 ? responseBody.substring(0, 600) + "..." : responseBody));
+
                 boolean isJson = contentType.contains("application/json") || responseBody.trim().startsWith("{") || responseBody.trim().startsWith("[");
                 if (!isJson) {
-                    String msg = "Non-JSON response from server (" + contentType + ") - first 200 chars: " +
-                            (responseBody.length() > 200 ? responseBody.substring(0, 200) + "..." : responseBody);
-                    Log.e(TAG, msg);
+                    String msg = "Non-JSON response (" + contentType + ", code=" + code + ")";
+                    Log.e(TAG, msg + ". Body(first 400): " + (responseBody.length() > 400 ? responseBody.substring(0, 400) + "..." : responseBody));
                     new Handler(Looper.getMainLooper()).post(() -> callback.onError(msg));
                     return;
                 }
 
                 try {
                     JSONObject responseJson = new JSONObject(responseBody);
-                    
+
                     if (response.isSuccessful()) {
                         new Handler(Looper.getMainLooper()).post(() ->
                                 callback.onSuccess(responseJson));
                     } else {
-                        String errorMessage = "API Error: " + response.code();
+                        String errorMessage = "API Error: " + code;
                         if (responseJson.has("message")) {
                             errorMessage = responseJson.getString("message");
                         } else if (responseJson.has("error")) {
                             errorMessage = responseJson.getString("error");
                         }
+                        String finalErrorMessage = errorMessage;
                         new Handler(Looper.getMainLooper()).post(() ->
-                                callback.onError(errorMessage));
+                                callback.onError(finalErrorMessage));
                     }
                 } catch (JSONException e) {
                     Log.e(TAG, "Error parsing response", e);
