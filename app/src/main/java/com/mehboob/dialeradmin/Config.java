@@ -23,8 +23,10 @@ public class Config {
     
     // Payment Configuration
     public static final String CURRENCY = "INR";
-    // Use Cashfree's devtools redirect which works for testing; replace with your HTTPS domain for production
-    public static final String RETURN_URL = "https://www.cashfree.com/devtools/pgredirect";
+    // For simple Android-only apps: use devtools redirect only in sandbox; omit in production
+    public static String getReturnUrlForEnvironment() {
+        return IS_PRODUCTION ? null : "https://www.cashfree.com/devtools/pgredirect";
+    }
     
     // Plan Configuration
     public static final String PLAN_WEEKLY = "weekly";

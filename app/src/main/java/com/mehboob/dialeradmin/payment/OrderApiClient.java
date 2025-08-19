@@ -73,7 +73,10 @@ public class OrderApiClient {
 
             // Order meta
             JSONObject orderMeta = new JSONObject();
-            orderMeta.put("return_url", Config.RETURN_URL + "?order_id=" + orderId);
+            String maybeReturn = Config.getReturnUrlForEnvironment();
+            if (maybeReturn != null && !maybeReturn.isEmpty()) {
+                orderMeta.put("return_url", maybeReturn + "?order_id=" + orderId);
+            }
             orderRequest.put("order_meta", orderMeta);
 
             // Order note
