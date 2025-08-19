@@ -2,8 +2,10 @@ package com.mehboob.dialeradmin;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -22,6 +24,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class PacakageActivity extends AppCompatActivity {
+
+    private static final String TAG = "PacakageActivity";
+    private static final String PREFS = "payment_prefs";
+    private static final String KEY_PENDING_ORDER = "pending_order_id";
+    private static final String KEY_PENDING_PLAN = "pending_plan";
 
     private Button btnSubscribe;
     private String selectedPlan = null; // store which plan is selected
@@ -69,6 +76,8 @@ public class PacakageActivity extends AppCompatActivity {
             else if (v == btn2) selectedPlan = Config.PLAN_MONTHLY;
             else if (v == btn3) selectedPlan = Config.PLAN_WEEKLY;
             else if (v == btn4) selectedPlan = Config.PLAN_3MONTHS;
+
+            Log.d(TAG, "Selected plan: " + selectedPlan);
         };
 
         btn1.setOnClickListener(singleSelectListener);
@@ -88,6 +97,7 @@ public class PacakageActivity extends AppCompatActivity {
                 MyApplication.getInstance().getCurrentAdmin().getPhoneNumber() != null &&
                 !MyApplication.getInstance().getCurrentAdmin().getPhoneNumber().isEmpty()) {
                 
+                Log.d(TAG, "Creating order for plan: " + selectedPlan);
                 createOrderForPlan(selectedPlan);
             } else {
                 Toast.makeText(this, "Phone number is required for payment. Please update your profile.", Toast.LENGTH_LONG).show();
@@ -98,11 +108,25 @@ public class PacakageActivity extends AppCompatActivity {
         setupPaymentCallback();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Verify any pending order if user returned from checkout
+        SharedPreferences sp = getSharedPreferences(PREFS, MODE_PRIVATE);
+        String pendingOrder = sp.getString(KEY_PENDING_ORDER, null);
+        String pendingPlan = sp.getString(KEY_PENDING_PLAN, null);
+        if (pendingOrder != null && pendingPlan != null) {
+            Log.d(TAG, "Found pending order onResume: " + pendingOrder + ", verifying...");
+            verifyOrderThenActivate(pendingPlan, pendingOrder);
+        }
+    }
+
     private void setupPaymentCallback() {
         paymentCallback = new CashfreePaymentService.PaymentCallback() {
             @Override
             public void onPaymentSuccess(String orderId) {
                 runOnUiThread(() -> {
+                    Log.d(TAG, "Payment successful (callback). Verifying order: " + orderId);
                     Toast.makeText(PacakageActivity.this, "Payment successful!", Toast.LENGTH_SHORT).show();
                     verifyOrderThenActivate(selectedPlan, orderId);
                 });
@@ -111,7 +135,9 @@ public class PacakageActivity extends AppCompatActivity {
             @Override
             public void onPaymentFailure(String errorMessage, String orderId) {
                 runOnUiThread(() -> {
+                    Log.e(TAG, "Payment failed for order " + orderId + ": " + errorMessage);
                     Toast.makeText(PacakageActivity.this, "Payment failed: " + errorMessage, Toast.LENGTH_SHORT).show();
+                    clearPendingOrder();
                 });
             }
         };
@@ -140,31 +166,33 @@ public class PacakageActivity extends AppCompatActivity {
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         String phoneNumber = MyApplication.getInstance().getCurrentAdmin() != null ? 
                            MyApplication.getInstance().getCurrentAdmin().getPhoneNumber() : "";
+        String customerName = MyApplication.getInstance().getCurrentAdmin() != null ?
+                MyApplication.getInstance().getCurrentAdmin().getName() : null;
+        String customerEmail = MyApplication.getInstance().getCurrentAdmin() != null ?
+                MyApplication.getInstance().getCurrentAdmin().getEmail() : null;
 
         // Show loading message
         Toast.makeText(this, "Creating payment order...", Toast.LENGTH_SHORT).show();
 
         OrderApiClient client = new OrderApiClient();
-        String customerName = MyApplication.getInstance().getCurrentAdmin() != null ?
-                MyApplication.getInstance().getCurrentAdmin().getName() : null;
-        String customerEmail = MyApplication.getInstance().getCurrentAdmin() != null ?
-                MyApplication.getInstance().getCurrentAdmin().getEmail() : null;
         client.createOrder(orderId, amount, userId, phoneNumber, customerName, customerEmail, new OrderApiClient.OrderCallback() {
             @Override
             public void onSuccess(JSONObject response) {
                 try {
                     String paymentSessionId = response.getString("payment_session_id");
-                    
+                    Log.d(TAG, "Order created: orderId=" + orderId + ", session=" + paymentSessionId);
+                    savePendingOrder(orderId, planType);
                     // Show payment instructions
                     showPaymentInstructions(paymentSessionId, orderId);
-                    
                 } catch (JSONException e) {
+                    Log.e(TAG, "Error parsing order create response", e);
                     Toast.makeText(PacakageActivity.this, "Error parsing response: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onError(String error) {
+                Log.e(TAG, "Order creation failed: " + error);
                 // Show detailed error message
                 String errorMsg = "Order creation failed: " + error;
                 if (error.contains("401")) {
@@ -173,11 +201,13 @@ public class PacakageActivity extends AppCompatActivity {
                     errorMsg = "Invalid request. Please check the order details.";
                 } else if (error.contains("403")) {
                     errorMsg = "Access denied. Please check your Cashfree account permissions.";
+                } else if (error.contains("Non-JSON response")) {
+                    errorMsg = error + ". If on PRODUCTION, ensure your return_url is a valid HTTPS domain and PG is activated.";
                 } else if (error.contains("Network Error")) {
                     errorMsg = "Network error. Please check your internet connection.";
                 }
-                
                 Toast.makeText(PacakageActivity.this, errorMsg, Toast.LENGTH_LONG).show();
+                clearPendingOrder();
             }
         });
     }
@@ -187,6 +217,7 @@ public class PacakageActivity extends AppCompatActivity {
                 .setTitle("Payment Instructions")
                 .setMessage("Your payment session has been created. Click 'Pay Now' to complete the payment.")
                 .setPositiveButton("Pay Now", (dialog, which) -> {
+                    Log.d(TAG, "Launching Web Checkout for order " + orderId);
                     // Start web checkout
                     CashfreePaymentService.startWebCheckout(
                             PacakageActivity.this, 
@@ -238,6 +269,7 @@ public class PacakageActivity extends AppCompatActivity {
             MyApplication.getInstance().getCurrentAdmin().setPlanExpiryAt(expiry);
         }
 
+        clearPendingOrder();
         Toast.makeText(this, "Plan activated: " + planType, Toast.LENGTH_SHORT).show();
 
         startActivity(new Intent(this, DashboardActivity.class));
@@ -254,20 +286,42 @@ public class PacakageActivity extends AppCompatActivity {
         }
     }
 
+    private void savePendingOrder(String orderId, String planType) {
+        SharedPreferences sp = getSharedPreferences(PREFS, MODE_PRIVATE);
+        sp.edit()
+                .putString(KEY_PENDING_ORDER, orderId)
+                .putString(KEY_PENDING_PLAN, planType)
+                .apply();
+        Log.d(TAG, "Saved pending order " + orderId + " for plan " + planType);
+    }
+
+    private void clearPendingOrder() {
+        SharedPreferences sp = getSharedPreferences(PREFS, MODE_PRIVATE);
+        sp.edit()
+                .remove(KEY_PENDING_ORDER)
+                .remove(KEY_PENDING_PLAN)
+                .apply();
+        Log.d(TAG, "Cleared pending order state");
+    }
+
     private void verifyOrderThenActivate(String planType, String orderId) {
+        Log.d(TAG, "Verifying order status for " + orderId);
         OrderApiClient client = new OrderApiClient();
         client.checkOrderStatus(orderId, new OrderApiClient.OrderCallback() {
             @Override
             public void onSuccess(JSONObject response) {
                 try {
                     String orderStatus = response.getString("order_status");
+                    Log.d(TAG, "Order status for " + orderId + ": " + orderStatus);
                     if ("PAID".equalsIgnoreCase(orderStatus)) {
                         activatePlan(planType);
                     } else {
                         Toast.makeText(PacakageActivity.this,
                                 "Payment not confirmed: " + orderStatus, Toast.LENGTH_SHORT).show();
+                        clearPendingOrder();
                     }
                 } catch (JSONException e) {
+                    Log.e(TAG, "Error reading order_status JSON", e);
                     Toast.makeText(PacakageActivity.this,
                             "Error checking payment status", Toast.LENGTH_SHORT).show();
                 }
@@ -275,6 +329,7 @@ public class PacakageActivity extends AppCompatActivity {
 
             @Override
             public void onError(String error) {
+                Log.e(TAG, "Error checking status: " + error);
                 Toast.makeText(PacakageActivity.this,
                         "Error checking status: " + error, Toast.LENGTH_SHORT).show();
             }
@@ -289,11 +344,13 @@ public class PacakageActivity extends AppCompatActivity {
         if (data != null && data.getExtras() != null) {
             String txStatus = data.getStringExtra("txStatus");
             String orderId = data.getStringExtra("orderId");
+            Log.d(TAG, "onActivityResult: txStatus=" + txStatus + ", orderId=" + orderId);
 
             if ("SUCCESS".equalsIgnoreCase(txStatus)) {
                 verifyOrderThenActivate(selectedPlan, orderId);
             } else {
                 Toast.makeText(this, "Payment Failed: " + txStatus, Toast.LENGTH_SHORT).show();
+                clearPendingOrder();
             }
         }
     }

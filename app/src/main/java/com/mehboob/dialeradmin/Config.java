@@ -23,7 +23,8 @@ public class Config {
     
     // Payment Configuration
     public static final String CURRENCY = "INR";
-    public static final String RETURN_URL = "https://dialerapp.com/return";
+    // Use Cashfree's devtools redirect which works for testing; replace with your HTTPS domain for production
+    public static final String RETURN_URL = "https://www.cashfree.com/devtools/pgredirect";
     
     // Plan Configuration
     public static final String PLAN_WEEKLY = "weekly";
