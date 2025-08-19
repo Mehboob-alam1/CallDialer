@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -33,6 +35,12 @@ public class PacakageActivity extends AppCompatActivity {
     private Button btnSubscribe;
     private String selectedPlan = null; // store which plan is selected
     private CashfreePaymentService.PaymentCallback paymentCallback;
+
+    // Checkout watchdog
+    private boolean activityPaused = false;
+    private String lastSessionId = null;
+    private String lastOrderId = null;
+    private String lastPaymentLink = null;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -109,8 +117,15 @@ public class PacakageActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+        activityPaused = true; // if checkout UI starts, we'll be paused shortly after doPayment
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
+        activityPaused = false;
         // Verify any pending order if user returned from checkout
         SharedPreferences sp = getSharedPreferences(PREFS, MODE_PRIVATE);
         String pendingOrder = sp.getString(KEY_PENDING_ORDER, null);
@@ -184,6 +199,10 @@ public class PacakageActivity extends AppCompatActivity {
                     Log.d(TAG, "Order created: orderId=" + orderId + ", session=" + paymentSessionId + ", link=" + paymentLink);
                     savePendingOrder(orderId, planType);
 
+                    lastSessionId = paymentSessionId;
+                    lastOrderId = orderId;
+                    lastPaymentLink = paymentLink;
+
                     if (paymentSessionId != null && !paymentSessionId.isEmpty()) {
                         Log.d(TAG, "Starting SDK Web Checkout now");
                         CashfreePaymentService.startWebCheckout(
@@ -192,6 +211,21 @@ public class PacakageActivity extends AppCompatActivity {
                                 paymentSessionId,
                                 paymentCallback
                         );
+
+                        // Watchdog: if activity didn't pause within 2s, fallback to browser
+                        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                            if (!activityPaused) {
+                                Log.w(TAG, "SDK Web Checkout likely didn't open; falling back to browser");
+                                if (lastPaymentLink != null && !lastPaymentLink.isEmpty()) {
+                                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(lastPaymentLink)));
+                                } else {
+                                    // construct from session id
+                                    String base = Config.IS_PRODUCTION ? "https://www.cashfree.com/pg/checkout/" : "https://sandbox.cashfree.com/pg/checkout/";
+                                    String url = base + lastSessionId;
+                                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
+                                }
+                            }
+                        }, 2000);
                     } else if (paymentLink != null && !paymentLink.isEmpty()) {
                         Log.d(TAG, "No session id. Opening payment_link in browser: " + paymentLink);
                         startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(paymentLink)));
