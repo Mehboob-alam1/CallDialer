@@ -38,7 +38,7 @@
         <item name="windowNoTitle">true</item>
     </style>
 
-    <!-- Dial Pad Button Style -->
+    <!-- Dial Pad Button Style - Specific to dialer functionality -->
     <style name="DialPadButton" parent="Widget.MaterialComponents.Button.TextButton">
         <item name="android:layout_width">100dp</item>
         <item name="android:layout_height">80dp</item>
@@ -49,31 +49,6 @@
         <item name="android:backgroundTint">@android:color/transparent</item>
         <item name="cornerRadius">40dp</item>
         <item name="rippleColor">@color/light_gray</item>
-    </style>
-
-    <!-- Custom button styles -->
-    <style name="Widget.DialerAdmin.Button" parent="Widget.MaterialComponents.Button">
-        <item name="android:textColor">@color/white</item>
-        <item name="backgroundTint">@color/primary</item>
-        <item name="cornerRadius">8dp</item>
-        <item name="android:textSize">16sp</item>
-        <item name="android:textStyle">bold</item>
-    </style>
-
-    <!-- Custom EditText style -->
-    <style name="Widget.DialerAdmin.EditText" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
-        <item name="android:textColor">@color/black</item>
-        <item name="android:textColorHint">@color/gray</item>
-        <item name="boxStrokeColor">@color/primary</item>
-        <item name="hintTextColor">@color/primary</item>
-    </style>
-
-    <!-- Custom Card style -->
-    <style name="Widget.DialerAdmin.CardView" parent="Widget.MaterialComponents.CardView">
-        <item name="cardBackgroundColor">@color/white</item>
-        <item name="cardElevation">4dp</item>
-        <item name="cardCornerRadius">12dp</item>
-        <item name="cardUseCompatPadding">true</item>
     </style>
 
 </resources>
