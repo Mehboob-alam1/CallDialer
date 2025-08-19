@@ -179,14 +179,30 @@ public class PacakageActivity extends AppCompatActivity {
             @Override
             public void onSuccess(JSONObject response) {
                 try {
-                    String paymentSessionId = response.getString("payment_session_id");
-                    Log.d(TAG, "Order created: orderId=" + orderId + ", session=" + paymentSessionId);
+                    String paymentSessionId = response.optString("payment_session_id", null);
+                    String paymentLink = response.optString("payment_link", null);
+                    Log.d(TAG, "Order created: orderId=" + orderId + ", session=" + paymentSessionId + ", link=" + paymentLink);
                     savePendingOrder(orderId, planType);
-                    // Show payment instructions
-                    showPaymentInstructions(paymentSessionId, orderId);
-                } catch (JSONException e) {
-                    Log.e(TAG, "Error parsing order create response", e);
-                    Toast.makeText(PacakageActivity.this, "Error parsing response: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+
+                    if (paymentSessionId != null && !paymentSessionId.isEmpty()) {
+                        Log.d(TAG, "Starting SDK Web Checkout now");
+                        CashfreePaymentService.startWebCheckout(
+                                PacakageActivity.this,
+                                orderId,
+                                paymentSessionId,
+                                paymentCallback
+                        );
+                    } else if (paymentLink != null && !paymentLink.isEmpty()) {
+                        Log.d(TAG, "No session id. Opening payment_link in browser: " + paymentLink);
+                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(paymentLink)));
+                    } else {
+                        Log.e(TAG, "Neither payment_session_id nor payment_link present in response");
+                        Toast.makeText(PacakageActivity.this, "Payment details missing in response.", Toast.LENGTH_LONG).show();
+                        clearPendingOrder();
+                    }
+                } catch (Exception e) {
+                    Log.e(TAG, "Error handling order create success", e);
+                    Toast.makeText(PacakageActivity.this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             }
 
