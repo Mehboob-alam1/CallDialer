@@ -21,11 +21,14 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.mehboob.dialeradmin.payment.CashfreePaymentService;
 import com.mehboob.dialeradmin.payment.OrderApiClient;
+import com.cashfree.pg.core.api.exception.CFException;
+import com.cashfree.pg.api.CFCheckoutResponseCallback;
+import com.cashfree.pg.core.api.exception.CFErrorResponse;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class PacakageActivity extends AppCompatActivity {
+public class PacakageActivity extends AppCompatActivity implements CFCheckoutResponseCallback {
 
     private static final String TAG = "PacakageActivity";
     private static final String PREFS = "payment_prefs";
@@ -114,6 +117,13 @@ public class PacakageActivity extends AppCompatActivity {
 
         // Setup payment callback
         setupPaymentCallback();
+
+        try {
+            // Per docs, set checkout callback in onCreate
+            com.cashfree.pg.api.CFPaymentGatewayService.getInstance().setCheckoutCallback(this);
+        } catch (CFException e) {
+            Log.e(TAG, "Failed to set checkout callback", e);
+        }
     }
 
     @Override
@@ -403,5 +413,19 @@ public class PacakageActivity extends AppCompatActivity {
                 clearPendingOrder();
             }
         }
+    }
+
+    @Override
+    public void onPaymentVerify(String orderID) {
+        Log.d(TAG, "CF SDK callback onPaymentVerify for order=" + orderID);
+        verifyOrderThenActivate(selectedPlan, orderID);
+    }
+
+    @Override
+    public void onPaymentFailure(CFErrorResponse cfErrorResponse, String orderID) {
+        String err = cfErrorResponse != null ? cfErrorResponse.getMessage() : "Unknown error";
+        Log.e(TAG, "CF SDK callback onPaymentFailure order=" + orderID + ": " + err);
+        Toast.makeText(this, "Payment failed: " + err, Toast.LENGTH_SHORT).show();
+        clearPendingOrder();
     }
 }
