@@ -13,14 +13,15 @@ import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.cashfree.pg.api.CFPaymentGatewayService;
-
-import com.cashfree.pg.core.api.callback.CFCheckoutResponseCallback;
+import com.cashfree.pg.api.CFCheckoutResponseCallback;
+import com.cashfree.pg.core.api.CFSession;
+import com.cashfree.pg.core.api.webcheckout.CFWebCheckoutPayment;
+import com.cashfree.pg.core.api.webcheckout.CFWebCheckoutTheme;
 import com.cashfree.pg.core.api.exception.CFException;
-import com.cashfree.pg.core.api.utils.CFErrorResponse;
+import com.cashfree.pg.core.api.exception.CFErrorResponse;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.mehboob.dialeradmin.payment.CashfreePaymentService;
 import com.mehboob.dialeradmin.payment.OrderApiClient;
 
 import org.json.JSONException;
@@ -40,8 +41,6 @@ public class PacakageActivity extends AppCompatActivity implements CFCheckoutRes
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_pacakage);
 
-        // Initialize Cashfree SDK
-        CashfreePaymentService.initialize(this);
         try {
             // Per docs, set checkout callback in onCreate
             CFPaymentGatewayService.getInstance().setCheckoutCallback(this);
@@ -59,9 +58,6 @@ public class PacakageActivity extends AppCompatActivity implements CFCheckoutRes
         if (plan != null && !plan.isEmpty()) {
             Toast.makeText(this, "Current Plan: " + plan, Toast.LENGTH_SHORT).show();
         }
-
-        // Show configuration status
-        Toast.makeText(this, (Config.IS_PRODUCTION ? "PRODUCTION" : "SANDBOX"), Toast.LENGTH_SHORT).show();
 
         LinearLayout[] buttons = {btn1, btn2, btn3, btn4};
         if (MyApplication.getInstance().isPremiumActive()){
@@ -132,7 +128,6 @@ public class PacakageActivity extends AppCompatActivity implements CFCheckoutRes
         String customerEmail = MyApplication.getInstance().getCurrentAdmin() != null ?
                 MyApplication.getInstance().getCurrentAdmin().getEmail() : null;
 
-        // Show loading message
         Toast.makeText(this, "Creating payment order...", Toast.LENGTH_SHORT).show();
 
         OrderApiClient client = new OrderApiClient();
@@ -144,13 +139,7 @@ public class PacakageActivity extends AppCompatActivity implements CFCheckoutRes
                     Log.d(TAG, "Order created: orderId=" + orderId + ", session=" + paymentSessionId);
 
                     if (paymentSessionId != null && !paymentSessionId.isEmpty()) {
-                        Log.d(TAG, "Starting SDK Web Checkout now");
-                        CashfreePaymentService.startWebCheckout(
-                                PacakageActivity.this,
-                                orderId,
-                                paymentSessionId,
-                                null
-                        );
+                        startSdkCheckout(orderId, paymentSessionId);
                     } else {
                         Log.e(TAG, "payment_session_id missing in backend response");
                         Toast.makeText(PacakageActivity.this, "Payment details missing in response.", Toast.LENGTH_LONG).show();
@@ -164,10 +153,37 @@ public class PacakageActivity extends AppCompatActivity implements CFCheckoutRes
             @Override
             public void onError(String error) {
                 Log.e(TAG, "Order creation failed: " + error);
-                String errorMsg = error;
-                Toast.makeText(PacakageActivity.this, errorMsg, Toast.LENGTH_LONG).show();
+                Toast.makeText(PacakageActivity.this, error, Toast.LENGTH_LONG).show();
             }
         });
+    }
+
+    private void startSdkCheckout(String orderId, String paymentSessionId) {
+        try {
+            CFSession.Environment env = Config.IS_PRODUCTION ? CFSession.Environment.PRODUCTION : CFSession.Environment.SANDBOX;
+
+            CFSession cfSession = new CFSession.CFSessionBuilder()
+                    .setEnvironment(env)
+                    .setOrderId(orderId)
+                    .setPaymentSessionID(paymentSessionId)
+                    .build();
+
+            CFWebCheckoutTheme cfTheme = new CFWebCheckoutTheme.CFWebCheckoutThemeBuilder()
+                    .setNavigationBarBackgroundColor("#0047AB")
+                    .setNavigationBarTextColor("#FFFFFF")
+                    .build();
+
+            CFWebCheckoutPayment cfWebCheckoutPayment = new CFWebCheckoutPayment.CFWebCheckoutPaymentBuilder()
+                    .setSession(cfSession)
+                    .setCFWebCheckoutUITheme(cfTheme)
+                    .build();
+
+            Log.d(TAG, "Starting SDK Web Checkout");
+            CFPaymentGatewayService.getInstance().doPayment(this, cfWebCheckoutPayment);
+        } catch (Exception e) {
+            Log.e(TAG, "Error starting SDK checkout", e);
+            Toast.makeText(this, "Failed to open payment UI: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        }
     }
 
     private void activatePlan(String planType) {
@@ -201,7 +217,6 @@ public class PacakageActivity extends AppCompatActivity implements CFCheckoutRes
         ref.child("planActivatedAt").setValue(now);
         ref.child("planExpiryAt").setValue(expiry);
 
-        // Update local admin model
         if (MyApplication.getInstance().getCurrentAdmin() != null) {
             MyApplication.getInstance().getCurrentAdmin().setIsPremium(true);
             MyApplication.getInstance().getCurrentAdmin().setPlanType(selectedPlan);
