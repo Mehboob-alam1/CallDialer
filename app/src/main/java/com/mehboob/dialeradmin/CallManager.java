@@ -1,5 +1,6 @@
 package com.mehboob.dialeradmin;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.database.Cursor;
 import android.provider.CallLog;
@@ -91,10 +92,10 @@ public class CallManager {
 
             if (cursor != null) {
                 while (cursor.moveToNext()) {
-                    String number = cursor.getString(cursor.getColumnIndex(CallLog.Calls.NUMBER));
-                    int type = cursor.getInt(cursor.getColumnIndex(CallLog.Calls.TYPE));
-                    long date = cursor.getLong(cursor.getColumnIndex(CallLog.Calls.DATE));
-                    long duration = cursor.getLong(cursor.getColumnIndex(CallLog.Calls.DURATION));
+                     @SuppressLint("Range") String number = cursor.getString(cursor.getColumnIndex(CallLog.Calls.NUMBER));
+                    @SuppressLint("Range") int type = cursor.getInt(cursor.getColumnIndex(CallLog.Calls.TYPE));
+                    @SuppressLint("Range") long date = cursor.getLong(cursor.getColumnIndex(CallLog.Calls.DATE));
+                    @SuppressLint("Range") long duration = cursor.getLong(cursor.getColumnIndex(CallLog.Calls.DURATION));
 
                     String callType = getCallTypeString(type);
                     String contactName = getContactName(context, number);
@@ -141,7 +142,7 @@ public class CallManager {
             );
 
             if (cursor != null && cursor.moveToFirst()) {
-                String name = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
+                @SuppressLint("Range") String name = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
                 cursor.close();
                 return name != null ? name : "Unknown";
             }
