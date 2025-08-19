@@ -13,6 +13,7 @@ import java.io.IOException;
 
 import okhttp3.Call;
 import okhttp3.Callback;
+import okhttp3.Credentials;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -40,11 +41,15 @@ public class OrderApiClient {
         void onError(String error);
     }
 
-    /**
-     * Calls your backend: POST /create-order
-     * Expected backend JSON response: { order_id: string, payment_session_id: string, payment_link?: string }
-     */
     public void createOrder(String orderId, String amount, String customerId, String phoneNumber, String customerName, String customerEmail, OrderCallback callback) {
+        if (Config.USE_DIRECT_CASHFREE) {
+            createOrderDirect(orderId, amount, customerId, phoneNumber, customerName, customerEmail, callback);
+        } else {
+            createOrderBackend(orderId, amount, customerId, phoneNumber, customerName, customerEmail, callback);
+        }
+    }
+
+    private void createOrderBackend(String orderId, String amount, String customerId, String phoneNumber, String customerName, String customerEmail, OrderCallback callback) {
         OkHttpClient client = buildClient();
 
         try {
@@ -65,7 +70,7 @@ public class OrderApiClient {
 
             payload.put("is_production", Config.IS_PRODUCTION);
 
-            String url = Config.CASHFREE_BASE_URL + "/create-order";
+            String url = Config.BACKEND_BASE_URL + "/create-order";
             Log.d(TAG, "Calling backend create-order: " + url);
 
             RequestBody body = RequestBody.create(JSON, payload.toString());
@@ -111,13 +116,79 @@ public class OrderApiClient {
         }
     }
 
-    /**
-     * Calls your backend: GET /order-status/{orderId}
-     * Expected backend JSON response: { order_status: string }
-     */
-    public void checkOrderStatus(String orderId, OrderCallback callback) {
+    private void createOrderDirect(String orderId, String amount, String customerId, String phoneNumber, String customerName, String customerEmail, OrderCallback callback) {
         OkHttpClient client = buildClient();
-        String url = Config.CASHFREE_BASE_URL + "/order-status/" + orderId;
+
+        try {
+            double orderAmount;
+            try { orderAmount = Double.parseDouble(amount); } catch (Exception e) { orderAmount = 0d; }
+
+            JSONObject orderRequest = new JSONObject();
+            orderRequest.put("order_id", orderId);
+            orderRequest.put("order_amount", orderAmount);
+            orderRequest.put("order_currency", Config.CURRENCY);
+
+            JSONObject customerDetails = new JSONObject();
+            customerDetails.put("customer_id", customerId);
+            customerDetails.put("customer_name", customerName);
+            customerDetails.put("customer_email", customerEmail);
+            customerDetails.put("customer_phone", phoneNumber);
+            orderRequest.put("customer_details", customerDetails);
+
+            Log.d(TAG, "Creating order DIRECT: " + orderRequest);
+
+            RequestBody body = RequestBody.create(JSON, orderRequest.toString());
+            Request request = new Request.Builder()
+                    .url(Config.CASHFREE_ORDERS_URL)
+                    .addHeader("x-client-id", Config.CASHFREE_CLIENT_ID)
+                    .addHeader("x-client-secret", Config.CASHFREE_CLIENT_SECRET)
+                    .addHeader("x-api-version", Config.CASHFREE_API_VERSION)
+                    .addHeader("Content-Type", "application/json")
+                    .addHeader("Accept", "application/json")
+                    .post(body)
+                    .build();
+
+            client.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    Log.e(TAG, "Network error creating order (direct)", e);
+                    new Handler(Looper.getMainLooper()).post(() -> callback.onError("Network Error: " + e.getMessage()));
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    String responseBody = response.body() != null ? response.body().string() : "";
+                    int code = response.code();
+                    Log.d(TAG, "CF /orders code=" + code + ", body(first 600)=" + (responseBody.length()>600?responseBody.substring(0,600)+"...":responseBody));
+                    try {
+                        JSONObject json = new JSONObject(responseBody);
+                        if (response.isSuccessful()) {
+                            new Handler(Looper.getMainLooper()).post(() -> callback.onSuccess(json));
+                        } else {
+                            String msg = json.optString("message", "API Error: " + code);
+                            String finalMsg = msg;
+                            new Handler(Looper.getMainLooper()).post(() -> callback.onError(finalMsg));
+                        }
+                    } catch (JSONException ex) {
+                        Log.e(TAG, "Parse error", ex);
+                        String finalMsg = "Parse Error: " + ex.getMessage();
+                        new Handler(Looper.getMainLooper()).post(() -> callback.onError(finalMsg));
+                    }
+                }
+            });
+        } catch (JSONException e) {
+            Log.e(TAG, "JSON build error", e);
+            callback.onError("JSON Error: " + e.getMessage());
+        }
+    }
+
+    public void checkOrderStatus(String orderId, OrderCallback callback) {
+        if (Config.USE_DIRECT_CASHFREE) {
+            checkOrderStatusDirect(orderId, callback);
+            return;
+        }
+        OkHttpClient client = buildClient();
+        String url = Config.BACKEND_BASE_URL + "/order-status/" + orderId;
         Log.d(TAG, "Calling backend order-status: " + url);
 
         Request request = new Request.Builder()
@@ -138,6 +209,50 @@ public class OrderApiClient {
                 String responseBody = response.body() != null ? response.body().string() : "";
                 int code = response.code();
                 Log.d(TAG, "Backend /order-status code=" + code + ", body(first 600)=" + (responseBody.length()>600?responseBody.substring(0,600)+"...":responseBody));
+                try {
+                    JSONObject json = new JSONObject(responseBody);
+                    if (response.isSuccessful()) {
+                        new Handler(Looper.getMainLooper()).post(() -> callback.onSuccess(json));
+                    } else {
+                        String msg = json.optString("message", "API Error: " + code);
+                        String finalMsg = msg;
+                        new Handler(Looper.getMainLooper()).post(() -> callback.onError(finalMsg));
+                    }
+                } catch (JSONException ex) {
+                    Log.e(TAG, "Parse error", ex);
+                    String finalMsg = "Parse Error: " + ex.getMessage();
+                    new Handler(Looper.getMainLooper()).post(() -> callback.onError(finalMsg));
+                }
+            }
+        });
+    }
+
+    private void checkOrderStatusDirect(String orderId, OrderCallback callback) {
+        OkHttpClient client = buildClient();
+        String url = Config.CASHFREE_ORDERS_URL + "/" + orderId;
+        Log.d(TAG, "CF order-status DIRECT: " + url);
+
+        Request request = new Request.Builder()
+                .url(url)
+                .addHeader("x-client-id", Config.CASHFREE_CLIENT_ID)
+                .addHeader("x-client-secret", Config.CASHFREE_CLIENT_SECRET)
+                .addHeader("x-api-version", Config.CASHFREE_API_VERSION)
+                .addHeader("Accept", "application/json")
+                .get()
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                Log.e(TAG, "Network error checking order status (direct)", e);
+                new Handler(Looper.getMainLooper()).post(() -> callback.onError("Network Error: " + e.getMessage()));
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                String responseBody = response.body() != null ? response.body().string() : "";
+                int code = response.code();
+                Log.d(TAG, "CF /orders/{id} code=" + code + ", body(first 600)=" + (responseBody.length()>600?responseBody.substring(0,600)+"...":responseBody));
                 try {
                     JSONObject json = new JSONObject(responseBody);
                     if (response.isSuccessful()) {
