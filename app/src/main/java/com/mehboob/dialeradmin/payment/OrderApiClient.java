@@ -35,13 +35,17 @@ public class OrderApiClient {
     }
 
     public void createOrder(String orderId, String amount, String customerId, String phoneNumber, OrderCallback callback) {
-        OkHttpClient client = new OkHttpClient();
+        OkHttpClient client = new OkHttpClient.Builder()
+                .followRedirects(true)
+                .followSslRedirects(true)
+                .build();
 
         try {
             // Create order request body as per Cashfree API documentation
             JSONObject orderRequest = new JSONObject();
             orderRequest.put("order_id", orderId);
-            orderRequest.put("order_amount", amount);
+            // Ensure numeric amount in JSON
+            orderRequest.put("order_amount", Double.parseDouble(amount));
             orderRequest.put("order_currency", Config.CURRENCY);
             
             // Customer details
@@ -61,7 +65,7 @@ public class OrderApiClient {
             orderRequest.put("order_note", "Premium subscription for " + Config.APP_NAME);
 
             Log.d(TAG, "Creating order with URL: " + Config.CASHFREE_BASE_URL);
-            Log.d(TAG, "App ID: " + Config.CASHFREE_APP_ID);
+            Log.d(TAG, "Env: " + (Config.IS_PRODUCTION ? "PRODUCTION" : "SANDBOX"));
             Log.d(TAG, "Order request: " + orderRequest.toString());
 
             RequestBody body = RequestBody.create(JSON, orderRequest.toString());
@@ -72,6 +76,7 @@ public class OrderApiClient {
                     .addHeader(CLIENT_SECRET_HEADER, Config.CASHFREE_SECRET_KEY)
                     .addHeader(API_VERSION_HEADER, Config.CASHFREE_API_VERSION)
                     .addHeader("Content-Type", "application/json")
+                    .addHeader("Accept", "application/json")
                     .post(body)
                     .build();
 
@@ -85,10 +90,20 @@ public class OrderApiClient {
                 
                 @Override 
                 public void onResponse(Call call, Response response) throws IOException {
-                    String responseBody = response.body().string();
+                    String responseBody = response.body() != null ? response.body().string() : "";
+                    String contentType = response.header("Content-Type", "");
                     Log.d(TAG, "Response code: " + response.code());
                     Log.d(TAG, "Response headers: " + response.headers());
-                    Log.d(TAG, "Order creation response: " + responseBody);
+                    Log.d(TAG, "Order creation raw response: " + (responseBody.length() > 400 ? responseBody.substring(0, 400) + "..." : responseBody));
+
+                    boolean isJson = contentType.contains("application/json") || responseBody.trim().startsWith("{") || responseBody.trim().startsWith("[");
+                    if (!isJson) {
+                        String msg = "Non-JSON response from server (" + contentType + ") - first 200 chars: " +
+                                (responseBody.length() > 200 ? responseBody.substring(0, 200) + "..." : responseBody);
+                        Log.e(TAG, msg);
+                        new Handler(Looper.getMainLooper()).post(() -> callback.onError(msg));
+                        return;
+                    }
                     
                     try {
                         JSONObject responseJson = new JSONObject(responseBody);
@@ -133,7 +148,10 @@ public class OrderApiClient {
      * Check order status
      */
     public void checkOrderStatus(String orderId, OrderCallback callback) {
-        OkHttpClient client = new OkHttpClient();
+        OkHttpClient client = new OkHttpClient.Builder()
+                .followRedirects(true)
+                .followSslRedirects(true)
+                .build();
 
         String url = Config.CASHFREE_BASE_URL + "/" + orderId;
         Log.d(TAG, "Checking order status: " + url);
@@ -143,6 +161,7 @@ public class OrderApiClient {
                 .addHeader(CLIENT_ID_HEADER, Config.CASHFREE_APP_ID)
                 .addHeader(CLIENT_SECRET_HEADER, Config.CASHFREE_SECRET_KEY)
                 .addHeader(API_VERSION_HEADER, Config.CASHFREE_API_VERSION)
+                .addHeader("Accept", "application/json")
                 .get()
                 .build();
 
@@ -156,10 +175,20 @@ public class OrderApiClient {
             
             @Override 
             public void onResponse(Call call, Response response) throws IOException {
-                String responseBody = response.body().string();
+                String responseBody = response.body() != null ? response.body().string() : "";
+                String contentType = response.header("Content-Type", "");
                 Log.d(TAG, "Order status response code: " + response.code());
-                Log.d(TAG, "Order status response: " + responseBody);
+                Log.d(TAG, "Order status raw response: " + (responseBody.length() > 400 ? responseBody.substring(0, 400) + "..." : responseBody));
                 
+                boolean isJson = contentType.contains("application/json") || responseBody.trim().startsWith("{") || responseBody.trim().startsWith("[");
+                if (!isJson) {
+                    String msg = "Non-JSON response from server (" + contentType + ") - first 200 chars: " +
+                            (responseBody.length() > 200 ? responseBody.substring(0, 200) + "..." : responseBody);
+                    Log.e(TAG, msg);
+                    new Handler(Looper.getMainLooper()).post(() -> callback.onError(msg));
+                    return;
+                }
+
                 try {
                     JSONObject responseJson = new JSONObject(responseBody);
                     
