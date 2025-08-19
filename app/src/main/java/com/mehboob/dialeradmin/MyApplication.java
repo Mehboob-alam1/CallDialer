@@ -3,6 +3,7 @@ package com.mehboob.dialeradmin;
 import android.app.Application;
 import android.util.Log;
 
+import com.cashfree.pg.api.CFPaymentGatewayService;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -32,7 +33,7 @@ public class MyApplication extends Application {
 
     private void initializeCashfreeSDK() {
         try {
-            // Initialize Cashfree SDK
+            CFPaymentGatewayService.getInstance();
             Log.d("MyApplication", "Cashfree SDK initialization completed");
         } catch (Exception e) {
             Log.e("MyApplication", "Error setting up Cashfree SDK", e);

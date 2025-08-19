@@ -61,8 +61,8 @@ dependencies {
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
     
-    // Cashfree SDK - Commented out due to class availability issues
-    // implementation("com.cashfree.pg:api:2.2.8")
+    // Cashfree SDK - Re-enabled for Web Checkout
+    implementation("com.cashfree.pg:api:2.2.8")
     implementation("com.airbnb.android:lottie:6.6.7")
 
     implementation(platform("com.squareup.okhttp3:okhttp-bom:4.10.0"))
