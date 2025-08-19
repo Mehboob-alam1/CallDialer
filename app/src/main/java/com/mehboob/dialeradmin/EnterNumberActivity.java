@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -50,7 +51,7 @@ public class EnterNumberActivity extends AppCompatActivity {
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         int maxAllowed = MyApplication.getInstance().getMaxTrackableNumbers();
         if (maxAllowed <= 0) {
-            Toast.makeText(this, "No active plan. Please subscribe to add numbers.", Toast.LENGTH_LONG).show();
+            showNoPlanDialog();
             return;
         }
 
@@ -74,7 +75,7 @@ public class EnterNumberActivity extends AppCompatActivity {
                 return;
             }
             if (currentCount >= maxAllowed && maxAllowed != Integer.MAX_VALUE) {
-                Toast.makeText(this, "Limit reached for your plan. Max allowed: " + maxAllowed, Toast.LENGTH_LONG).show();
+                showLimitReachedDialog(maxAllowed);
                 return;
             }
 
@@ -93,6 +94,33 @@ public class EnterNumberActivity extends AppCompatActivity {
         }).addOnFailureListener(e -> {
             Toast.makeText(this, "Failed to read current numbers: " + e.getMessage(), Toast.LENGTH_LONG).show();
         });
+    }
+
+    private void showNoPlanDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle("No Active Plan")
+                .setMessage("You don't have an active plan. Please choose a plan to start tracking numbers.")
+                .setPositiveButton("View Plans", (d, w) -> {
+                    startActivity(new Intent(this, PacakageActivity.class));
+                    finish();
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+    private void showLimitReachedDialog(int maxAllowed) {
+        String message = maxAllowed == Integer.MAX_VALUE ?
+                "You have unlimited numbers with your plan." :
+                "Your current plan allows up to " + maxAllowed + " number(s). Upgrade to add more.";
+        new AlertDialog.Builder(this)
+                .setTitle("Limit Reached")
+                .setMessage(message)
+                .setPositiveButton("Upgrade Plan", (d, w) -> {
+                    startActivity(new Intent(this, PacakageActivity.class));
+                    finish();
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 
     // Validation method
