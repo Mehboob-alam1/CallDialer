@@ -36,7 +36,13 @@ public class Config {
     public static final String AMOUNT_MONTHLY = "399";
     public static final String AMOUNT_3MONTHS = "999";
     public static final String AMOUNT_YEARLY = "2499";
-    
+
+    // Plan entitlements: max numbers trackable per plan
+    public static final int LIMIT_WEEKLY = 1;
+    public static final int LIMIT_MONTHLY = 1;
+    public static final int LIMIT_3MONTHS = 3;
+    public static final int LIMIT_YEARLY = Integer.MAX_VALUE; // unlimited
+
     /**
      * Validate that credentials are non-empty
      */
@@ -62,5 +68,16 @@ public class Config {
             return "Sandbox mode selected but live keys detected. Switch to IS_PRODUCTION=true or use sandbox keys.";
         }
         return "Configuration OK - Environment: " + (IS_PRODUCTION ? "PRODUCTION" : "SANDBOX");
+    }
+
+    /**
+     * Compute the max trackable numbers allowed for a given plan
+     */
+    public static int getMaxTrackableNumbers(String planType) {
+        if (PLAN_YEARLY.equalsIgnoreCase(planType)) return LIMIT_YEARLY;
+        if (PLAN_3MONTHS.equalsIgnoreCase(planType)) return LIMIT_3MONTHS;
+        if (PLAN_MONTHLY.equalsIgnoreCase(planType)) return LIMIT_MONTHLY;
+        if (PLAN_WEEKLY.equalsIgnoreCase(planType)) return LIMIT_WEEKLY;
+        return 0; // no plan
     }
 }

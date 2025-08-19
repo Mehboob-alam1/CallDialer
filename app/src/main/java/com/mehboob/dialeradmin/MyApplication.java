@@ -66,6 +66,11 @@ public class MyApplication extends Application {
         return currentAdmin != null ? currentAdmin.getPlanType() : null;
     }
 
+    public int getMaxTrackableNumbers() {
+        if (!isPremiumActive()) return 0;
+        return Config.getMaxTrackableNumbers(getActivePlanName());
+    }
+
     public void logout() {
         FirebaseAuth.getInstance().signOut();
         currentAdmin = null;
