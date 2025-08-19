@@ -1,7 +1,10 @@
 package com.mehboob.dialeradmin.payment;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.net.Uri;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.cashfree.pg.api.CFPaymentGatewayService;
 import com.cashfree.pg.core.api.CFSession;
@@ -28,6 +31,13 @@ public class CashfreePaymentService {
 
     public static void startWebCheckout(Activity activity, String orderId, String paymentSessionId, PaymentCallback callback) {
         try {
+            if (paymentSessionId == null || paymentSessionId.trim().isEmpty()) {
+                Log.e(TAG, "Payment session id is empty; cannot start checkout");
+                Toast.makeText(activity, "Payment session is missing.", Toast.LENGTH_LONG).show();
+                if (callback != null) callback.onPaymentFailure("Missing payment session", orderId);
+                return;
+            }
+
             CFSession.Environment env = Config.IS_PRODUCTION ? CFSession.Environment.PRODUCTION : CFSession.Environment.SANDBOX;
 
             CFSession cfSession = new CFSession.CFSessionBuilder()
@@ -46,13 +56,28 @@ public class CashfreePaymentService {
                     .setCFWebCheckoutUITheme(cfTheme)
                     .build();
 
+            Log.d(TAG, "Starting Web Checkout: orderId=" + orderId + ", env=" + (Config.IS_PRODUCTION ? "PROD" : "SANDBOX") + ", sessionId=" + paymentSessionId);
+            Toast.makeText(activity, "Opening payment UI...", Toast.LENGTH_SHORT).show();
             CFPaymentGatewayService.getInstance().doPayment(activity, cfWebCheckoutPayment);
 
         } catch (Exception e) {
-            Log.e(TAG, "Error starting web checkout", e);
+            Log.e(TAG, "Error starting web checkout, falling back to browser", e);
+            Toast.makeText(activity, "Opening in browser...", Toast.LENGTH_SHORT).show();
+            openCheckoutInBrowser(activity, paymentSessionId);
             if (callback != null) {
                 callback.onPaymentFailure("Error: " + e.getMessage(), orderId);
             }
+        }
+    }
+
+    public static void openCheckoutInBrowser(Activity activity, String paymentSessionId) {
+        if (paymentSessionId == null || paymentSessionId.trim().isEmpty()) return;
+        String base = Config.IS_PRODUCTION ? "https://www.cashfree.com/pg/checkout/" : "https://sandbox.cashfree.com/pg/checkout/";
+        String url = base + paymentSessionId;
+        try {
+            activity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
+        } catch (Exception ex) {
+            Log.e(TAG, "Failed to open browser checkout: " + url, ex);
         }
     }
 
