@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<!-- Enable SDK logging: VERBOSE=2, DEBUG=3, INFO=4, WARN=5, ERROR=6, ASSERT=7 -->
+	<integer name="cashfree_pg_logging_level">3</integer>
+	<!-- Optional: disable quick checkout if needed -->
+	<bool name="cf_quick_checkout_enabled">true</bool>
+	<!-- Optional: disable encrypted shared prefs (keep true by default) -->
+	<bool name="cashfree_pg_core_encrypt_pref_enabled">true</bool>
+	<!-- Optional: auto initialize can stay default; we set callback explicitly in Activity -->
+</resources>
