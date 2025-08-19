@@ -65,7 +65,7 @@ public class OrderApiClient {
 
             payload.put("is_production", Config.IS_PRODUCTION);
 
-            String url = Config.BACKEND_BASE_URL + "/create-order";
+            String url = Config.CASHFREE_BASE_URL + "/create-order";
             Log.d(TAG, "Calling backend create-order: " + url);
 
             RequestBody body = RequestBody.create(JSON, payload.toString());
@@ -117,7 +117,7 @@ public class OrderApiClient {
      */
     public void checkOrderStatus(String orderId, OrderCallback callback) {
         OkHttpClient client = buildClient();
-        String url = Config.BACKEND_BASE_URL + "/order-status/" + orderId;
+        String url = Config.CASHFREE_BASE_URL + "/order-status/" + orderId;
         Log.d(TAG, "Calling backend order-status: " + url);
 
         Request request = new Request.Builder()
