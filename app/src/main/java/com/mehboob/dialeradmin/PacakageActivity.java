@@ -13,12 +13,12 @@ import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.cashfree.pg.api.CFPaymentGatewayService;
-import com.cashfree.pg.api.CFCheckoutResponseCallback;
 import com.cashfree.pg.core.api.CFSession;
+import com.cashfree.pg.core.api.callback.CFCheckoutResponseCallback;
+import com.cashfree.pg.core.api.utils.CFErrorResponse;
 import com.cashfree.pg.core.api.webcheckout.CFWebCheckoutPayment;
 import com.cashfree.pg.core.api.webcheckout.CFWebCheckoutTheme;
 import com.cashfree.pg.core.api.exception.CFException;
-import com.cashfree.pg.core.api.exception.CFErrorResponse;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
