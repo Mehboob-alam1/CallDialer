@@ -1,17 +1,29 @@
 package com.mehboob.dialeradmin;
 
 public class Config {
-	// Environment - Using PRODUCTION as per provided live credentials
+	// Environment - toggle between SANDBOX and PRODUCTION
 	public static final boolean IS_PRODUCTION = true;
 
-	// No backend – using direct Cashfree integration (not recommended for production, but per your request)
+	// Direct Cashfree integration mode (no backend)
 	public static final boolean USE_DIRECT_CASHFREE = true;
-	public static final String CASHFREE_CLIENT_ID = "380265b1230f6fca470f4e235b562083"; // Provided
-	public static final String CASHFREE_CLIENT_SECRET = "cfsk_ma_prod_25a77e51a374e22d5069e13b02d2010f_d5a873b6"; // Provided
+
+	// Cashfree API version and Orders endpoint
 	public static final String CASHFREE_API_VERSION = "2023-08-01";
 	public static final String CASHFREE_ORDERS_URL = IS_PRODUCTION ?
 		"https://api.cashfree.com/pg/orders" :
 		"https://sandbox.cashfree.com/pg/orders";
+
+	// Provide BOTH sets of credentials
+	// Sandbox (TEST) keys
+	public static final String CF_SANDBOX_CLIENT_ID = "TEST10761613400f1b459ec15d4660f831616701";
+	public static final String CF_SANDBOX_CLIENT_SECRET = "cfsk_ma_test_3038e22c6e7e77c83d2b3f6d1bcc95e6_1f4501d3";
+	// Production (LIVE) keys
+	public static final String CF_PROD_CLIENT_ID = "1050663db5989cbec31ef9036f63660501";
+	public static final String CF_PROD_CLIENT_SECRET = "cfsk_ma_prod_4361e7dfba267d0079447013f14788c1_17c3912a";
+
+	// These are the active keys used by the app in direct mode based on IS_PRODUCTION
+	public static final String CASHFREE_CLIENT_ID = IS_PRODUCTION ? CF_PROD_CLIENT_ID : CF_SANDBOX_CLIENT_ID;
+	public static final String CASHFREE_CLIENT_SECRET = IS_PRODUCTION ? CF_PROD_CLIENT_SECRET : CF_SANDBOX_CLIENT_SECRET;
 
 	// Backend base URL is unused in direct mode
 	public static final String BACKEND_BASE_URL = "";
