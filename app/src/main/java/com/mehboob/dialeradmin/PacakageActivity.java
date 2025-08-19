@@ -54,13 +54,13 @@ public class PacakageActivity extends AppCompatActivity implements CFCheckoutRes
         LinearLayout btn4 = findViewById(R.id.l4); // 3months
         btnSubscribe = findViewById(R.id.btnSubscribe);
         
-        String plan = MyApplication.getInstance().getActivePlanName();
+        String plan = MyApplication.getInstance().getCurrentPlanType();
         if (plan != null && !plan.isEmpty()) {
             Toast.makeText(this, "Current Plan: " + plan, Toast.LENGTH_SHORT).show();
         }
 
         LinearLayout[] buttons = {btn1, btn2, btn3, btn4};
-        if (MyApplication.getInstance().isPremiumActive()){
+        if (!MyApplication.getInstance().isPlanExpired()){
             showPremiumActiveDialog();
             return;
         }
@@ -110,7 +110,7 @@ public class PacakageActivity extends AppCompatActivity implements CFCheckoutRes
         new androidx.appcompat.app.AlertDialog.Builder(this)
                 .setTitle("Premium Active")
                 .setMessage("You already have an active premium plan. Your current plan: " + 
-                           MyApplication.getInstance().getActivePlanName())
+                           MyApplication.getInstance().getCurrentPlanType())
                 .setPositiveButton("OK", (dialog, which) -> finish())
                 .setCancelable(false)
                 .show();

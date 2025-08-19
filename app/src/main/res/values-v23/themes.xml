@@ -5,10 +5,9 @@
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:windowLightStatusBar">false</item>
-        <item name="android:windowLightNavigationBar">false</item>
+<!--        <item name="android:windowLightNavigationBar">false</item>-->
         
         <!-- Enable edge-to-edge display -->
-        <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
     </style>
 
     <style name="Theme.DialerAdmin.NoActionBar" parent="Base.Theme.DialerAdmin">
@@ -16,10 +15,10 @@
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:windowLightStatusBar">false</item>
-        <item name="android:windowLightNavigationBar">false</item>
+<!--        <item name="android:windowLightNavigationBar">false</item>-->
         
         <!-- Enable edge-to-edge display -->
-        <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
+<!--        <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>-->
     </style>
 
 </resources>
