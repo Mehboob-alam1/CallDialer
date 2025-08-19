@@ -1,21 +1,20 @@
 package com.mehboob.dialeradmin;
 
 public class Config {
-	// Environment - Change to PRODUCTION for live payments on your backend
-	public static final boolean IS_PRODUCTION = false;
+	// Environment - Using PRODUCTION as per provided live credentials
+	public static final boolean IS_PRODUCTION = true;
 
-	// Your backend base URL (implement /create-order and /order-status/{orderId} there)
-	// Example for local dev with a tunnel: https://your-ngrok-id.ngrok.io
-	public static final String BACKEND_BASE_URL = "https://your-backend.example.com";
-
-	// OPTIONAL: Direct Cashfree integration (for testing only; do NOT ship secrets in app)
-	public static final boolean USE_DIRECT_CASHFREE = false; // set true only if you don't have a backend yet
-	public static final String CASHFREE_CLIENT_ID = ""; // set your PG Client ID here for direct mode
-	public static final String CASHFREE_CLIENT_SECRET = ""; // set your PG Client Secret here for direct mode
+	// No backend – using direct Cashfree integration (not recommended for production, but per your request)
+	public static final boolean USE_DIRECT_CASHFREE = true;
+	public static final String CASHFREE_CLIENT_ID = "380265b1230f6fca470f4e235b562083"; // Provided
+	public static final String CASHFREE_CLIENT_SECRET = "cfsk_ma_prod_25a77e51a374e22d5069e13b02d2010f_d5a873b6"; // Provided
 	public static final String CASHFREE_API_VERSION = "2023-08-01";
 	public static final String CASHFREE_ORDERS_URL = IS_PRODUCTION ?
 		"https://api.cashfree.com/pg/orders" :
 		"https://sandbox.cashfree.com/pg/orders";
+
+	// Backend base URL is unused in direct mode
+	public static final String BACKEND_BASE_URL = "";
 
 	// Firebase Configuration
 	public static final String FIREBASE_ADMINS_NODE = "admins";
