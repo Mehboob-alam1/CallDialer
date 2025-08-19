@@ -145,7 +145,11 @@ public class PacakageActivity extends AppCompatActivity {
         Toast.makeText(this, "Creating payment order...", Toast.LENGTH_SHORT).show();
 
         OrderApiClient client = new OrderApiClient();
-        client.createOrder(orderId, amount, userId, phoneNumber, new OrderApiClient.OrderCallback() {
+        String customerName = MyApplication.getInstance().getCurrentAdmin() != null ?
+                MyApplication.getInstance().getCurrentAdmin().getName() : null;
+        String customerEmail = MyApplication.getInstance().getCurrentAdmin() != null ?
+                MyApplication.getInstance().getCurrentAdmin().getEmail() : null;
+        client.createOrder(orderId, amount, userId, phoneNumber, customerName, customerEmail, new OrderApiClient.OrderCallback() {
             @Override
             public void onSuccess(JSONObject response) {
                 try {

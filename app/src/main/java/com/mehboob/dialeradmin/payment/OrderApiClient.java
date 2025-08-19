@@ -34,7 +34,7 @@ public class OrderApiClient {
         void onError(String error);
     }
 
-    public void createOrder(String orderId, String amount, String customerId, String phoneNumber, OrderCallback callback) {
+    public void createOrder(String orderId, String amount, String customerId, String phoneNumber, String customerName, String customerEmail, OrderCallback callback) {
         OkHttpClient client = new OkHttpClient.Builder()
                 .followRedirects(true)
                 .followSslRedirects(true)
@@ -51,9 +51,9 @@ public class OrderApiClient {
             // Customer details
             JSONObject customerDetails = new JSONObject();
             customerDetails.put("customer_id", customerId);
-            customerDetails.put("customer_name", "Admin User");
-            customerDetails.put("customer_email", "admin@dialerapp.com");
-            customerDetails.put("customer_phone", phoneNumber != null ? phoneNumber : "9999999999");
+            customerDetails.put("customer_name", customerName != null && !customerName.isEmpty() ? customerName : "Admin User");
+            customerDetails.put("customer_email", customerEmail != null && !customerEmail.isEmpty() ? customerEmail : "admin@dialerapp.com");
+            customerDetails.put("customer_phone", phoneNumber != null && !phoneNumber.isEmpty() ? phoneNumber : "9999999999");
             orderRequest.put("customer_details", customerDetails);
             
             // Order meta
@@ -139,9 +139,13 @@ public class OrderApiClient {
         }
     }
 
-    // Overloaded method for backward compatibility
+    // Backward compatible overloads
+    public void createOrder(String orderId, String amount, String customerId, String phoneNumber, OrderCallback callback) {
+        createOrder(orderId, amount, customerId, phoneNumber, null, null, callback);
+    }
+
     public void createOrder(String orderId, String amount, String customerId, OrderCallback callback) {
-        createOrder(orderId, amount, customerId, "9999999999", callback);
+        createOrder(orderId, amount, customerId, "9999999999", null, null, callback);
     }
 
     /**

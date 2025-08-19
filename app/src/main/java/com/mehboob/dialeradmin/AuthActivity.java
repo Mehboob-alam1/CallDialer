@@ -19,7 +19,7 @@ import com.mehboob.dialeradmin.models.AdminModel;
 
 public class AuthActivity extends AppCompatActivity {
 
-    private EditText emailEt, passwordEt, phoneEt;
+    private EditText emailEt, passwordEt, phoneEt, nameEt;
     private Button actionBtn;
     private ProgressBar progressBar;
     private TextView toggleAuthMode;
@@ -40,6 +40,7 @@ public class AuthActivity extends AppCompatActivity {
         emailEt = findViewById(R.id.emailEt);
         passwordEt = findViewById(R.id.passwordEt);
         phoneEt = findViewById(R.id.phoneEt);
+        nameEt = findViewById(R.id.nameEt);
         actionBtn = findViewById(R.id.actionBtn);
         progressBar = findViewById(R.id.progressBar);
         toggleAuthMode = findViewById(R.id.toggleAuthMode);
@@ -61,10 +62,12 @@ public class AuthActivity extends AppCompatActivity {
             actionBtn.setText("Login");
             toggleAuthMode.setText("Don't have an account? Sign up");
             phoneEt.setVisibility(View.GONE);
+            nameEt.setVisibility(View.GONE);
         } else {
             actionBtn.setText("Sign Up");
             toggleAuthMode.setText("Already have an account? Login");
             phoneEt.setVisibility(View.VISIBLE);
+            nameEt.setVisibility(View.VISIBLE);
         }
     }
 
@@ -72,12 +75,16 @@ public class AuthActivity extends AppCompatActivity {
         String email = emailEt.getText().toString().trim();
         String password = passwordEt.getText().toString().trim();
         String phone = phoneEt.getText().toString().trim();
+        String name = nameEt.getText().toString().trim();
 
         if (email.isEmpty() || password.isEmpty()) {
             Toast.makeText(this, "Enter email and password", Toast.LENGTH_SHORT).show();
             return;
         }
-
+        if (name.isEmpty()) {
+            Toast.makeText(this, "Enter full name", Toast.LENGTH_SHORT).show();
+            return;
+        }
         if (phone.isEmpty()) {
             Toast.makeText(this, "Enter phone number", Toast.LENGTH_SHORT).show();
             return;
@@ -90,7 +97,8 @@ public class AuthActivity extends AppCompatActivity {
                     String uid = authResult.getUser().getUid();
                     long now = System.currentTimeMillis();
 
-                    AdminModel adminModel = new AdminModel(uid, email, phone, "admin", true, false, "", 0, 0, now, "");
+                    // New AdminModel with name
+                    AdminModel adminModel = new AdminModel(uid, email, name, phone, "admin", true, false, "", 0, 0, now, "");
 
                     adminRef.child(uid).setValue(adminModel)
                             .addOnSuccessListener(unused -> {
