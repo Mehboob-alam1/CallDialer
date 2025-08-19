@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Common text styles -->
+    <style name="TextAppearance.DialerAdmin.Headline1" parent="TextAppearance.MaterialComponents.Headline1">
+        <item name="android:textColor">@color/primary</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="TextAppearance.DialerAdmin.Headline2" parent="TextAppearance.MaterialComponents.Headline2">
+        <item name="android:textColor">@color/primary</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="TextAppearance.DialerAdmin.Body1" parent="TextAppearance.MaterialComponents.Body1">
+        <item name="android:textColor">@color/black</item>
+    </style>
+
+    <style name="TextAppearance.DialerAdmin.Body2" parent="TextAppearance.MaterialComponents.Body2">
+        <item name="android:textColor">@color/gray</item>
+    </style>
+
+    <!-- Button styles -->
+    <style name="Widget.DialerAdmin.Button.Primary" parent="Widget.MaterialComponents.Button">
+        <item name="android:textColor">@color/white</item>
+        <item name="backgroundTint">@color/primary</item>
+        <item name="cornerRadius">8dp</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="Widget.DialerAdmin.Button.Secondary" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="android:textColor">@color/primary</item>
+        <item name="strokeColor">@color/primary</item>
+        <item name="cornerRadius">8dp</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <!-- Card styles -->
+    <style name="Widget.DialerAdmin.CardView" parent="Widget.MaterialComponents.CardView">
+        <item name="cardBackgroundColor">@color/white</item>
+        <item name="cardElevation">4dp</item>
+        <item name="cardCornerRadius">12dp</item>
+        <item name="cardUseCompatPadding">true</item>
+    </style>
+
+    <!-- EditText styles -->
+    <style name="Widget.DialerAdmin.EditText" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <item name="android:textColor">@color/black</item>
+        <item name="android:textColorHint">@color/gray</item>
+        <item name="boxStrokeColor">@color/primary</item>
+        <item name="hintTextColor">@color/primary</item>
+    </style>
+
+    <!-- Toolbar styles -->
+    <style name="Widget.DialerAdmin.Toolbar" parent="Widget.MaterialComponents.Toolbar">
+        <item name="android:background">@color/primary</item>
+        <item name="titleTextColor">@color/white</item>
+        <item name="subtitleTextColor">@color/white</item>
+    </style>
+
+    <!-- Chip styles -->
+    <style name="Widget.DialerAdmin.Chip.Choice" parent="Widget.MaterialComponents.Chip.Choice">
+        <item name="chipBackgroundColor">@color/primary</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="chipStrokeColor">@color/primary</item>
+        <item name="chipStrokeWidth">1dp</item>
+    </style>
+
+    <!-- Progress bar styles -->
+    <style name="Widget.DialerAdmin.ProgressBar" parent="Widget.MaterialComponents.ProgressBar">
+        <item name="android:indeterminateTint">@color/primary</item>
+        <item name="android:progressTint">@color/primary</item>
+    </style>
+
+</resources>
