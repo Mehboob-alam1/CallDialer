@@ -355,8 +355,7 @@ public class EnterNumberActivity extends AppCompatActivity {
         number = number.replaceAll("[\\s\\-()]", "");
 
         // Check if it's an 11-digit number starting with 6,7,8,9
-        return number.length() == 11;
-//        && number.matches("^[6-9]\\d{10}$");
+        return number.length() == 10 && number.matches("^[6-9]\\d{9}$");
     }
 
 
