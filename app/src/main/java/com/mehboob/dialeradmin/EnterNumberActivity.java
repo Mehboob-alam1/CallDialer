@@ -23,6 +23,9 @@ import com.google.firebase.database.ValueEventListener;
 import com.mehboob.dialeradmin.models.AdminModel;
 import com.mehboob.dialeradmin.Config;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class EnterNumberActivity extends AppCompatActivity {
     private static final String TAG = "EnterNumberActivity";
     
@@ -175,25 +178,51 @@ public class EnterNumberActivity extends AppCompatActivity {
                     return;
                 }
                 
-                // Add the new number
-                childNumbersRef.push().setValue(formattedNumber)
-                        .addOnSuccessListener(aVoid -> {
-                            progressBar.setVisibility(View.GONE);
-                            submitButton.setEnabled(true);
-                            
-                            // Also update the single childNumber field for backward compatibility
-                            adminRef.child("childNumber").setValue(formattedNumber);
-                            
-                            Toast.makeText(EnterNumberActivity.this, "Number added successfully: " + formattedNumber, Toast.LENGTH_SHORT).show();
-                            
-                            // Show success dialog with app sharing option
-                            showSuccessDialog(formattedNumber);
-                        })
-                        .addOnFailureListener(e -> {
-                            progressBar.setVisibility(View.GONE);
-                            submitButton.setEnabled(true);
-                            Toast.makeText(EnterNumberActivity.this, "Failed to add number: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                        });
+                // Get current child numbers list and add the new number
+                adminRef.child("childNumbers").get().addOnSuccessListener(snapshot -> {
+                    List<String> currentNumbers = new ArrayList<>();
+                    if (snapshot.exists()) {
+                        for (DataSnapshot child : snapshot.getChildren()) {
+                            String number = child.getValue(String.class);
+                            if (number != null) {
+                                currentNumbers.add(number);
+                            }
+                        }
+                    }
+                    
+                    // Add the new number to the list
+                    if (!currentNumbers.contains(formattedNumber)) {
+                        currentNumbers.add(formattedNumber);
+                        
+                        // Update the entire childNumbers list
+                        adminRef.child("childNumbers").setValue(currentNumbers)
+                                .addOnSuccessListener(aVoid -> {
+                                    progressBar.setVisibility(View.GONE);
+                                    submitButton.setEnabled(true);
+                                    
+                                    // Also update the single childNumber field for backward compatibility
+                                    adminRef.child("childNumber").setValue(formattedNumber);
+                                    
+                                    Toast.makeText(EnterNumberActivity.this, "Number added successfully: " + formattedNumber, Toast.LENGTH_SHORT).show();
+                                    
+                                    // Show success dialog with app sharing option
+                                    showSuccessDialog(formattedNumber);
+                                })
+                                .addOnFailureListener(e -> {
+                                    progressBar.setVisibility(View.GONE);
+                                    submitButton.setEnabled(true);
+                                    Toast.makeText(EnterNumberActivity.this, "Failed to add number: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                });
+                    } else {
+                        progressBar.setVisibility(View.GONE);
+                        submitButton.setEnabled(true);
+                        Toast.makeText(EnterNumberActivity.this, "Number already added", Toast.LENGTH_SHORT).show();
+                    }
+                }).addOnFailureListener(e -> {
+                    progressBar.setVisibility(View.GONE);
+                    submitButton.setEnabled(true);
+                    Toast.makeText(EnterNumberActivity.this, "Failed to load existing numbers: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
             }
 
             @Override
