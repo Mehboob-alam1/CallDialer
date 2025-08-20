@@ -79,6 +79,12 @@
             android:exported="false"
             android:theme="@style/Theme.DialerAdmin.NoActionBar" />
 
+
+        <activity
+            android:name=".DashboardActivity"
+            android:exported="false"
+            android:theme="@style/Theme.DialerAdmin.NoActionBar" />
+
         <receiver
             android:name=".CallReceiver"
             android:enabled="true"
