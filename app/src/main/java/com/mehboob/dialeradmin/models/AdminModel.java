@@ -1,5 +1,7 @@
 package com.mehboob.dialeradmin.models;
 
+import com.google.firebase.database.PropertyName;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -64,8 +66,16 @@ public class AdminModel {
     public boolean getIsActivated() { return isActivated; }
     public void setIsActivated(boolean isActivated) { this.isActivated = isActivated; }
 
+    // Force Firebase to use the key "isPremium" (avoid default "premium")
+    @PropertyName("isPremium")
     public boolean isPremium() { return isPremium; }
+
+    @PropertyName("isPremium")
     public void setIsPremium(boolean isPremium) { this.isPremium = isPremium; }
+
+    // Legacy mapping: support reading old "premium" key but always write only "isPremium"
+    @PropertyName("premium")
+    public void setPremiumLegacy(boolean premium) { this.isPremium = premium; }
 
     public String getPlanType() { return planType; }
     public void setPlanType(String planType) { this.planType = planType; }
