@@ -13,20 +13,20 @@
         app:title="Contacts"
         app:titleTextColor="@color/white" />
 
-    <com.google.android.material.search.SearchBar
-        android:id="@+id/searchBar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/toolbar"
-        :hint="Search contacts"
-        app:strokeColor="@color/light_gray"
-        app:strokeWidth="1dp" />
+<!--    <com.google.android.material.search.SearchBar-->
+<!--        android:id="@+id/searchBar"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_below="@id/toolbar"-->
+<!--        hint="Search contacts"-->
+<!--        app:strokeColor="@color/light_gray"-->
+<!--        app:strokeWidth="1dp" />-->
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/contactsRecyclerView"
         android:layout_width="match_parent"
+        android:layout_below="@id/toolbar"
         android:layout_height="match_parent"
-        android:layout_below="@id/searchBar"
         android:clipToPadding="false"
         android:paddingBottom="72dp" />
 
