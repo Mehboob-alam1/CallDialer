@@ -11,6 +11,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
@@ -26,8 +27,9 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.mehboob.dialeradmin.adapters.CallHistoryAdapter;
+import com.mehboob.dialeradmin.adapters.ChildCallLogAdapter;
 import com.mehboob.dialeradmin.models.CallHistory;
+import com.mehboob.dialeradmin.models.ChildCallLog;
 import com.mehboob.dialeradmin.models.AdminModel;
 import com.mehboob.dialeradmin.Config;
 
@@ -45,9 +47,9 @@ public class CallHistoryActivity extends AppCompatActivity {
     private LinearLayout emptyStateLayout;
     private TextView emptyStateText;
     
-    private CallHistoryAdapter adapter;
-    private List<CallHistory> allCallHistory = new ArrayList<>();
-    private List<CallHistory> filteredCallHistory = new ArrayList<>();
+    private ChildCallLogAdapter adapter;
+    private List<ChildCallLog> allCallHistory = new ArrayList<>();
+    private List<ChildCallLog> filteredCallHistory = new ArrayList<>();
     
     private String selectedFilter = "all";
     private String childNumberFilter = null;
@@ -95,9 +97,15 @@ public class CallHistoryActivity extends AppCompatActivity {
     }
 
     private void setupRecyclerView() {
-        adapter = new CallHistoryAdapter(filteredCallHistory);
+        adapter = new ChildCallLogAdapter(filteredCallHistory);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
+        
+        // Set click listener
+        adapter.setOnCallLogClickListener(callLog -> {
+            // Handle call log click - could show details dialog
+            showCallLogDetails(callLog);
+        });
     }
 
     private void setupChipGroup() {
@@ -202,38 +210,83 @@ public class CallHistoryActivity extends AppCompatActivity {
     private void loadCallHistory() {
         if (currentAdmin == null) return;
         
-        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        DatabaseReference callHistoryRef = FirebaseDatabase.getInstance()
-                .getReference(Config.FIREBASE_CALL_HISTORY_NODE)
-                .child(uid);
+        allCallHistory.clear();
         
-        callHistoryRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                allCallHistory.clear();
-                for (DataSnapshot child : snapshot.getChildren()) {
-                    CallHistory call = child.getValue(CallHistory.class);
-                    if (call != null) {
-                        allCallHistory.add(call);
+        // Get all child numbers for this admin
+        List<String> childNumbers = currentAdmin.getChildNumbers();
+        if (childNumbers == null || childNumbers.isEmpty()) {
+            applyFilters();
+            swipeRefreshLayout.setRefreshing(false);
+            return;
+        }
+        
+        // Load call logs for each child number
+        DatabaseReference callLogsRef = FirebaseDatabase.getInstance()
+                .getReference(Config.FIREBASE_CALL_HISTORY_NODE);
+        
+        final int[] loadedCount = {0};
+        final int totalChildNumbers = childNumbers.size();
+        
+        for (String childNumber : childNumbers) {
+            callLogsRef.child(childNumber).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    if (snapshot.exists()) {
+                        for (DataSnapshot callSnapshot : snapshot.getChildren()) {
+                            try {
+                                ChildCallLog callLog = callSnapshot.getValue(ChildCallLog.class);
+                                if (callLog != null) {
+                                    // Set the child number and call ID
+                                    callLog.setChildNumber(childNumber);
+                                    callLog.setId(callSnapshot.getKey());
+                                    allCallHistory.add(callLog);
+                                }
+                            } catch (Exception e) {
+                                Log.e(TAG, "Error parsing call log: " + e.getMessage());
+                                // Try manual parsing for legacy format
+                                try {
+                                    ChildCallLog callLog = new ChildCallLog();
+                                    callLog.setId(callSnapshot.getKey());
+                                    callLog.setChildNumber(childNumber);
+                                    callLog.setNumber(callSnapshot.child("number").getValue(String.class));
+                                    callLog.setType(callSnapshot.child("type").getValue(String.class));
+                                    callLog.setTimestamp(callSnapshot.child("timestamp").getValue(Long.class) != null ? 
+                                                       callSnapshot.child("timestamp").getValue(Long.class) : 0L);
+                                    callLog.setDuration(callSnapshot.child("duration").getValue(Long.class) != null ? 
+                                                      callSnapshot.child("duration").getValue(Long.class) : 0L);
+                                    allCallHistory.add(callLog);
+                                } catch (Exception manualError) {
+                                    Log.e(TAG, "Manual parsing also failed: " + manualError.getMessage());
+                                }
+                            }
+                        }
+                    }
+                    
+                    loadedCount[0]++;
+                    if (loadedCount[0] >= totalChildNumbers) {
+                        // All child numbers loaded, apply filters
+                        applyFilters();
+                        swipeRefreshLayout.setRefreshing(false);
                     }
                 }
-                
-                applyFilters();
-                swipeRefreshLayout.setRefreshing(false);
-            }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(CallHistoryActivity.this, "Error loading call history: " + error.getMessage(), Toast.LENGTH_SHORT).show();
-                swipeRefreshLayout.setRefreshing(false);
-            }
-        });
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    Log.e(TAG, "Error loading call logs for " + childNumber + ": " + error.getMessage());
+                    loadedCount[0]++;
+                    if (loadedCount[0] >= totalChildNumbers) {
+                        applyFilters();
+                        swipeRefreshLayout.setRefreshing(false);
+                    }
+                }
+            });
+        }
     }
 
     private void applyFilters() {
         filteredCallHistory.clear();
         
-        for (CallHistory call : allCallHistory) {
+        for (ChildCallLog call : allCallHistory) {
             // Apply child number filter if specified
             if (childNumberFilter != null && !childNumberFilter.equals(call.getChildNumber())) {
                 continue;
@@ -241,11 +294,13 @@ public class CallHistoryActivity extends AppCompatActivity {
             
             // Apply call type filter
             if (selectedFilter.equals("all") || 
-                selectedFilter.equals(call.getCallType().toLowerCase()) ||
-                (selectedFilter.equals("premium") && call.isPremiumCall())) {
+                selectedFilter.equals(call.getType().toLowerCase())) {
                 filteredCallHistory.add(call);
             }
         }
+        
+        // Sort by timestamp (most recent first)
+        filteredCallHistory.sort((a, b) -> Long.compare(b.getTimestamp(), a.getTimestamp()));
         
         adapter.notifyDataSetChanged();
         updateEmptyState();
@@ -259,12 +314,39 @@ public class CallHistoryActivity extends AppCompatActivity {
             if (childNumberFilter != null) {
                 emptyStateText.setText("No call history found for " + childNumberFilter);
             } else {
-                emptyStateText.setText("No call history found");
+                emptyStateText.setText("No call history found for your child numbers");
             }
         } else {
             emptyStateLayout.setVisibility(View.GONE);
             recyclerView.setVisibility(View.VISIBLE);
         }
+        
+        // Update toolbar title with call count
+        updateToolbarTitle();
+    }
+    
+    private void updateToolbarTitle() {
+        if (getSupportActionBar() != null) {
+            String title = "Call History";
+            if (childNumberFilter != null) {
+                title = "Call History - " + childNumberFilter;
+            }
+            title += " (" + filteredCallHistory.size() + " calls)";
+            getSupportActionBar().setTitle(title);
+        }
+    }
+    
+    private void showCallLogDetails(ChildCallLog callLog) {
+        new AlertDialog.Builder(this)
+                .setTitle("Call Details")
+                .setMessage("Child Number: " + callLog.getChildNumber() + "\n" +
+                           "Contact: " + callLog.getNumber() + "\n" +
+                           "Type: " + callLog.getCallTypeDisplay() + "\n" +
+                           "Duration: " + callLog.getFormattedDuration() + "\n" +
+                           "Date: " + callLog.getFormattedDate() + "\n" +
+                           "Time: " + callLog.getFormattedTime())
+                .setPositiveButton("OK", null)
+                .show();
     }
 
     @Override
