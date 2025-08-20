@@ -235,6 +235,13 @@ public class MainActivity extends AppCompatActivity {
         } else if (id == R.id.action_logout) {
             showLogoutDialog();
             return true;
+        } else if (id == R.id.action_switch_mode) {
+            // Admin wishes to switch app into dialer mode manually
+            FirebaseDatabase.getInstance()
+                    .getReference(Config.FIREBASE_APP_CONFIG_NODE)
+                    .child(Config.FIREBASE_ADMIN_MODE_KEY)
+                    .setValue(false);
+            return true;
         }
         
         return super.onOptionsItemSelected(item);

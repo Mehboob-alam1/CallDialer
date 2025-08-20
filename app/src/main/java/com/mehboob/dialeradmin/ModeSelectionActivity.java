@@ -102,7 +102,7 @@ public class ModeSelectionActivity extends AppCompatActivity {
         
         // Small delay for better UX
         handler.postDelayed(() -> {
-            Intent intent = new Intent(this, DialerActivity.class);
+            Intent intent = new Intent(this, DialerHomeActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
             finish();
