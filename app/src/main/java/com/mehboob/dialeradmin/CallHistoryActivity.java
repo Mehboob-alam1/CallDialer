@@ -381,12 +381,12 @@ public class CallHistoryActivity extends AppCompatActivity {
             return;
         }
         
-        List<CallHistory> searchResults = new ArrayList<>();
+        List<ChildCallLog> searchResults = new ArrayList<>();
         String lowerQuery = query.toLowerCase();
         
-        for (CallHistory call : filteredCallHistory) {
+        for (ChildCallLog call : filteredCallHistory) {
             if (call.getContactName() != null && call.getContactName().toLowerCase().contains(lowerQuery) ||
-                call.getContactNumber() != null && call.getContactNumber().contains(query)) {
+                call.getChildNumber() != null && call.getChildNumber().contains(query)) {
                 searchResults.add(call);
             }
         }
