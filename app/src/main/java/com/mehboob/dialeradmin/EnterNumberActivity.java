@@ -15,6 +15,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -238,6 +239,8 @@ public class EnterNumberActivity extends AppCompatActivity {
                     Toast.makeText(EnterNumberActivity.this, "Number already added", Toast.LENGTH_SHORT).show();
                     return;
                 }
+
+
                 
                 // Get current child numbers list and add the new number
                 adminRef.child("childNumbers").get().addOnSuccessListener(dataSnapshot -> {
