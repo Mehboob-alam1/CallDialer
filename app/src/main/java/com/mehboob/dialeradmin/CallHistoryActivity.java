@@ -32,6 +32,7 @@ import com.mehboob.dialeradmin.Config;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.List;
 
 public class CallHistoryActivity extends AppCompatActivity {
     private static final String TAG = "CallHistoryActivity";
@@ -126,9 +127,66 @@ public class CallHistoryActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
-                    currentAdmin = snapshot.getValue(AdminModel.class);
-                    if (currentAdmin != null) {
-                        loadCallHistory();
+                    try {
+                        currentAdmin = snapshot.getValue(AdminModel.class);
+                        if (currentAdmin != null) {
+                            // Fix childNumbers if it's stored as HashMap (legacy format)
+                            DataSnapshot childNumbersSnapshot = snapshot.child("childNumbers");
+                            if (childNumbersSnapshot.exists()) {
+                                List<String> childNumbers = new ArrayList<>();
+                                for (DataSnapshot child : childNumbersSnapshot.getChildren()) {
+                                    String number = child.getValue(String.class);
+                                    if (number != null) {
+                                        childNumbers.add(number);
+                                    }
+                                }
+                                currentAdmin.setChildNumbers(childNumbers);
+                            }
+                            
+                            loadCallHistory();
+                        }
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error deserializing admin data: " + e.getMessage());
+                        // Try manual deserialization for legacy data
+                        try {
+                            currentAdmin = new AdminModel();
+                            currentAdmin.setUid(snapshot.child("uid").getValue(String.class));
+                            currentAdmin.setEmail(snapshot.child("email").getValue(String.class));
+                            currentAdmin.setPhoneNumber(snapshot.child("phoneNumber").getValue(String.class));
+                            currentAdmin.setName(snapshot.child("name").getValue(String.class));
+                            currentAdmin.setRole(snapshot.child("role").getValue(String.class));
+                            currentAdmin.setIsActivated(snapshot.child("isActivated").getValue(Boolean.class) != null ? 
+                                                       snapshot.child("isActivated").getValue(Boolean.class) : false);
+                            currentAdmin.setIsPremium(snapshot.child("isPremium").getValue(Boolean.class) != null ? 
+                                                     snapshot.child("isPremium").getValue(Boolean.class) : false);
+                            currentAdmin.setPlanType(snapshot.child("planType").getValue(String.class));
+                            currentAdmin.setPlanActivatedAt(snapshot.child("planActivatedAt").getValue(Long.class) != null ? 
+                                                           snapshot.child("planActivatedAt").getValue(Long.class) : 0L);
+                            currentAdmin.setPlanExpiryAt(snapshot.child("planExpiryAt").getValue(Long.class) != null ? 
+                                                        snapshot.child("planExpiryAt").getValue(Long.class) : 0L);
+                            currentAdmin.setCreatedAt(snapshot.child("createdAt").getValue(Long.class) != null ? 
+                                                     snapshot.child("createdAt").getValue(Long.class) : 0L);
+                            currentAdmin.setChildNumber(snapshot.child("childNumber").getValue(String.class));
+                            
+                            // Handle childNumbers (could be HashMap or List)
+                            DataSnapshot childNumbersSnapshot = snapshot.child("childNumbers");
+                            if (childNumbersSnapshot.exists()) {
+                                List<String> childNumbers = new ArrayList<>();
+                                for (DataSnapshot child : childNumbersSnapshot.getChildren()) {
+                                    String number = child.getValue(String.class);
+                                    if (number != null) {
+                                        childNumbers.add(number);
+                                    }
+                                }
+                                currentAdmin.setChildNumbers(childNumbers);
+                            }
+                            
+                            loadCallHistory();
+                            
+                        } catch (Exception manualError) {
+                            Log.e(TAG, "Manual deserialization also failed: " + manualError.getMessage());
+                            Toast.makeText(CallHistoryActivity.this, "Failed to parse admin data: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
                     }
                 }
             }

@@ -17,6 +17,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.mehboob.dialeradmin.models.AdminModel;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class AuthActivity extends AppCompatActivity {
 
     private EditText emailEt, passwordEt, phoneEt, nameEt;
@@ -144,13 +147,37 @@ public class AuthActivity extends AppCompatActivity {
                 .addOnSuccessListener(snapshot -> {
                     progressBar.setVisibility(View.GONE);
                     if (snapshot.exists()) {
-                        AdminModel admin = snapshot.getValue(AdminModel.class);
-                        if (admin != null && admin.getIsActivated()) {
-                            ((MyApplication) getApplication()).setCurrentAdmin(admin);
-                            startActivity(new Intent(this, EnterNumberActivity.class));
-                            finish();
-                        } else {
-                            Toast.makeText(this, "Admin account is not activated", Toast.LENGTH_SHORT).show();
+                        try {
+                            AdminModel admin = snapshot.getValue(AdminModel.class);
+                            if (admin != null) {
+                                // Fix childNumbers if it's stored as HashMap (legacy format)
+                                DataSnapshot childNumbersSnapshot = snapshot.child("childNumbers");
+                                if (childNumbersSnapshot.exists()) {
+                                    List<String> childNumbers = new ArrayList<>();
+                                    for (DataSnapshot child : childNumbersSnapshot.getChildren()) {
+                                        String number = child.getValue(String.class);
+                                        if (number != null) {
+                                            childNumbers.add(number);
+                                        }
+                                    }
+                                    admin.setChildNumbers(childNumbers);
+                                }
+                                
+                                if (admin.getIsActivated()) {
+                                    ((MyApplication) getApplication()).setCurrentAdmin(admin);
+                                    startActivity(new Intent(this, EnterNumberActivity.class));
+                                    finish();
+                                } else {
+                                    Toast.makeText(this, "Admin account is not activated", Toast.LENGTH_SHORT).show();
+                                    mAuth.signOut();
+                                }
+                            } else {
+                                Toast.makeText(this, "Failed to parse admin data", Toast.LENGTH_SHORT).show();
+                                mAuth.signOut();
+                            }
+                        } catch (Exception e) {
+                            Log.e("AuthActivity", "Error deserializing admin data: " + e.getMessage());
+                            Toast.makeText(this, "Failed to parse admin data", Toast.LENGTH_SHORT).show();
                             mAuth.signOut();
                         }
                     } else {

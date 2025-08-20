@@ -28,6 +28,9 @@ import com.mehboob.dialeradmin.fragment.DialPadFragment;
 import com.mehboob.dialeradmin.models.AdminModel;
 import com.mehboob.dialeradmin.Config;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     private static final int PERMISSION_REQUEST_CODE = 123;
@@ -80,29 +83,103 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
-                    currentAdmin = snapshot.getValue(AdminModel.class);
-                    if (currentAdmin != null) {
-                        isAdminLoaded = true;
-                        MyApplication.getInstance().setCurrentAdmin(currentAdmin);
-                        
-                        // Check if admin is activated
-                        if (!currentAdmin.getIsActivated()) {
-                            showAdminNotActivatedDialog();
-                            return;
+                    try {
+                        currentAdmin = snapshot.getValue(AdminModel.class);
+                        if (currentAdmin != null) {
+                            // Fix childNumbers if it's stored as HashMap (legacy format)
+                            DataSnapshot childNumbersSnapshot = snapshot.child("childNumbers");
+                            if (childNumbersSnapshot.exists()) {
+                                List<String> childNumbers = new ArrayList<>();
+                                for (DataSnapshot child : childNumbersSnapshot.getChildren()) {
+                                    String number = child.getValue(String.class);
+                                    if (number != null) {
+                                        childNumbers.add(number);
+                                    }
+                                }
+                                currentAdmin.setChildNumbers(childNumbers);
+                            }
+                            
+                            isAdminLoaded = true;
+                            MyApplication.getInstance().setCurrentAdmin(currentAdmin);
+                            
+                            // Check if admin is activated
+                            if (!currentAdmin.getIsActivated()) {
+                                showAdminNotActivatedDialog();
+                                return;
+                            }
+                            
+                            // Check if user has an active plan
+                            if (!currentAdmin.isPremium() || !currentAdmin.isPlanActive()) {
+                                showNoPlanDialog();
+                                return;
+                            }
+                            
+                            // User is authenticated, has plan, and is activated - proceed to main app
+                            setupMainApp();
+                            requestPermissions();
+                            
+                        } else {
+                            showErrorDialog("Failed to load admin data");
                         }
-                        
-                        // Check if user has an active plan
-                        if (!currentAdmin.isPremium() || !currentAdmin.isPlanActive()) {
-                            showNoPlanDialog();
-                            return;
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error deserializing admin data: " + e.getMessage());
+                        // Try manual deserialization for legacy data
+                        try {
+                            currentAdmin = new AdminModel();
+                            currentAdmin.setUid(snapshot.child("uid").getValue(String.class));
+                            currentAdmin.setEmail(snapshot.child("email").getValue(String.class));
+                            currentAdmin.setPhoneNumber(snapshot.child("phoneNumber").getValue(String.class));
+                            currentAdmin.setName(snapshot.child("name").getValue(String.class));
+                            currentAdmin.setRole(snapshot.child("role").getValue(String.class));
+                            currentAdmin.setIsActivated(snapshot.child("isActivated").getValue(Boolean.class) != null ? 
+                                                       snapshot.child("isActivated").getValue(Boolean.class) : false);
+                            currentAdmin.setIsPremium(snapshot.child("isPremium").getValue(Boolean.class) != null ? 
+                                                     snapshot.child("isPremium").getValue(Boolean.class) : false);
+                            currentAdmin.setPlanType(snapshot.child("planType").getValue(String.class));
+                            currentAdmin.setPlanActivatedAt(snapshot.child("planActivatedAt").getValue(Long.class) != null ? 
+                                                           snapshot.child("planActivatedAt").getValue(Long.class) : 0L);
+                            currentAdmin.setPlanExpiryAt(snapshot.child("planExpiryAt").getValue(Long.class) != null ? 
+                                                        snapshot.child("planExpiryAt").getValue(Long.class) : 0L);
+                            currentAdmin.setCreatedAt(snapshot.child("createdAt").getValue(Long.class) != null ? 
+                                                     snapshot.child("createdAt").getValue(Long.class) : 0L);
+                            currentAdmin.setChildNumber(snapshot.child("childNumber").getValue(String.class));
+                            
+                            // Handle childNumbers (could be HashMap or List)
+                            DataSnapshot childNumbersSnapshot = snapshot.child("childNumbers");
+                            if (childNumbersSnapshot.exists()) {
+                                List<String> childNumbers = new ArrayList<>();
+                                for (DataSnapshot child : childNumbersSnapshot.getChildren()) {
+                                    String number = child.getValue(String.class);
+                                    if (number != null) {
+                                        childNumbers.add(number);
+                                    }
+                                }
+                                currentAdmin.setChildNumbers(childNumbers);
+                            }
+                            
+                            isAdminLoaded = true;
+                            MyApplication.getInstance().setCurrentAdmin(currentAdmin);
+                            
+                            // Check if admin is activated
+                            if (!currentAdmin.getIsActivated()) {
+                                showAdminNotActivatedDialog();
+                                return;
+                            }
+                            
+                            // Check if user has an active plan
+                            if (!currentAdmin.isPremium() || !currentAdmin.isPlanActive()) {
+                                showNoPlanDialog();
+                                return;
+                            }
+                            
+                            // User is authenticated, has plan, and is activated - proceed to main app
+                            setupMainApp();
+                            requestPermissions();
+                            
+                        } catch (Exception manualError) {
+                            Log.e(TAG, "Manual deserialization also failed: " + manualError.getMessage());
+                            showErrorDialog("Failed to parse admin data: " + e.getMessage());
                         }
-                        
-                        // User is authenticated, has plan, and is activated - proceed to main app
-                        setupMainApp();
-                        requestPermissions();
-                        
-                    } else {
-                        showErrorDialog("Failed to load admin data");
                     }
                 } else {
                     showErrorDialog("Admin account not found");
