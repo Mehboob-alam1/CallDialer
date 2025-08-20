@@ -25,7 +25,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.mehboob.dialeradmin.fragment.DialPadFragment;
 import com.mehboob.dialeradmin.models.AdminModel;
 import com.mehboob.dialeradmin.Config;
 
@@ -195,11 +194,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupMainApp(Bundle savedInstanceState) {
-        // Load the dial pad fragment
+        // In Admin mode, show tracked numbers' call history instead of dialer
         if (savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragmentContainer, new DialPadFragment())
-                    .commit();
+            startActivity(new Intent(this, CallHistoryActivity.class));
         }
     }
 
