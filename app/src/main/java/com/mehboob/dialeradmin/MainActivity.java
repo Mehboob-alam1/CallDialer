@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -47,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
         
         initViews();
         setupToolbar();
-        checkAuthentication();
+        checkAuthentication(savedInstanceState);
     }
 
     private void initViews() {
@@ -62,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void checkAuthentication() {
+    private void checkAuthentication(Bundle savedInstanceState) {
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser == null) {
             // User not authenticated, redirect to login
@@ -71,10 +72,10 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // User is authenticated, check admin status and plan
-        loadAdminData(currentUser.getUid());
+        loadAdminData(currentUser.getUid(),savedInstanceState);
     }
 
-    private void loadAdminData(String uid) {
+    private void loadAdminData(String uid,Bundle savedInstanceState) {
         DatabaseReference adminRef = FirebaseDatabase.getInstance()
                 .getReference(Config.FIREBASE_ADMINS_NODE)
                 .child(uid);
@@ -115,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
                             }
                             
                             // User is authenticated, has plan, and is activated - proceed to main app
-                            setupMainApp();
+                            setupMainApp(savedInstanceState);
                             requestPermissions();
                             
                         } else {
@@ -173,7 +174,7 @@ public class MainActivity extends AppCompatActivity {
                             }
                             
                             // User is authenticated, has plan, and is activated - proceed to main app
-                            setupMainApp();
+                            setupMainApp(savedInstanceState);
                             requestPermissions();
                             
                         } catch (Exception manualError) {
@@ -193,7 +194,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void setupMainApp() {
+    private void setupMainApp(Bundle savedInstanceState) {
         // Load the dial pad fragment
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
@@ -338,7 +339,7 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         // Refresh admin data when returning from other activities
         if (mAuth.getCurrentUser() != null && !isAdminLoaded) {
-            loadAdminData(mAuth.getCurrentUser().getUid());
+           // loadAdminData(mAuth.getCurrentUser().getUid());
         }
     }
 

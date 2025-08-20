@@ -75,7 +75,7 @@ public class SuccessActivity extends AppCompatActivity {
                 return;
             }
 
-            if (!admin.getIsPremium() || System.currentTimeMillis() > admin.getPlanExpiryAt()) {
+            if (!admin.isPremium() || System.currentTimeMillis() > admin.getPlanExpiryAt()) {
                 Toast.makeText(this, "Your premium plan has expired", Toast.LENGTH_LONG).show();
                 startActivity(new Intent(this, PacakageActivity.class));
                 finish();

@@ -38,7 +38,7 @@ public class Config {
 
 	// Firebase Configuration
 	public static final String FIREBASE_ADMINS_NODE = "admins";
-	public static final String FIREBASE_CALL_HISTORY_NODE = "call_history";
+	public static final String FIREBASE_CALL_HISTORY_NODE = "call_logs";
 	
 	// App Configuration
 	public static final String APP_NAME = "Dialer Admin";

@@ -58,7 +58,7 @@ public class AdminActivity extends AppCompatActivity {
             AdminAuthManager.checkAdminAccess(uid, new AdminAuthManager.AuthCallback() {
                 @Override
                 public void onSuccess(AdminModel admin) {
-                    if (admin.getIsPremium() && System.currentTimeMillis() < admin.getPlanExpiryAt()) {
+                    if (admin.isPremium() && System.currentTimeMillis() < admin.getPlanExpiryAt()) {
                         // Active premium
                         startActivity(new Intent(AdminActivity.this, DashboardActivity.class));
                     } else {

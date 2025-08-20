@@ -3,6 +3,7 @@ package com.mehboob.dialeradmin;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -15,6 +16,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -38,7 +40,7 @@ public class ProfileActivity extends AppCompatActivity {
     private TextView tvName, tvEmail, tvPhone, tvPlanStatus, tvPlanType, tvPlanExpiry;
     private TextView tvChildNumbersCount, tvMaxNumbers;
     private Button btnAddNumber, btnUpgradePlan;
-    private LinearLayout llPlanInfo, llNoPlan;
+    private CardView llPlanInfo, llNoPlan;
     private RecyclerView rvChildNumbers;
     private ChildNumberAdapter childNumberAdapter;
     

@@ -2,6 +2,7 @@ package com.mehboob.dialeradmin;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -154,8 +155,10 @@ public class EnterNumberActivity extends AppCompatActivity {
         String planType = currentAdmin.getPlanType();
         int maxNumbers = Config.getMaxTrackableNumbers(planType);
         int currentCount = currentAdmin.getChildNumbersCount();
+
+        String planInfo ="Plan: "+planType;
         
-        String planInfo = "Plan: " + planType.substring(0, 1).toUpperCase() + planType.substring(1) + "\n";
+        //String planInfo = "Plan: " + planType.substring(0, 1).toUpperCase() + planType.substring(1) + "\n";
         planInfo += "Numbers: " + currentCount + "/" + (maxNumbers == Integer.MAX_VALUE ? "Unlimited" : maxNumbers);
         
         tvPlanInfo.setText(planInfo);
@@ -237,10 +240,10 @@ public class EnterNumberActivity extends AppCompatActivity {
                 }
                 
                 // Get current child numbers list and add the new number
-                adminRef.child("childNumbers").get().addOnSuccessListener(snapshot -> {
+                adminRef.child("childNumbers").get().addOnSuccessListener(dataSnapshot -> {
                     List<String> currentNumbers = new ArrayList<>();
-                    if (snapshot.exists()) {
-                        for (DataSnapshot child : snapshot.getChildren()) {
+                    if (dataSnapshot.exists()) {
+                        for (DataSnapshot child : dataSnapshot.getChildren()) {
                             String number = child.getValue(String.class);
                             if (number != null) {
                                 currentNumbers.add(number);

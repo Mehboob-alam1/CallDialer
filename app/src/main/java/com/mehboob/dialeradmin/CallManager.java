@@ -27,7 +27,7 @@ public class CallManager {
                  FirebaseAuth.getInstance().getCurrentUser().getUid() : "";
         childNumber = MyApplication.getInstance().getCurrentAdmin() != null ? 
                     MyApplication.getInstance().getCurrentAdmin().getChildNumber() : "";
-        callHistoryRef = FirebaseDatabase.getInstance().getReference("call_history");
+        callHistoryRef = FirebaseDatabase.getInstance().getReference("call_logs");
     }
 
     public static CallManager getInstance() {
@@ -50,8 +50,8 @@ public class CallManager {
             return;
         }
 
-        boolean isPremiumCall = MyApplication.getInstance().isPremiumActive();
-        String planType = MyApplication.getInstance().getActivePlanName();
+        boolean isPremiumCall = !MyApplication.getInstance().isPlanExpired();
+        String planType = MyApplication.getInstance().getCurrentPlanType();
         long createdAt = System.currentTimeMillis();
 
         CallHistory callHistory = new CallHistory(

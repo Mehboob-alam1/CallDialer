@@ -67,7 +67,7 @@
     </style>
 
     <!-- Progress bar styles -->
-    <style name="Widget.DialerAdmin.ProgressBar" parent="Widget.MaterialComponents.ProgressBar">
+    <style name="Widget.DialerAdmin.ProgressBar" parent="Widget.AppCompat.ProgressBar">
         <item name="android:indeterminateTint">@color/primary</item>
         <item name="android:progressTint">@color/primary</item>
     </style>
