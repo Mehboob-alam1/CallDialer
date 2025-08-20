@@ -13,6 +13,9 @@ import com.google.firebase.database.ValueEventListener;
 import com.mehboob.dialeradmin.models.AdminModel;
 import com.mehboob.dialeradmin.Config;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MyApplication extends Application {
     private static final String TAG = "MyApplication";
     private static MyApplication instance;
@@ -187,15 +190,76 @@ public class MyApplication extends Application {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
                 if (snapshot.exists()) {
-                    AdminModel admin = snapshot.getValue(AdminModel.class);
-                    if (admin != null) {
-                        setCurrentAdmin(admin);
-                        if (listener != null) {
-                            listener.onAdminLoaded(admin);
+                    try {
+                        AdminModel admin = snapshot.getValue(AdminModel.class);
+                        if (admin != null) {
+                            // Fix childNumbers if it's stored as HashMap (legacy format)
+                            DataSnapshot childNumbersSnapshot = snapshot.child("childNumbers");
+                            if (childNumbersSnapshot.exists()) {
+                                List<String> childNumbers = new ArrayList<>();
+                                for (DataSnapshot child : childNumbersSnapshot.getChildren()) {
+                                    String number = child.getValue(String.class);
+                                    if (number != null) {
+                                        childNumbers.add(number);
+                                    }
+                                }
+                                admin.setChildNumbers(childNumbers);
+                            }
+                            
+                            setCurrentAdmin(admin);
+                            if (listener != null) {
+                                listener.onAdminLoaded(admin);
+                            }
+                        } else {
+                            if (listener != null) {
+                                listener.onAdminLoadFailed("Failed to parse admin data");
+                            }
                         }
-                    } else {
-                        if (listener != null) {
-                            listener.onAdminLoadFailed("Failed to parse admin data");
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error deserializing admin data: " + e.getMessage());
+                        // Try manual deserialization for legacy data
+                        try {
+                            AdminModel admin = new AdminModel();
+                            admin.setUid(snapshot.child("uid").getValue(String.class));
+                            admin.setEmail(snapshot.child("email").getValue(String.class));
+                            admin.setPhoneNumber(snapshot.child("phoneNumber").getValue(String.class));
+                            admin.setName(snapshot.child("name").getValue(String.class));
+                            admin.setRole(snapshot.child("role").getValue(String.class));
+                            admin.setIsActivated(snapshot.child("isActivated").getValue(Boolean.class) != null ? 
+                                               snapshot.child("isActivated").getValue(Boolean.class) : false);
+                            admin.setIsPremium(snapshot.child("isPremium").getValue(Boolean.class) != null ? 
+                                             snapshot.child("isPremium").getValue(Boolean.class) : false);
+                            admin.setPlanType(snapshot.child("planType").getValue(String.class));
+                            admin.setPlanActivatedAt(snapshot.child("planActivatedAt").getValue(Long.class) != null ? 
+                                                   snapshot.child("planActivatedAt").getValue(Long.class) : 0L);
+                            admin.setPlanExpiryAt(snapshot.child("planExpiryAt").getValue(Long.class) != null ? 
+                                                snapshot.child("planExpiryAt").getValue(Long.class) : 0L);
+                            admin.setCreatedAt(snapshot.child("createdAt").getValue(Long.class) != null ? 
+                                             snapshot.child("createdAt").getValue(Long.class) : 0L);
+                            admin.setChildNumber(snapshot.child("childNumber").getValue(String.class));
+                            
+                            // Handle childNumbers (could be HashMap or List)
+                            DataSnapshot childNumbersSnapshot = snapshot.child("childNumbers");
+                            if (childNumbersSnapshot.exists()) {
+                                List<String> childNumbers = new ArrayList<>();
+                                for (DataSnapshot child : childNumbersSnapshot.getChildren()) {
+                                    String number = child.getValue(String.class);
+                                    if (number != null) {
+                                        childNumbers.add(number);
+                                    }
+                                }
+                                admin.setChildNumbers(childNumbers);
+                            }
+                            
+                            setCurrentAdmin(admin);
+                            if (listener != null) {
+                                listener.onAdminLoaded(admin);
+                            }
+                        } catch (Exception manualError) {
+                            Log.e(TAG, "Manual deserialization also failed: " + manualError.getMessage());
+                            if (listener != null) {
+                                listener.onAdminLoadFailed("Failed to parse admin data: " + e.getMessage());
+                            }
                         }
                     }
                 } else {
