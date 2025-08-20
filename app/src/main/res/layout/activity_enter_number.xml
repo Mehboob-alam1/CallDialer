@@ -103,7 +103,7 @@
                         android:background="@drawable/edittext_bg"
                         android:padding="12dp"
                         android:inputType="phone"
-                        android:maxLength="10"
+                        android:maxLength="11"
                         android:drawableStart="@drawable/ic_phone"
                         android:drawablePadding="8dp"
                         android:enabled="false" />

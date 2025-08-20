@@ -302,6 +302,8 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
         
         if (id == R.id.action_call_history) {
+            Log.d("c","JKL");
+
             startActivity(new Intent(this, CallHistoryActivity.class));
             return true;
         } else if (id == R.id.action_packages) {

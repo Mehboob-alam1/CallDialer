@@ -348,12 +348,14 @@ public class EnterNumberActivity extends AppCompatActivity {
     }
 
     private boolean isValidIndianNumber(String number) {
-        // Remove any spaces or special characters
+        // Remove spaces, dashes, or parentheses
         number = number.replaceAll("[\\s\\-()]", "");
-        
-        // Check if it's a 10-digit number starting with 6, 7, 8, or 9
-        return number.length() == 10 && number.matches("^[6-9]\\d{9}$");
+
+        // Check if it's an 11-digit number starting with 6,7,8,9
+        return number.length() == 11;
+//        && number.matches("^[6-9]\\d{10}$");
     }
+
 
     @Override
     public boolean onSupportNavigateUp() {
