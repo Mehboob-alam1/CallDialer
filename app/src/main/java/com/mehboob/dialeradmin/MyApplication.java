@@ -1,6 +1,8 @@
 package com.mehboob.dialeradmin;
 
+import android.app.Activity;
 import android.app.Application;
+import android.content.Intent;
 import android.util.Log;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -219,5 +221,91 @@ public class MyApplication extends Application {
 
     public interface OnModeChangeListener {
         void onModeChanged(boolean isAdminMode);
+    }
+
+    // ===== Centralized Navigation Helpers for Smooth UX =====
+
+    /**
+     * Entry point for Admin mode. Decides where to go based on auth and plan state.
+     */
+    public void routeToAdminFlow(Activity activity, boolean clearTask) {
+        if (activity == null) return;
+
+        if (!isUserAuthenticated()) {
+            // Not logged in → go to Auth
+            Intent i = new Intent(activity, AuthActivity.class);
+            if (clearTask) i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            activity.startActivity(i);
+            activity.finish();
+            return;
+        }
+
+        // If admin already loaded, decide immediately; otherwise load then decide
+        if (isAdminLoaded && currentAdmin != null) {
+            proceedToAdminDestination(activity, clearTask);
+        } else {
+            String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+            loadAdminData(uid, new OnAdminLoadedListener() {
+                @Override
+                public void onAdminLoaded(AdminModel admin) {
+                    proceedToAdminDestination(activity, clearTask);
+                }
+
+                @Override
+                public void onAdminLoadFailed(String error) {
+                    Log.e(TAG, "Admin load failed: " + error);
+                    // Fallback to Auth to recover
+                    Intent i = new Intent(activity, AuthActivity.class);
+                    if (clearTask) i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    activity.startActivity(i);
+                    activity.finish();
+                }
+            });
+        }
+    }
+
+    private void proceedToAdminDestination(Activity activity, boolean clearTask) {
+        if (currentAdmin == null) {
+            Intent i = new Intent(activity, AuthActivity.class);
+            if (clearTask) i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            activity.startActivity(i);
+            activity.finish();
+            return;
+        }
+
+        // If not activated, let MainActivity show the activation dialog and handle logout
+        if (!currentAdmin.getIsActivated()) {
+            Intent i = new Intent(activity, MainActivity.class);
+            if (clearTask) i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            activity.startActivity(i);
+            activity.finish();
+            return;
+        }
+
+        // If no active plan or expired → Plans page
+        if (!hasActivePlan()) {
+            Intent i = new Intent(activity, PacakageActivity.class);
+            if (clearTask) i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            activity.startActivity(i);
+            activity.finish();
+            return;
+        }
+
+        // All good → Main Admin screen
+        Intent i = new Intent(activity, MainActivity.class);
+        if (clearTask) i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        activity.startActivity(i);
+        activity.finish();
+    }
+
+    /**
+     * Entry point for Dialer mode. Always goes to dialer home with tabs.
+     */
+    public void routeToDialerFlow(Activity activity, boolean clearTask) {
+        if (activity == null) return;
+        Intent i = new Intent(activity, DialerHomeActivity.class);
+        if (clearTask) i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        activity.startActivity(i);
+        activity.finish();
     }
 }

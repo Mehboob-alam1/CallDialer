@@ -59,9 +59,9 @@ public class ModeSelectionActivity extends AppCompatActivity {
                 Log.d(TAG, "App mode: " + (isAdminMode ? "ADMIN" : "DIALER"));
                 
                 if (isAdminMode) {
-                    launchAdminMode();
+                    MyApplication.getInstance().routeToAdminFlow(ModeSelectionActivity.this, true);
                 } else {
-                    launchDialerMode();
+                    MyApplication.getInstance().routeToDialerFlow(ModeSelectionActivity.this, true);
                 }
             }
 
@@ -89,24 +89,14 @@ public class ModeSelectionActivity extends AppCompatActivity {
         tvStatus.setText("Launching Admin Mode...");
         
         // Small delay for better UX
-        handler.postDelayed(() -> {
-            Intent intent = new Intent(this, AuthActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
-            finish();
-        }, 1000);
+        handler.postDelayed(() -> MyApplication.getInstance().routeToAdminFlow(ModeSelectionActivity.this, true), 1000);
     }
 
     private void launchDialerMode() {
         tvStatus.setText("Launching Dialer Mode...");
         
         // Small delay for better UX
-        handler.postDelayed(() -> {
-            Intent intent = new Intent(this, DialerHomeActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
-            finish();
-        }, 1000);
+        handler.postDelayed(() -> MyApplication.getInstance().routeToDialerFlow(ModeSelectionActivity.this, true), 1000);
     }
 
     @Override
