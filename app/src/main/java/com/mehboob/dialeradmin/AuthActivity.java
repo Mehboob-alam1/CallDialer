@@ -103,7 +103,7 @@ public class AuthActivity extends AppCompatActivity {
                     long now = System.currentTimeMillis();
 
                     // New AdminModel with name
-                    AdminModel adminModel = new AdminModel(uid, email, name, phone, "admin", true, false, "", 0, 0, now, "");
+                    AdminModel adminModel = new AdminModel(uid, email,  phone,name, "admin", true, false, "", 0, 0, now, "");
 
                     adminRef.child(uid).setValue(adminModel)
                             .addOnSuccessListener(unused -> {

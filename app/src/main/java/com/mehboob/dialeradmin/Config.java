@@ -10,7 +10,7 @@ public class Config {
 	public static final String MODE_ADMIN = "admin";
 	
 	// Environment - toggle between SANDBOX and PRODUCTION
-	public static final boolean IS_PRODUCTION = true;
+	public static final boolean IS_PRODUCTION = false;
 
 	// Direct Cashfree integration mode (no backend)
 	public static final boolean USE_DIRECT_CASHFREE = true;
