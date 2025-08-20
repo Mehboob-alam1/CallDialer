@@ -21,9 +21,11 @@ public class AdminModel {
     private List<String> childNumbers; // New field for multiple child numbers
 
     // Required empty constructor for Firebase
+
+
     public AdminModel() {
-        this.childNumbers = new ArrayList<>();
     }
+
 
     public AdminModel(String uid, String email, String phoneNumber, String name, String role,
                       boolean isActivated, boolean isPremium,
