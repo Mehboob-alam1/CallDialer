@@ -36,6 +36,35 @@ public class OrderApiClient {
                 .build();
     }
 
+    private boolean isLikelyJsonResponse(Response response, String body) {
+        String contentType = response.header("Content-Type", "").toLowerCase();
+        String trimmed = body == null ? "" : body.trim();
+        // Consider JSON if header indicates json OR body looks like a JSON object/array
+        return contentType.contains("application/json") || contentType.contains("json")
+                || (trimmed.startsWith("{") || trimmed.startsWith("["));
+    }
+
+    private void handleNonJsonError(Response response, String responseBody, OrderCallback callback) {
+        String ct = response.header("Content-Type", "unknown");
+        int code = response.code();
+        String snippet = responseBody == null ? "" : responseBody.replaceAll("\n", " ");
+        if (snippet.length() > 200) snippet = snippet.substring(0, 200) + "...";
+
+        String hint;
+        if (code == 401) {
+            hint = "Authentication failed. Check Cashfree keys and environment.";
+        } else if (code == 403) {
+            hint = "Access forbidden. In production, ensure app integrity (Play Store) and allowed origins.";
+        } else if (code == 400) {
+            hint = "Bad request. Verify payload fields (amount numeric, order_id unique).";
+        } else {
+            hint = "HTTP " + code + ".";
+        }
+
+        String finalMsg = "Non-JSON response from server: " + hint + " Content-Type=" + ct + ", body=\"" + snippet + "\"";
+        new Handler(Looper.getMainLooper()).post(() -> callback.onError(finalMsg));
+    }
+
     public interface OrderCallback {
         void onSuccess(JSONObject response);
         void onError(String error);
@@ -93,6 +122,12 @@ public class OrderApiClient {
                     String responseBody = response.body() != null ? response.body().string() : "";
                     int code = response.code();
                     Log.d(TAG, "Backend /create-order code=" + code + ", body(first 600)=" + (responseBody.length()>600?responseBody.substring(0,600)+"...":responseBody));
+
+                    if (!isLikelyJsonResponse(response, responseBody)) {
+                        handleNonJsonError(response, responseBody, callback);
+                        return;
+                    }
+
                     try {
                         JSONObject json = new JSONObject(responseBody);
                         if (response.isSuccessful()) {
@@ -160,6 +195,12 @@ public class OrderApiClient {
                     String responseBody = response.body() != null ? response.body().string() : "";
                     int code = response.code();
                     Log.d(TAG, "CF /orders code=" + code + ", body(first 600)=" + (responseBody.length()>600?responseBody.substring(0,600)+"...":responseBody));
+
+                    if (!isLikelyJsonResponse(response, responseBody)) {
+                        handleNonJsonError(response, responseBody, callback);
+                        return;
+                    }
+
                     try {
                         JSONObject json = new JSONObject(responseBody);
                         if (response.isSuccessful()) {
@@ -209,6 +250,12 @@ public class OrderApiClient {
                 String responseBody = response.body() != null ? response.body().string() : "";
                 int code = response.code();
                 Log.d(TAG, "Backend /order-status code=" + code + ", body(first 600)=" + (responseBody.length()>600?responseBody.substring(0,600)+"...":responseBody));
+
+                if (!isLikelyJsonResponse(response, responseBody)) {
+                    handleNonJsonError(response, responseBody, callback);
+                    return;
+                }
+
                 try {
                     JSONObject json = new JSONObject(responseBody);
                     if (response.isSuccessful()) {
@@ -253,6 +300,12 @@ public class OrderApiClient {
                 String responseBody = response.body() != null ? response.body().string() : "";
                 int code = response.code();
                 Log.d(TAG, "CF /orders/{id} code=" + code + ", body(first 600)=" + (responseBody.length()>600?responseBody.substring(0,600)+"...":responseBody));
+
+                if (!isLikelyJsonResponse(response, responseBody)) {
+                    handleNonJsonError(response, responseBody, callback);
+                    return;
+                }
+
                 try {
                     JSONObject json = new JSONObject(responseBody);
                     if (response.isSuccessful()) {
