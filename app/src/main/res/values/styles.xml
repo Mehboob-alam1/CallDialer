@@ -72,4 +72,82 @@
         <item name="android:progressTint">@color/primary</item>
     </style>
 
+
+    <!-- Toolbar Styles -->
+    <style name="ToolbarTitleStyle" parent="TextAppearance.AppCompat.Widget.ActionBar.Title">
+        <item name="android:textSize">20sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:letterSpacing">0.02</item>
+    </style>
+
+    <!-- Bottom Navigation Styles -->
+    <style name="BottomNavTextActive" parent="TextAppearance.AppCompat.Caption">
+        <item name="android:textSize">12sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+
+    <style name="BottomNavTextInactive" parent="TextAppearance.AppCompat.Caption">
+        <item name="android:textSize">11sp</item>
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+
+    <!-- App Theme -->
+    <style name="AppTheme.Beautiful" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryVariant">@color/primary_variant</item>
+        <item name="colorSecondary">@color/secondary</item>
+        <item name="colorSecondaryVariant">@color/secondary_variant</item>
+        <item name="android:statusBarColor">@color/transparent</item>
+        <item name="android:navigationBarColor">@color/transparent</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:windowTranslucentStatus">false</item>
+        <item name="android:windowTranslucentNavigation">true</item>
+    </style>
+
+    <!-- Card Styles for Fragments -->
+    <style name="BeautifulCardStyle" parent="Widget.Material3.CardView.Elevated">
+        <item name="cardCornerRadius">16dp</item>
+        <item name="cardElevation">8dp</item>
+        <item name="cardBackgroundColor">@color/surface_glass_strong</item>
+        <item name="android:layout_margin">8dp</item>
+    </style>
+
+    <!-- Button Styles -->
+    <style name="BeautifulButtonStyle" parent="Widget.Material3.Button.UnelevatedButton">
+        <item name="backgroundTint">@color/primary</item>
+        <item name="cornerRadius">25dp</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="rippleColor">#40FFFFFF</item>
+    </style>
+
+    <!-- Text Input Styles -->
+    <style name="BeautifulTextInputStyle" parent="Widget.Material3.TextInputLayout.OutlinedBox">
+        <item name="boxCornerRadiusTopStart">16dp</item>
+        <item name="boxCornerRadiusTopEnd">16dp</item>
+        <item name="boxCornerRadiusBottomStart">16dp</item>
+        <item name="boxCornerRadiusBottomEnd">16dp</item>
+        <item name="boxStrokeColor">@color/primary</item>
+        <item name="hintTextColor">@color/primary</item>
+    </style>
+
+    <!-- Beautiful DialPad Button Style -->
+    <style name="BeautifulDialPadButton" parent="Widget.Material3.Button.TextButton">
+        <item name="android:layout_margin">4dp</item>
+        <item name="android:background">@drawable/bg_dialpad_button</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:letterSpacing">0.02</item>
+        <item name="android:gravity">center</item>
+        <item name="android:elevation">2dp</item>
+        <item name="android:stateListAnimator">@drawable/button_press_animator</item>
+        <item name="rippleColor">#40667eea</item>
+        <item name="backgroundTint">@null</item>
+    </style>
+
+
 </resources>

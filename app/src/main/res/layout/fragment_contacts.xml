@@ -5,13 +5,6 @@
     android:layout_height="match_parent"
     android:background="@color/contacts_background">
 
-    <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="@color/contacts_toolbar"
-        app:title="Contacts"
-        app:titleTextColor="@color/white" />
 
 <!--    <com.google.android.material.search.SearchBar-->
 <!--        android:id="@+id/searchBar"-->

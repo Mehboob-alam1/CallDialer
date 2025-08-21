@@ -1,147 +1,280 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/dialer_background">
+    android:background="@android:color/transparent">
 
-    <!-- Phone Number Display -->
-    <LinearLayout
-        android:id="@+id/displayLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:gravity="center"
-        android:orientation="vertical">
-
-        <TextView
-            android:id="@+id/phoneNumberTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text=""
-            android:textColor="@color/white"
-            android:textSize="36sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/contactNameTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text=""
-            android:textColor="@color/light_gray"
-            android:textSize="16sp"
-            android:visibility="gone" />
-    </LinearLayout>
-
-    <!-- Dial Pad -->
+    <!-- Phone Number Display Area with Glass Effect -->
     <com.google.android.material.card.MaterialCardView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/callButton"
-        android:layout_margin="16dp"
-        app:cardBackgroundColor="@color/dialer_card_background"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="8dp">
+        android:id="@+id/displayCard"
+        android:layout_width="0dp"
+        android:layout_height="120dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="24dp"
+        app:cardBackgroundColor="@color/surface_glass"
+        app:cardCornerRadius="24dp"
+        app:cardElevation="0dp"
+        app:strokeColor="#30FFFFFF"
+        app:strokeWidth="1dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
-        <GridLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="16dp">
+
+            <TextView
+                android:id="@+id/phoneNumberTextView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-light"
+                android:gravity="center"
+                android:letterSpacing="0.1"
+                android:maxLines="1"
+                android:text="Enter number"
+                android:textColor="@color/text_primary"
+                android:textSize="32sp"
+                android:textStyle="normal"
+                android:autoSizeTextType="uniform"
+                android:autoSizeMinTextSize="18sp"
+                android:autoSizeMaxTextSize="32sp"
+                app:layout_constraintBottom_toTopOf="@+id/contactNameTextView"
+                app:layout_constraintEnd_toStartOf="@+id/deleteButton"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_chainStyle="packed" />
+
+            <TextView
+                android:id="@+id/contactNameTextView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:fontFamily="sans-serif-medium"
+                android:gravity="center"
+                android:text=""
+                android:textColor="@color/nav_selected"
+                android:textSize="16sp"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/deleteButton"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/phoneNumberTextView" />
+
+            <ImageView
+                android:id="@+id/deleteButton"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/bg_delete_button"
+                android:padding="12dp"
+                android:src="@drawable/ic_backspace_new"
+                android:visibility="invisible"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:tint="@color/nav_selected" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Dialpad Container -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/dialpadCard"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="24dp"
+        app:cardBackgroundColor="@color/surface_glass_strong"
+        app:cardCornerRadius="32dp"
+        app:cardElevation="2dp"
+        app:strokeColor="#40FFFFFF"
+        app:strokeWidth="1dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/displayCard">
+
+        <!-- Dialpad Grid -->
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="16dp"
-            android:columnCount="3"
-            android:rowCount="4">
+            android:padding="24dp">
 
             <!-- Row 1 -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn1"
-                style="@style/DialPadButton"
+                style="@style/BeautifulDialPadButton"
+                android:layout_width="0dp"
+                android:layout_height="72dp"
                 android:text="1"
-                />
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintEnd_toStartOf="@+id/btn2"
+                app:layout_constraintHorizontal_chainStyle="spread"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn2"
-                style="@style/DialPadButton"
-                android:text="2" />
+                style="@style/BeautifulDialPadButton"
+                android:layout_width="0dp"
+                android:layout_height="72dp"
+                android:text="2\nABC"
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintEnd_toStartOf="@+id/btn3"
+                app:layout_constraintStart_toEndOf="@+id/btn1"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn3"
-                style="@style/DialPadButton"
-                android:text="3" />
+                style="@style/BeautifulDialPadButton"
+                android:layout_width="0dp"
+                android:layout_height="72dp"
+                android:text="3\nDEF"
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/btn2"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <!-- Row 2 -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn4"
-                style="@style/DialPadButton"
-                android:text="4" />
+                style="@style/BeautifulDialPadButton"
+                android:layout_width="0dp"
+                android:layout_height="72dp"
+                android:layout_marginTop="16dp"
+                android:text="4\nGHI"
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintEnd_toStartOf="@+id/btn5"
+                app:layout_constraintHorizontal_chainStyle="spread"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/btn1" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn5"
-                style="@style/DialPadButton"
-                android:text="5" />
+                style="@style/BeautifulDialPadButton"
+                android:layout_width="0dp"
+                android:layout_height="72dp"
+                android:layout_marginTop="16dp"
+                android:text="5\nJKL"
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintEnd_toStartOf="@+id/btn6"
+                app:layout_constraintStart_toEndOf="@+id/btn4"
+                app:layout_constraintTop_toBottomOf="@+id/btn2" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn6"
-                style="@style/DialPadButton"
-                android:text="6" />
+                style="@style/BeautifulDialPadButton"
+                android:layout_width="0dp"
+                android:layout_height="72dp"
+                android:layout_marginTop="16dp"
+                android:text="6\nMNO"
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/btn5"
+                app:layout_constraintTop_toBottomOf="@+id/btn3" />
 
             <!-- Row 3 -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn7"
-                style="@style/DialPadButton"
-                android:text="7" />
+                style="@style/BeautifulDialPadButton"
+                android:layout_width="0dp"
+                android:layout_height="72dp"
+                android:layout_marginTop="16dp"
+                android:text="7\nPQRS"
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintEnd_toStartOf="@+id/btn8"
+                app:layout_constraintHorizontal_chainStyle="spread"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/btn4" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn8"
-                style="@style/DialPadButton"
-                android:text="8" />
+                style="@style/BeautifulDialPadButton"
+                android:layout_width="0dp"
+                android:layout_height="72dp"
+                android:layout_marginTop="16dp"
+                android:text="8\nTUV"
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintEnd_toStartOf="@+id/btn9"
+                app:layout_constraintStart_toEndOf="@+id/btn7"
+                app:layout_constraintTop_toBottomOf="@+id/btn5" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn9"
-                style="@style/DialPadButton"
-                android:text="9" />
+                style="@style/BeautifulDialPadButton"
+                android:layout_width="0dp"
+                android:layout_height="72dp"
+                android:layout_marginTop="16dp"
+                android:text="9\nWXYZ"
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/btn8"
+                app:layout_constraintTop_toBottomOf="@+id/btn6" />
 
             <!-- Row 4 -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnStar"
-                style="@style/DialPadButton"
-                android:text="*" />
+                style="@style/BeautifulDialPadButton"
+                android:layout_width="0dp"
+                android:layout_height="72dp"
+                android:layout_marginTop="16dp"
+                android:text="✱"
+                android:textSize="24sp"
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintEnd_toStartOf="@+id/btn0"
+                app:layout_constraintHorizontal_chainStyle="spread"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/btn7" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn0"
-                style="@style/DialPadButton"
-                android:text="0" />
+                style="@style/BeautifulDialPadButton"
+                android:layout_width="0dp"
+                android:layout_height="72dp"
+                android:layout_marginTop="16dp"
+                android:text="0\n+"
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintEnd_toStartOf="@+id/btnHash"
+                app:layout_constraintStart_toEndOf="@+id/btnStar"
+                app:layout_constraintTop_toBottomOf="@+id/btn8" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnHash"
-                style="@style/DialPadButton"
-                android:text="#" />
-        </GridLayout>
+                style="@style/BeautifulDialPadButton"
+                android:layout_width="0dp"
+                android:layout_height="72dp"
+                android:layout_marginTop="16dp"
+                android:text="#"
+                android:textSize="24sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/btn0"
+                app:layout_constraintTop_toBottomOf="@+id/btn9" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- Call Button -->
+    <!-- Beautiful Call Button -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/callButton"
-        android:layout_width="72dp"
-        android:layout_height="72dp"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="24dp"
-        android:src="@drawable/ic_call"
-        app:backgroundTint="@color/green"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_marginBottom="32dp"
+        android:background="@drawable/bg_call_button_gradient"
+        android:src="@drawable/ic_call_white"
+        app:borderWidth="0dp"
+        app:elevation="12dp"
+        app:fabSize="auto"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:rippleColor="#40FFFFFF"
         app:tint="@color/white" />
 
-    <!-- Delete Button -->
-    <ImageView
-        android:id="@+id/deleteButton"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="32dp"
-        android:src="@drawable/ic_backspace"
-        android:visibility="invisible"
-        app:tint="@color/light_gray"
-        tools:ignore="NotSibling" />
-</RelativeLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
