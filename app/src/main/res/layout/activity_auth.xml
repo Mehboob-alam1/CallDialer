@@ -1,111 +1,177 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
-    android:background="@drawable/bg_gradient">
+    android:background="@color/white">
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:orientation="vertical"
-        android:padding="24dp">
+        android:padding="16dp">
 
         <!-- App Title -->
         <TextView
             android:id="@+id/appTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Dialer Admin"
-            android:textSize="28sp"
-            android:textColor="@color/black"
-            android:textStyle="bold"
-            android:layout_marginBottom="32dp" />
-
-        <!-- Email Field -->
-        <EditText
-            android:id="@+id/emailEt"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:hint="Email"
-            android:background="@drawable/edittext_bg"
-            android:padding="12dp"
-            android:inputType="textEmailAddress"
-            android:drawableStart="@drawable/ic_mail"
-            android:drawablePadding="8dp" />
-
-        <!-- Name Field (signup only) -->
-        <EditText
-            android:id="@+id/nameEt"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
+            android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
-            android:hint="Full Name"
-            android:background="@drawable/edittext_bg"
-            android:padding="12dp"
-            android:inputType="textPersonName"
-            android:drawableStart="@drawable/ic_person"
-            android:drawablePadding="8dp"
-            android:visibility="gone" />
 
-        <!-- Phone Number Field -->
-        <EditText
-            android:id="@+id/phoneEt"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_marginTop="16dp"
-            android:hint="Phone Number"
-            android:background="@drawable/edittext_bg"
-            android:padding="12dp"
-            android:inputType="phone"
-            android:drawableStart="@drawable/ic_phone"
-            android:drawablePadding="8dp"
-            android:visibility="gone" />
-
-        <!-- Password Field -->
-        <EditText
-            android:id="@+id/passwordEt"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_marginTop="16dp"
-            android:hint="Password"
-            android:background="@drawable/edittext_bg"
-            android:padding="12dp"
-            android:inputType="textPassword"
-            android:drawableStart="@drawable/outline_key_vertical_24"
-            android:drawablePadding="8dp" />
-
-        <!-- Progress Bar -->
-        <ProgressBar
-            android:id="@+id/progressBar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:visibility="gone" />
-
-        <!-- Action Button -->
-        <Button
-            android:id="@+id/actionBtn"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_marginTop="24dp"
+            android:fontFamily="@font/poppins"
             android:text="Login"
-            android:textAllCaps="false"
-            android:textColor="@color/white"
-            android:background="@drawable/bg_button"
-            android:textSize="16sp"
-            android:fontFamily="sans-serif-medium" />
+            android:textColor="@color/black"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-        <!-- Toggle Login/Signup -->
-        <TextView
-            android:id="@+id/toggleAuthMode"
-            android:layout_width="wrap_content"
+
+        <LinearLayout
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="Don't have an account? Sign up"
-            android:textSize="14sp"
-            android:fontFamily="sans-serif-medium" />
 
-    </LinearLayout>
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+            <!-- Email Field -->
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+
+             >
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:orientation="vertical">
+
+                    <EditText
+                        android:id="@+id/emailEt"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/square_border"
+                        android:fontFamily="@font/poppins"
+                        android:hint="Enter email"
+                        android:inputType="textEmailAddress"
+                        android:padding="16dp"
+                        android:singleLine="true" />
+
+
+                    <!-- Name Field (signup only) -->
+                    <EditText
+                        android:id="@+id/nameEt"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:background="@drawable/square_border"
+                        android:fontFamily="@font/poppins"
+                        android:hint="Full Name"
+                        android:inputType="textPersonName"
+                        android:padding="16dp"
+                        android:singleLine="true"
+                        android:visibility="gone" />
+
+                    <!-- Phone Number Field -->
+                    <EditText
+                        android:id="@+id/phoneEt"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:background="@drawable/square_border"
+                        android:fontFamily="@font/poppins"
+                        android:hint="Phone Number"
+                        android:inputType="phone"
+                        android:padding="16dp"
+                        android:singleLine="true"
+                        android:visibility="gone" />
+
+                    <!-- Password Field -->
+                    <EditText
+                        android:id="@+id/passwordEt"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+
+                        android:background="@drawable/square_border"
+                        android:fontFamily="@font/poppins"
+                        android:hint="Password"
+                        android:inputType="textPassword"
+                        android:padding="16dp"
+                        android:singleLine="true" />
+
+
+                    <LinearLayout
+                        android:id="@+id/actionBtn"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="20dp"
+                        android:layout_marginTop="@dimen/_10sdp"
+                        android:layout_marginBottom="@dimen/_10sdp"
+                        android:background="@drawable/bg_button"
+                        android:orientation="vertical"
+                        android:padding="10dp">
+
+                        <TextView
+                            android:id="@+id/txtBTn"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/poppins_semibold"
+                            android:text="Login"
+                            android:textAlignment="center"
+                            android:textColor="@color/black"
+                            android:textSize="17dp" />
+
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/toggleAuthMode"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:fontFamily="@font/poppins_semibold"
+                        android:text="Don't have an account? Sign up"
+                        android:textAlignment="center"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/_10sdp"
+                        android:layout_marginBottom="@dimen/_10sdp"
+                        android:fontFamily="@font/poppins_light"
+                        android:text="Note: no user data is collected or shared. All information remains on your device"
+                        android:textAlignment="center"
+                        android:textColor="#7E7E7E"
+                        android:textSize="10sp" />
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+
+            <!-- Progress Bar -->
+            <ProgressBar
+                android:id="@+id/progressBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:visibility="gone" />
+
+
+            <!-- Toggle Login/Signup -->
+
+
+        </LinearLayout>
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

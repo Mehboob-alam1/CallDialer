@@ -5,42 +5,83 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Patterns;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
+
+import com.hbb20.CountryCodePicker;
+import com.mehboob.dialeradmin.databinding.ActivityPhoneNumberBinding;
 
 public class PhoneNumberActivity extends AppCompatActivity {
 
-    EditText phoneInput;
-    Button btnContinue;
+    ActivityPhoneNumberBinding binding;
+
+    public static String phoneNumber = "";
+    public static String countryCode = "";
+    public static String userEmail = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_phone_number);
+        EdgeToEdge.enable(this);
 
-        phoneInput = findViewById(R.id.phone_input);
-        btnContinue = findViewById(R.id.btn_continue);
+        binding = ActivityPhoneNumberBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
-        btnContinue.setOnClickListener(v -> {
-            String phone = phoneInput.getText().toString().trim();
-            if (isValidPhoneNumber(phone)) {
-                savePhoneNumber(phone);
-                startActivity(new Intent(this, MainActivity.class));
-                finish();
-            } else {
-                Toast.makeText(this, "Please enter a valid phone number", Toast.LENGTH_SHORT).show();
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
+
+
+
+        binding.btnBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onBackPressed();
             }
         });
+
+        initClickEvent();
     }
 
-    private boolean isValidPhoneNumber(String phone) {
-        return !TextUtils.isEmpty(phone) && Patterns.PHONE.matcher(phone).matches() && phone.length() >= 10;
-    }
+    private void initClickEvent() {
+        binding.btnBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
 
-    private void savePhoneNumber(String phone) {
-        SharedPreferences prefs = getSharedPreferences("user_data", MODE_PRIVATE);
-        prefs.edit().putString("user_phone", phone).apply();
+        binding.btnGetCallHistory.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (binding.inpNumber.getText().length() >= 8) {
+                    phoneNumber = binding.inpNumber.getText().toString();
+
+                    startActivity(new Intent(PhoneNumberActivity.this, SelectHistoryActivity.class));
+
+                } else {
+                    Toast.makeText(PhoneNumberActivity.this, "Please enter valid phone number!", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        binding.ccp.setOnCountryChangeListener(new CountryCodePicker.OnCountryChangeListener() {
+            @Override
+            public void onCountrySelected() {
+                countryCode = binding.ccp.getSelectedCountryCode();
+            }
+        });
+
+        countryCode = binding.ccp.getSelectedCountryCode();
     }
 }

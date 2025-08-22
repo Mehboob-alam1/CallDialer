@@ -1,42 +1,57 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Base.Theme.DialerAdmin" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/primary</item>
-        <item name="colorPrimaryVariant">@color/primary_dark</item>
-        <item name="colorOnPrimary">@color/white</item>
-        
-        <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/accent</item>
-        <item name="colorSecondaryVariant">@color/accent</item>
-        <item name="colorOnSecondary">@color/white</item>
-        
-        <!-- Status bar color. -->
-        <item name="android:statusBarColor">@color/primary_dark</item>
-        <item name="android:windowLightStatusBar">false</item>
-        
-        <!-- Navigation bar color. -->
-        <item name="android:navigationBarColor">@color/primary_dark</item>
-        
-        <!-- Text colors. -->
-        <item name="android:textColorPrimary">@color/black</item>
-        <item name="android:textColorSecondary">@color/gray</item>
-        
-        <!-- Background colors. -->
-        <item name="android:colorBackground">@color/white</item>
-        <item name="colorSurface">@color/white</item>
-        
-        <!-- Custom attributes -->
-        <item name="android:windowBackground">@drawable/bg_gradient</item>
+<!--    <style name="Base.Theme.DialerAdmin" parent="Theme.MaterialComponents.DayNight.NoActionBar">-->
+<!--        &lt;!&ndash; Primary brand color. &ndash;&gt;-->
+<!--        <item name="colorPrimary">@color/primary</item>-->
+<!--        <item name="colorPrimaryVariant">@color/primary_dark</item>-->
+<!--        <item name="colorOnPrimary">@color/white</item>-->
+<!--        -->
+<!--        &lt;!&ndash; Secondary brand color. &ndash;&gt;-->
+<!--        <item name="colorSecondary">@color/accent</item>-->
+<!--        <item name="colorSecondaryVariant">@color/accent</item>-->
+<!--        <item name="colorOnSecondary">@color/white</item>-->
+<!--        -->
+<!--        &lt;!&ndash; Status bar color. &ndash;&gt;-->
+<!--        <item name="android:statusBarColor">@color/primary_dark</item>-->
+<!--        <item name="android:windowLightStatusBar">false</item>-->
+<!--        -->
+<!--        &lt;!&ndash; Navigation bar color. &ndash;&gt;-->
+<!--        <item name="android:navigationBarColor">@color/primary_dark</item>-->
+<!--        -->
+<!--        &lt;!&ndash; Text colors. &ndash;&gt;-->
+<!--        <item name="android:textColorPrimary">@color/black</item>-->
+<!--        <item name="android:textColorSecondary">@color/gray</item>-->
+<!--        -->
+<!--        &lt;!&ndash; Background colors. &ndash;&gt;-->
+<!--        <item name="android:colorBackground">@color/white</item>-->
+<!--        <item name="colorSurface">@color/white</item>-->
+<!--        -->
+<!--        &lt;!&ndash; Custom attributes &ndash;&gt;-->
+<!--        <item name="android:windowBackground">@drawable/bg_gradient</item>-->
+<!--    </style>-->
+
+    <style name="Base.Theme.CallHistoryOfAnyNumber" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Customize your light theme here. -->
+        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
     </style>
 
-    <style name="Theme.DialerAdmin" parent="Base.Theme.DialerAdmin" />
+    <style name="Theme.CallHistoryOfAnyNumber" parent="Base.Theme.CallHistoryOfAnyNumber" />
+
+    <style name="texview">
+        <item name="android:fontFamily">@font/poppins</item>
+    </style>
+
+    <style name="MineCustomTabText" parent="TextAppearance.Design.Tab">
+        <item name="android:textSize">14sp</item>
+    </style>
+
+<!--    <style name="Theme.DialerAdmin" parent="Base.Theme.DialerAdmin" />-->
 
     <!-- No Action Bar theme for activities that don't need toolbar -->
-    <style name="Theme.DialerAdmin.NoActionBar" parent="Base.Theme.DialerAdmin">
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
-    </style>
+<!--    <style name="Theme.DialerAdmin.NoActionBar" parent="Base.Theme.DialerAdmin">-->
+<!--        <item name="windowActionBar">false</item>-->
+<!--        <item name="windowNoTitle">true</item>-->
+<!--    </style>-->
 
     <!-- Dial Pad Button Style - Specific to dialer functionality -->
     <style name="DialPadButton" parent="Widget.MaterialComponents.Button.TextButton">

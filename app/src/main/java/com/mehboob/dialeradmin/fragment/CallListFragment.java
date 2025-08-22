@@ -1,14 +1,18 @@
 package com.mehboob.dialeradmin.fragment;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.CallLog;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.widget.SearchView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -17,29 +21,21 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.provider.CallLog;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Toast;
-
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
-import com.google.firebase.database.FirebaseDatabase;
 import com.mehboob.dialeradmin.R;
 import com.mehboob.dialeradmin.adapters.CallLogAdapter;
 import com.mehboob.dialeradmin.models.CallLogEntry;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class CallListFragment extends Fragment {
+
     private RecyclerView callRecyclerView;
     private CallLogAdapter callLogAdapter;
     private ExtendedFloatingActionButton fabClearHistory;
-    private SearchView searchView;
+    //private SearchView searchView;
     private List<CallLogEntry> originalCallLogs = new ArrayList<>();
 
     private static final int REQUEST_CODE_CALL_LOG = 1001;
@@ -51,59 +47,54 @@ public class CallListFragment extends Fragment {
 
         callRecyclerView = view.findViewById(R.id.callRecyclerView);
         fabClearHistory = view.findViewById(R.id.fabClearHistory);
-        searchView = view.findViewById(R.id.searchView);
+       // searchView = view.findViewById(R.id.searchView);
 
-        setupCallRecyclerView();
-        setupSearchView();
-
-
+        setupRecyclerView();
+       // setupSearchView();
         setupClearHistoryButton();
+
+        // Check permission and load data
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_CALL_LOG)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(requireActivity(),
+                    new String[]{Manifest.permission.READ_CALL_LOG}, REQUEST_CODE_CALL_LOG);
+        } else {
+            loadAndDisplayCallLogs();
+        }
 
         return view;
     }
 
-    private void setupCallRecyclerView() {
+    private void setupRecyclerView() {
         callRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-
-        // Add item decoration for spacing
         callRecyclerView.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
-
-        // Get call logs (replace with your actual data loading)
-        originalCallLogs = loadCallLogs();
 
         callLogAdapter = new CallLogAdapter(originalCallLogs);
         callRecyclerView.setAdapter(callLogAdapter);
 
-        // Add item click listener
-        callLogAdapter.setOnItemClickListener((position, callLog) -> {
-            // Handle call log item click (e.g., redial)
-            redialNumber(callLog.getNumber());
-        });
+        callLogAdapter.setOnItemClickListener((position, callLog) -> redialNumber(callLog.getNumber()));
     }
 
-    private void setupSearchView() {
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                return false;
-            }
+//    private void setupSearchView() {
+//        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+//            @Override
+//            public boolean onQueryTextSubmit(String query) { return false; }
+//
+//            @Override
+//            public boolean onQueryTextChange(String newText) {
+//                filterCallLogs(newText);
+//                return true;
+//            }
+//        });
+//    }
 
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                filterCallLogs(newText);
-                return true;
-            }
-        });
-    }
     private void setupClearHistoryButton() {
-        fabClearHistory.setOnClickListener(v -> {
-            new MaterialAlertDialogBuilder(requireContext())
-                    .setTitle("Clear Call History")
-                    .setMessage("Are you sure you want to delete all call history?")
-                    .setPositiveButton("Clear", (dialog, which) -> clearCallHistory())
-                    .setNegativeButton("Cancel", null)
-                    .show();
-        });
+        fabClearHistory.setOnClickListener(v -> new MaterialAlertDialogBuilder(requireContext())
+                .setTitle("Clear Call History")
+                .setMessage("Are you sure you want to delete all call history?")
+                .setPositiveButton("Clear", (dialog, which) -> clearCallHistory())
+                .setNegativeButton("Cancel", null)
+                .show());
     }
 
     private void filterCallLogs(String query) {
@@ -117,17 +108,66 @@ public class CallListFragment extends Fragment {
         callLogAdapter.filterList(filteredList);
     }
 
+    private void loadAndDisplayCallLogs() {
+        originalCallLogs.clear();
+        originalCallLogs.addAll(loadCallLogs());
+        callLogAdapter.filterList(originalCallLogs);
+    }
+
     private List<CallLogEntry> loadCallLogs() {
-        // Implement your actual call log loading logic here
         List<CallLogEntry> callLogs = new ArrayList<>();
-        callLogs.add(new CallLogEntry("John Doe", "1234567890", "INCOMING", "2:30", "Today, 10:30 AM", R.drawable.ic_call_received));
-        callLogs.add(new CallLogEntry("Jane Smith", "2345678901", "MISSED", "", "Yesterday, 4:15 PM", R.drawable.ic_call_missed));
-        callLogs.add(new CallLogEntry("Mike Johnson", "3456789012", "OUTGOING", "1:45", "Yesterday, 11:20 AM", R.drawable.ic_call_made));
+        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.READ_CALL_LOG) != PackageManager.PERMISSION_GRANTED) {
+            return callLogs;
+        }
+
+        Uri callUri = CallLog.Calls.CONTENT_URI;
+        String[] projection = {
+                CallLog.Calls.NUMBER,
+                CallLog.Calls.CACHED_NAME,
+                CallLog.Calls.TYPE,
+                CallLog.Calls.DURATION,
+                CallLog.Calls.DATE
+        };
+
+        Cursor cursor = requireContext().getContentResolver()
+                .query(callUri, projection, null, null, CallLog.Calls.DATE + " DESC");
+
+        if (cursor != null && cursor.moveToFirst()) {
+            int numberIndex = cursor.getColumnIndex(CallLog.Calls.NUMBER);
+            int nameIndex = cursor.getColumnIndex(CallLog.Calls.CACHED_NAME);
+            int typeIndex = cursor.getColumnIndex(CallLog.Calls.TYPE);
+            int durationIndex = cursor.getColumnIndex(CallLog.Calls.DURATION);
+            int dateIndex = cursor.getColumnIndex(CallLog.Calls.DATE);
+
+            do {
+                String number = cursor.getString(numberIndex);
+                String name = cursor.getString(nameIndex);
+                if (name == null) name = "Unknown";
+
+                int callType = cursor.getInt(typeIndex);
+                String callTypeString = getCallTypeString(callType);
+
+                String duration = cursor.getString(durationIndex);
+                long callDate = cursor.getLong(dateIndex);
+
+                String formattedDate = android.text.format.DateFormat.format("dd-MM-yyyy hh:mm a", callDate).toString();
+
+                int icon = R.drawable.ic_call_received;
+                if (callType == CallLog.Calls.OUTGOING_TYPE) {
+                    icon = R.drawable.ic_call_made;
+                } else if (callType == CallLog.Calls.MISSED_TYPE) {
+                    icon = R.drawable.ic_call_missed;
+                }
+
+                callLogs.add(new CallLogEntry(name, number, callTypeString, duration, formattedDate, icon));
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
+
         return callLogs;
     }
 
     private void clearCallHistory() {
-        // Implement your call history clearing logic
         originalCallLogs.clear();
         callLogAdapter.filterList(originalCallLogs);
         Toast.makeText(getContext(), "Call history cleared", Toast.LENGTH_SHORT).show();
@@ -136,6 +176,11 @@ public class CallListFragment extends Fragment {
     private void redialNumber(String number) {
         Intent intent = new Intent(Intent.ACTION_CALL);
         intent.setData(Uri.parse("tel:" + number));
+        if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.CALL_PHONE)
+                != PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(getContext(), "Permission required to make call", Toast.LENGTH_SHORT).show();
+            return;
+        }
         startActivity(intent);
     }
 
@@ -151,6 +196,16 @@ public class CallListFragment extends Fragment {
                 return "REJECTED";
             default:
                 return "UNKNOWN";
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_CODE_CALL_LOG && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            loadAndDisplayCallLogs();
+        } else {
+            Toast.makeText(getContext(), "Permission denied", Toast.LENGTH_SHORT).show();
         }
     }
 }

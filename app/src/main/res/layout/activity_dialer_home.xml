@@ -1,72 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_beautiful_gradient">
+    android:background="@color/white"
+    android:orientation="vertical"
+    tools:context=".DialerHomeActivity">
 
-    <!-- Fixed App Bar - Always Visible -->
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/appBarLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@drawable/bg_glass_header"
-        android:elevation="0dp"
-        app:elevation="0dp">
-
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="@android:color/transparent"
-            app:titleTextColor="@color/white"
-            app:titleTextAppearance="@style/ToolbarTitleStyle" />
-
-    </com.google.android.material.appbar.AppBarLayout>
-
-    <!-- Fragment Container with Rounded Corners -->
     <FrameLayout
-        android:id="@+id/fragmentContainer"
+        android:id="@+id/fl_fragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="120dp"
-        android:background="@drawable/bg_fragment_container"
-        android:elevation="2dp"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+        android:layout_above="@+id/tabLayout"/>
 
-    <!-- Fixed Bottom Navigation with Proper Margins -->
-    <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/bottomNavigation"
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tabLayout"
         android:layout_width="match_parent"
-        android:layout_height="80dp"
-        android:layout_gravity="bottom"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="32dp"
-        android:background="@drawable/bg_bottom_nav_glass"
-        android:elevation="8dp"
-        app:itemIconSize="28dp"
-        app:itemIconTint="@drawable/bottom_nav_item_color"
-        app:itemTextColor="@drawable/bottom_nav_item_color"
-        app:itemTextAppearanceActive="@style/BottomNavTextActive"
-        app:itemTextAppearanceInactive="@style/BottomNavTextInactive"
-        app:labelVisibilityMode="labeled"
-        app:menu="@menu/bottom_nav_menu" />
+        android:layout_height="?actionBarSize"
+        app:tabIndicatorColor="@color/primary"
+        app:tabSelectedTextColor="@color/primary"
+        app:tabTextColor="@color/black"
+        android:layout_margin="12dp"
+        app:tabIconTint="@color/black"
+        android:background="@color/white"
+        app:tabTextAppearance="@style/MineCustomTabText"
+        android:layout_alignParentBottom="true"
+        app:tabIndicator="@null"/>
 
-    <!-- Floating Action Button (Optional) -->
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fabQuickDial"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="24dp"
-        android:layout_marginBottom="100dp"
-        android:src="@drawable/ic_phone"
-        android:visibility="gone"
-        app:backgroundTint="@color/accent_gradient_start"
-        app:fabSize="normal"
-        app:layout_anchor="@id/fragmentContainer"
-        app:layout_anchorGravity="bottom|end"
-        app:tint="@color/white" />
 
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+</RelativeLayout>

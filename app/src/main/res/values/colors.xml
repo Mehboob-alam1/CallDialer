@@ -105,4 +105,10 @@
     <color name="black">#000000</color>
     <color name="transparent">#00000000</color>
 
+    <color name="btn_color">#7986CB</color>
+    <color name="app_color">#667eea</color>
+    <color name="gray_unselect">#A3A3A3</color>
+    <color name="gray_textclr">#6A6A6A</color>
+    <color name="toolbarclr">#F8F8F8</color>
+
 </resources>

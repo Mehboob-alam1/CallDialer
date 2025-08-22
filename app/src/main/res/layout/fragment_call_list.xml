@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/call_history_background">
+    android:background="@color/white">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
@@ -12,15 +12,15 @@
         android:background="@android:color/transparent"
         app:elevation="0dp">
 
-        <androidx.appcompat.widget.SearchView
-            android:id="@+id/searchView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:queryHint="Search call history"
-            app:iconifiedByDefault="false">
+<!--        <androidx.appcompat.widget.SearchView-->
+<!--            android:id="@+id/searchView"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:queryHint="Search call history"-->
+<!--            app:iconifiedByDefault="false">-->
 
 
-        </androidx.appcompat.widget.SearchView>
+<!--        </androidx.appcompat.widget.SearchView>-->
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -37,6 +37,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
+        android:visibility="gone"
         android:text="Clear History"
         android:icon="@drawable/ic_delete"
         app:backgroundTint="@color/red"

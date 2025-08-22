@@ -53,6 +53,7 @@ dependencies {
     implementation(libs.navigation.fragment)
     implementation(libs.navigation.ui)
     implementation(libs.firebase.auth)
+    
     implementation(libs.credentials)
     implementation(libs.credentials.play.services.auth)
     implementation(libs.googleid)
@@ -63,11 +64,18 @@ dependencies {
     
     // Cashfree SDK - Re-enabled for Web Checkout
     implementation("com.cashfree.pg:api:2.2.8")
+
     implementation("com.airbnb.android:lottie:6.6.7")
+
+    implementation("com.intuit.sdp:sdp-android:1.1.1")
 
     implementation(platform("com.squareup.okhttp3:okhttp-bom:4.10.0"))
     implementation("com.squareup.okhttp3:okhttp")
     implementation("com.squareup.okhttp3:logging-interceptor")
+
+    implementation ("androidx.room:room-runtime:2.5.2")
+    annotationProcessor ("androidx.room:room-compiler:2.5.2")
+    implementation("com.hbb20:ccp:2.7.0")
     
     // Additional dependencies for enhanced features
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")

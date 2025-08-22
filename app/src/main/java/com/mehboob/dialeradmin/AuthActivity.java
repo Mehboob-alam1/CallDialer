@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -25,9 +26,9 @@ import java.util.List;
 public class AuthActivity extends AppCompatActivity {
 
     private EditText emailEt, passwordEt, phoneEt, nameEt;
-    private Button actionBtn;
+    private LinearLayout actionBtn;
     private ProgressBar progressBar;
-    private TextView toggleAuthMode;
+    private TextView toggleAuthMode,txtBTn,appTitle;
 
     private boolean isLoginMode = true; // start in login mode
     private FirebaseAuth mAuth;
@@ -49,6 +50,8 @@ public class AuthActivity extends AppCompatActivity {
         actionBtn = findViewById(R.id.actionBtn);
         progressBar = findViewById(R.id.progressBar);
         toggleAuthMode = findViewById(R.id.toggleAuthMode);
+        txtBTn = findViewById(R.id.txtBTn);
+        appTitle = findViewById(R.id.appTitle);
 
         actionBtn.setOnClickListener(v -> {
             if (isLoginMode) {
@@ -64,12 +67,14 @@ public class AuthActivity extends AppCompatActivity {
     private void toggleMode() {
         isLoginMode = !isLoginMode;
         if (isLoginMode) {
-            actionBtn.setText("Login");
+            txtBTn.setText("Login");
+            appTitle.setText("Login");
             toggleAuthMode.setText("Don't have an account? Sign up");
             phoneEt.setVisibility(View.GONE);
             nameEt.setVisibility(View.GONE);
         } else {
-            actionBtn.setText("Sign Up");
+            txtBTn.setText("Sign Up");
+            appTitle.setText("Sign Up");
             toggleAuthMode.setText("Already have an account? Login");
             phoneEt.setVisibility(View.VISIBLE);
             nameEt.setVisibility(View.VISIBLE);

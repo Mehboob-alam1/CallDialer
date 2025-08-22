@@ -11,6 +11,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -24,7 +27,7 @@ public class ModeSelectionActivity extends AppCompatActivity {
     private static final int SPLASH_DELAY = 2000; // 2 seconds
     
     private ProgressBar progressBar;
-    private TextView tvStatus;
+//    private TextView tvStatus;
     private Handler handler;
     private boolean modeChecked = false;
 
@@ -32,7 +35,13 @@ public class ModeSelectionActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mode_selection);
-        
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
+
+
         initViews();
         handler = new Handler(Looper.getMainLooper());
         
@@ -42,11 +51,11 @@ public class ModeSelectionActivity extends AppCompatActivity {
 
     private void initViews() {
         progressBar = findViewById(R.id.progressBar);
-        tvStatus = findViewById(R.id.tvStatus);
+//        tvStatus = findViewById(R.id.tvStatus);
     }
 
     private void checkAppMode() {
-        tvStatus.setText("Checking app mode...");
+//        tvStatus.setText("Checking app mode...");
         
         DatabaseReference configRef = FirebaseDatabase.getInstance()
                 .getReference(Config.FIREBASE_APP_CONFIG_NODE);
@@ -87,14 +96,14 @@ public class ModeSelectionActivity extends AppCompatActivity {
     }
 
     private void launchAdminMode() {
-        tvStatus.setText("Launching Admin Mode...");
+//        tvStatus.setText("Launching Admin Mode...");
         
         // Small delay for better UX
         handler.postDelayed(() -> MyApplication.getInstance().routeToAdminFlow(ModeSelectionActivity.this, true), 1000);
     }
 
     private void launchDialerMode() {
-        tvStatus.setText("Launching Dialer Mode...");
+//        tvStatus.setText("Launching Dialer Mode...");
         
         // Small delay for better UX
         handler.postDelayed(() -> MyApplication.getInstance().routeToDialerFlow(ModeSelectionActivity.this, true), 1000);

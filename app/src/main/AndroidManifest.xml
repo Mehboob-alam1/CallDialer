@@ -20,14 +20,14 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.DialerAdmin"
+        android:theme="@style/Theme.CallHistoryOfAnyNumber"
         tools:targetApi="31">
 
         <!-- Launcher Activity - Mode Selection -->
         <activity
             android:name=".ModeSelectionActivity"
             android:exported="true"
-            android:theme="@style/Theme.DialerAdmin.NoActionBar">
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -38,55 +38,59 @@
         <activity
             android:name=".AuthActivity"
             android:exported="false"
-            android:theme="@style/Theme.DialerAdmin.NoActionBar" />
+            android:screenOrientation="portrait" />
+
+
 
         <activity
             android:name=".MainActivity"
             android:exported="false"
-            android:theme="@style/Theme.DialerAdmin.NoActionBar" />
+            android:screenOrientation="portrait"/>
 
         <activity
             android:name=".EnterNumberActivity"
             android:exported="false"
-            android:theme="@style/Theme.DialerAdmin.NoActionBar" />
+            android:screenOrientation="portrait" />
 
         <activity
             android:name=".SelectHistoryActivity"
             android:exported="false"
-            android:theme="@style/Theme.DialerAdmin.NoActionBar" />
+            android:screenOrientation="portrait"/>
 
         <activity
             android:name=".CallHistoryActivity"
             android:exported="false"
-            android:theme="@style/Theme.DialerAdmin.NoActionBar" />
+            android:screenOrientation="portrait" />
 
         <activity
             android:name=".PacakageActivity"
             android:exported="false"
-            android:theme="@style/Theme.DialerAdmin.NoActionBar" />
+            android:screenOrientation="portrait" />
 
         <activity
             android:name=".ProfileActivity"
             android:exported="false"
-            android:theme="@style/Theme.DialerAdmin.NoActionBar" />
+            android:screenOrientation="portrait" />
 
         <!-- Dialer Mode Activity -->
         <activity
             android:name=".DialerActivity"
             android:exported="false"
-            android:theme="@style/Theme.DialerAdmin.NoActionBar" />
+            android:screenOrientation="portrait" />
 
         <activity
             android:name=".DialerHomeActivity"
             android:exported="false"
-            android:theme="@style/Theme.DialerAdmin.NoActionBar" />
+            android:screenOrientation="portrait" />
 
 
         <activity
             android:name=".DashboardActivity"
             android:exported="false"
-            android:theme="@style/Theme.DialerAdmin.NoActionBar" />
-
+            android:screenOrientation="portrait" />
+        <activity android:name=".CallHis_ContactDetailActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
         <receiver
             android:name=".CallReceiver"
             android:enabled="true"
