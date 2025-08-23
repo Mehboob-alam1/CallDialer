@@ -4,28 +4,26 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@drawable/bg_gradient">
+    android:id="@+id/main"
+    android:background="@color/white">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@color/primary"
-        android:elevation="4dp"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+       />
 
     <!-- Filter Chips -->
     <HorizontalScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:scrollbars="none"
+        android:scrollbars="horizontal"
         android:background="@android:color/white"
         android:elevation="2dp">
 
         <com.google.android.material.chip.ChipGroup
             android:id="@+id/chipGroup"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="8dp"
             app:singleSelection="true">
@@ -35,36 +33,36 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="All"
-                android:checked="true"
-                style="@style/Widget.MaterialComponents.Chip.Choice" />
+                style="@style/Widget.DialerAdmin.Chip.Choice"
+                />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipIncoming"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Incoming"
-                style="@style/Widget.MaterialComponents.Chip.Choice" />
+                style="@style/Widget.DialerAdmin.Chip.Choice" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipOutgoing"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Outgoing"
-                style="@style/Widget.MaterialComponents.Chip.Choice" />
+                style="@style/Widget.DialerAdmin.Chip.Choice" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipMissed"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Missed"
-                style="@style/Widget.MaterialComponents.Chip.Choice" />
+                style="@style/Widget.DialerAdmin.Chip.Choice" />
 
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chipPremium"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Premium"
-                style="@style/Widget.MaterialComponents.Chip.Choice" />
+<!--            <com.google.android.material.chip.Chip-->
+<!--                android:id="@+id/chipPremium"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:text="Premium"-->
+<!--                style="@style/Widget.MaterialComponents.Chip.Choice" />-->
 
         </com.google.android.material.chip.ChipGroup>
     </HorizontalScrollView>

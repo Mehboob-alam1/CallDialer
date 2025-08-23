@@ -30,12 +30,24 @@
 <!--        <item name="android:windowBackground">@drawable/bg_gradient</item>-->
 <!--    </style>-->
 
-    <style name="Base.Theme.CallHistoryOfAnyNumber" parent="Theme.Material3.DayNight.NoActionBar">
+    <style name="Base.Theme.CallHistoryOfAnyNumber" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+
+        <item name="android:statusBarColor">@color/white</item>
+
     </style>
 
-    <style name="Theme.CallHistoryOfAnyNumber" parent="Base.Theme.CallHistoryOfAnyNumber" />
+    <style name="CustomPopupMenu" parent="@style/Widget.MaterialComponents.PopupMenu">
+        <item name="android:popupBackground">@color/white</item>
+    </style>
+
+
+    <style name="Theme.CallHistoryOfAnyNumber" parent="Base.Theme.CallHistoryOfAnyNumber" >
+        <item name="popupMenuStyle">@style/CustomPopupMenu</item>
+        <item name="android:statusBarColor">@color/white</item>
+
+    </style>
 
     <style name="texview">
         <item name="android:fontFamily">@font/poppins</item>

@@ -10,17 +10,19 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import com.mehboob.dialeradmin.databinding.ActivitySelectHistoryBinding;
+import com.mehboob.dialeradmin.databinding.ActivityStartBinding;
 
-public class SelectHistoryActivity extends AppCompatActivity {
 
-    private ActivitySelectHistoryBinding binding;
+public class CallHis_ActivityStart extends AppCompatActivity {
+
+    ActivityStartBinding binding;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
 
-        binding= ActivitySelectHistoryBinding.inflate(getLayoutInflater());
+        binding = ActivityStartBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
@@ -30,15 +32,13 @@ public class SelectHistoryActivity extends AppCompatActivity {
         });
 
 
-        binding.one.setOnClickListener(view -> {
-            startActivity(new Intent(SelectHistoryActivity.this,SuccessActivity.class));
-        });
-
-        binding.two.setOnClickListener(view -> {
-//            Intent i = new Intent(SelectHistoryActivity.this,SuccessActivity.class);
-//            i.putExtra("")
-            startActivity(new Intent(SelectHistoryActivity.this,SuccessActivity.class));
-        });
-
+        initClickEvent();
     }
+
+    private void initClickEvent() {
+        binding.btnGetHistory.setOnClickListener(v -> {
+          startActivity(new Intent(CallHis_ActivityStart.this,PhoneNumberActivity.class));
+        });
+    }
+
 }

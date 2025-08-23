@@ -297,7 +297,7 @@ public class MyApplication extends Application {
 
         if (!isUserAuthenticated()) {
             // Not logged in → go to Auth
-            Intent i = new Intent(activity, AuthActivity.class);
+            Intent i = new Intent(activity, CallHis_ActivityStart.class);
             if (clearTask) i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             activity.startActivity(i);
             activity.finish();

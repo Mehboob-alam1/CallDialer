@@ -7,6 +7,9 @@ import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
@@ -23,11 +26,16 @@ public class SuccessActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding=ActivitySuccessBinding.inflate(getLayoutInflater());
         EdgeToEdge.enable(this);
+
+        binding=ActivitySuccessBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
 
         if (!isHistoryExist){
 
@@ -37,7 +45,7 @@ public class SuccessActivity extends AppCompatActivity {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-               startActivity(new Intent(SuccessActivity.this, PacakageActivity.class));
+               startActivity(new Intent(SuccessActivity.this, DownloadActivity.class));
             }
         },5000);
 
@@ -62,28 +70,28 @@ public class SuccessActivity extends AppCompatActivity {
 //            }
 //        });
 
-        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("users").child(userId);
-
-        ref.get().addOnSuccessListener(snapshot -> {
-            AdminModel admin = snapshot.getValue(AdminModel.class);
-
-            if (admin == null || !admin.getIsActivated()) {
-                Toast.makeText(this, "Your account is not activated", Toast.LENGTH_LONG).show();
-                FirebaseAuth.getInstance().signOut();
-                finish();
-                return;
-            }
-
-            if (!admin.isPremium() || System.currentTimeMillis() > admin.getPlanExpiryAt()) {
-                Toast.makeText(this, "Your premium plan has expired", Toast.LENGTH_LONG).show();
-                startActivity(new Intent(this, PacakageActivity.class));
-                finish();
-                return;
-            }
-
-            // ✅ User is premium and activated → allow access
-        });
+//        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+//        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("users").child(userId);
+//
+//        ref.get().addOnSuccessListener(snapshot -> {
+//            AdminModel admin = snapshot.getValue(AdminModel.class);
+//
+//            if (admin == null || !admin.getIsActivated()) {
+//                Toast.makeText(this, "Your account is not activated", Toast.LENGTH_LONG).show();
+//                FirebaseAuth.getInstance().signOut();
+//                finish();
+//                return;
+//            }
+//
+//            if (!admin.isPremium() || System.currentTimeMillis() > admin.getPlanExpiryAt()) {
+//                Toast.makeText(this, "Your premium plan has expired", Toast.LENGTH_LONG).show();
+//                startActivity(new Intent(this, PacakageActivity.class));
+//                finish();
+//                return;
+//            }
+//
+//            // ✅ User is premium and activated → allow access
+//        });
 
 
     }
