@@ -229,10 +229,10 @@ public class MainActivity extends AppCompatActivity {
                             
                             // Check if user has an active plan
                             if (!currentAdmin.isPremium() || !currentAdmin.isPlanActive()) {
-                                //showNoPlanDialog();
-                                startActivity(new Intent(MainActivity.this, PacakageActivity.class));
-                                overridePendingTransition(0, 0);
-                                return;
+                                showNoPlanDialog();
+//                                startActivity(new Intent(MainActivity.this, PacakageActivity.class));
+//                                overridePendingTransition(0, 0);
+//                                return;
                             }
                             
                             // User is authenticated, has plan, and is activated - proceed to main app

@@ -104,7 +104,7 @@ public class PacakageActivity extends AppCompatActivity implements CFCheckoutRes
           }
 
 
-           // showPremiumActiveDialog();
+            showPremiumActiveDialog();
             return;
         }
         

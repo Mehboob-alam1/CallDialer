@@ -103,6 +103,10 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
+
+        <meta-data
+            android:name="cashfree_subscription_flow_enable"
+            android:value="true" />
     </application>
 
 </manifest>

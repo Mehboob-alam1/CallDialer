@@ -170,9 +170,9 @@ public class ProfileActivity extends AppCompatActivity {
                             if (!currentAdmin.isPremium() || !currentAdmin.isPlanActive()) {
 //                                showNoPlanDialog();
 
-                                startActivity(new Intent(ProfileActivity.this, PacakageActivity.class));
-                                overridePendingTransition(0, 0);
-                                return;
+//                                startActivity(new Intent(ProfileActivity.this, PacakageActivity.class));
+//                                overridePendingTransition(0, 0);
+//                                return;
                             }
 
                             updateUI();
