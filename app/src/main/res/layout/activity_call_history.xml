@@ -1,27 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:id="@+id/main"
     android:background="@color/white">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-       />
+        android:layout_height="?attr/actionBarSize" />
 
-    <!-- Filter Chips -->
+    <!-- Type Filter Chips -->
     <HorizontalScrollView
+        android:id="@+id/horizontalScroll"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:scrollbars="horizontal"
-        android:id="@+id/horizontalScroll"
-        android:background="@android:color/white"
         android:layout_below="@id/toolbar"
-        android:elevation="2dp">
+        android:background="@android:color/white"
+        android:elevation="2dp"
+        android:scrollbars="horizontal">
 
         <com.google.android.material.chip.ChipGroup
             android:id="@+id/chipGroup"
@@ -35,8 +33,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="All"
-                style="@style/Widget.DialerAdmin.Chip.Choice"
-                />
+                style="@style/Widget.DialerAdmin.Chip.Choice" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipIncoming"
@@ -58,24 +55,37 @@
                 android:layout_height="wrap_content"
                 android:text="Missed"
                 style="@style/Widget.DialerAdmin.Chip.Choice" />
-
-<!--            <com.google.android.material.chip.Chip-->
-<!--                android:id="@+id/chipPremium"-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:text="Premium"-->
-<!--                style="@style/Widget.MaterialComponents.Chip.Choice" />-->
-
         </com.google.android.material.chip.ChipGroup>
+    </HorizontalScrollView>
+
+    <!-- Child Numbers Chips (NEW) -->
+    <HorizontalScrollView
+        android:id="@+id/horizontalScrollChildren"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/horizontalScroll"
+        android:background="@android:color/white"
+        android:elevation="1dp"
+        android:scrollbars="horizontal">
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chipGroupChildren"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            app:singleSelection="true"
+            app:selectionRequired="false"
+            app:chipSpacingHorizontal="8dp"
+            app:chipSpacingVertical="8dp" />
     </HorizontalScrollView>
 
     <!-- Call History List -->
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipeRefreshLayout"
         android:layout_width="match_parent"
-        android:layout_below="@id/horizontalScroll"
-        android:layout_above="@id/bottom_nav"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_below="@id/horizontalScrollChildren"
+        android:layout_above="@id/bottom_nav">
 
         <FrameLayout
             android:layout_width="match_parent"
