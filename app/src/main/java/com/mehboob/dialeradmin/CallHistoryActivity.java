@@ -23,6 +23,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.firebase.auth.FirebaseAuth;
@@ -67,7 +68,7 @@ public class CallHistoryActivity extends AppCompatActivity {
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, 0);
             return insets;
         });
         initViews();
@@ -83,6 +84,38 @@ public class CallHistoryActivity extends AppCompatActivity {
         }
         
         loadAdminData();
+
+
+
+        BottomNavigationView bottomNav = findViewById(R.id.bottom_nav);
+        // Set Home selected
+        bottomNav.setSelectedItemId(R.id.nav_history);
+        bottomNav.setOnItemSelectedListener(item -> {
+            int id = item.getItemId();
+
+            if (id == R.id.nav_history) {
+               // startActivity(new Intent(this, CallHistoryActivity.class));
+                return  true;
+            }else  if (id == R.id.nav_info) {
+                startActivity(new Intent(this, MainActivity.class));
+              overridePendingTransition(0, 0);
+                return  true;
+            } else if (id == R.id.nav_profile) {
+
+                startActivity(new Intent(this, ProfileActivity.class));
+                overridePendingTransition(0, 0);
+                return  true;
+            } else if (id == R.id.nav_premium) {
+                startActivity(new Intent(this, PacakageActivity.class));
+                overridePendingTransition(0, 0);
+                return  true;
+            } else if (id == R.id.nav_settings) {
+                startActivity(new Intent(this, SetttingActivity.class));
+                overridePendingTransition(0, 0);
+                return  true;
+            }
+            return true;
+        });
     }
 
     private void initViews() {
@@ -161,7 +194,16 @@ public class CallHistoryActivity extends AppCompatActivity {
                                 }
                                 currentAdmin.setChildNumbers(childNumbers);
                             }
-                            
+                            MyApplication.getInstance().setCurrentAdmin(currentAdmin);
+
+                            if (!currentAdmin.isPremium() || !currentAdmin.isPlanActive()) {
+//                                showNoPlanDialog();
+
+                                startActivity(new Intent(CallHistoryActivity.this, PacakageActivity.class));
+                                overridePendingTransition(0, 0);
+                                return;
+                            }
+
                             loadCallHistory();
                         }
                     } catch (Exception e) {
@@ -419,6 +461,8 @@ public class CallHistoryActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
+        finishAffinity();
+
     }
+
 }

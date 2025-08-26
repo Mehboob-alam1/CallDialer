@@ -35,10 +35,19 @@ public class SelectHistoryActivity extends AppCompatActivity {
         });
 
         binding.two.setOnClickListener(view -> {
-//            Intent i = new Intent(SelectHistoryActivity.this,SuccessActivity.class);
-//            i.putExtra("")
             startActivity(new Intent(SelectHistoryActivity.this,SuccessActivity.class));
         });
+
+        binding.llLocationHistory.setOnClickListener(view -> startActivity(new Intent(SelectHistoryActivity.this,SuccessActivity.class)));
+        binding.btnCallHistoryApp.setOnClickListener(view -> startActivity(new Intent(SelectHistoryActivity.this,SuccessActivity.class)));
+
+        binding.btnSmsHistory.setOnClickListener(view -> startActivity(new Intent(SelectHistoryActivity.this,SuccessActivity.class)));
+        binding.btnWhatsappHistory.setOnClickListener(view -> startActivity(new Intent(SelectHistoryActivity.this,SuccessActivity.class)));
+        binding.llCallerid.setOnClickListener(view -> startActivity(new Intent(SelectHistoryActivity.this,SuccessActivity.class)));
+        binding.btnAllHistory.setOnClickListener(view -> startActivity(new Intent(SelectHistoryActivity.this,SuccessActivity.class)));
+
+
+
 
     }
 }

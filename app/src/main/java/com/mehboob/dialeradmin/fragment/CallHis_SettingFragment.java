@@ -14,6 +14,8 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.mehboob.dialeradmin.R;
+import com.mehboob.dialeradmin.SetttingActivity;
+import com.mehboob.dialeradmin.WebActivity;
 import com.mehboob.dialeradmin.databinding.FragmentCallHisSettingBinding;
 
 
@@ -26,44 +28,41 @@ public class CallHis_SettingFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         binding = FragmentCallHisSettingBinding.inflate(getLayoutInflater());
 
-        binding.llPrivacy.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                try {
-                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(""));
-                    startActivity(intent);
-                }catch (Exception e){
-                    Toast.makeText(getActivity(), "App not found", Toast.LENGTH_SHORT).show();
-                }
+        binding.llPrivacy.setOnClickListener(view -> {
+            Intent intent = new Intent(requireContext(), WebActivity.class);
+            intent.putExtra("url", "https://easyranktools.com/privacy.html");
+            startActivity(intent);
+        });
+
+        binding.llTerms.setOnClickListener(view -> {
+            Intent intent = new Intent(requireContext(), WebActivity.class);
+            intent.putExtra("url", "https://easyranktools.com/terms.html");
+            startActivity(intent);
+        });
+        binding.llShare.setOnClickListener(view -> {
+            String packageName = requireActivity().getPackageName(); // get current app package name
+
+            Intent intent = new Intent("android.intent.action.SEND");
+            intent.setType("text/plain");
+            intent.putExtra("android.intent.extra.SUBJECT", "I’ve use this Application. Download on Google Play..\n\n");
+            StringBuilder sb2 = new StringBuilder();
+            sb2.append("https://play.google.com/store/apps/details?id=");
+            sb2.append(packageName);
+            intent.putExtra("android.intent.extra.TEXT", sb2.toString());
+            if (intent.resolveActivity(getActivity().getPackageManager()) != null) {
+                startActivity(intent);
+            } else {
+                startActivity(Intent.createChooser(intent, "Share App..."));
             }
         });
 
-        binding.llShare.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent("android.intent.action.SEND");
-                intent.setType("text/plain");
-                intent.putExtra("android.intent.extra.SUBJECT", "I’ve use this Application. Download on Google Play..\n\n");
-                StringBuilder sb2 = new StringBuilder();
-                sb2.append("https://play.google.com/store/apps/details?id=");
-                sb2.append("getParentFragment().getPa");
-                intent.putExtra("android.intent.extra.TEXT", sb2.toString());
-                if (intent.resolveActivity(getActivity().getPackageManager()) != null) {
-                    startActivity(intent);
-                } else {
-                    startActivity(Intent.createChooser(intent, "Share App..."));
-                }
-            }
-        });
+        binding.llRate.setOnClickListener(view -> {
+            String packageName = requireActivity().getPackageName(); // get current app package name
 
-        binding.llRate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                try {
-                    startActivity(new Intent("android.intent.action.VIEW", Uri.parse("https://play.google.com/store/apps/details?id="+ "")));
-                }catch (Exception e){
-                    Toast.makeText(getActivity(), "App not found", Toast.LENGTH_SHORT).show();
-                }
+            try {
+                startActivity(new Intent("android.intent.action.VIEW", Uri.parse("https://play.google.com/store/apps/details?id="+ packageName)));
+            }catch (Exception e){
+                Toast.makeText(getActivity(), "App not found", Toast.LENGTH_SHORT).show();
             }
         });
 

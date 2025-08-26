@@ -65,7 +65,7 @@ public class EnterNumberActivity extends AppCompatActivity {
     private void setupToolbar() {
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle("Add Child Number");
+            getSupportActionBar().setTitle("Add Number");
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
     }
@@ -316,17 +316,18 @@ public class EnterNumberActivity extends AppCompatActivity {
     }
 
     private void shareAppLink(String number) {
-        String message = "Hi! I'm using " + Config.APP_NAME + " to track calls. " +
-                        "Please download the app to enable call tracking for your number: " + number + "\n\n" +
-                        "App Link: https://play.google.com/store/apps/details?id=" + getPackageName();
-        
+        String message = "Hey! 👋 I'm using this awesome dialer app to manage and track my calls 📞. " +
+                "It’s super easy to use and really handy! You should try it too. " +
+                "\n\n📲 Download it here: https://play.google.com/store/apps/details?id=" + getPackageName();
+
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
         shareIntent.setType("text/plain");
         shareIntent.putExtra(Intent.EXTRA_TEXT, message);
-        shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Download " + Config.APP_NAME);
-        
+        shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Check out this amazing Dialer App!");
+
         startActivity(Intent.createChooser(shareIntent, "Share App Link"));
     }
+
 
     private void showNoPlanDialog() {
         new AlertDialog.Builder(this)

@@ -92,7 +92,7 @@
                                 android:layout_height="wrap_content"
                                 android:onClick="onCountryPickerClick"
                                 android:theme="@style/texview"
-                                app:ccpDialog_textColor="@color/white"
+                                app:ccpDialog_textColor="@color/black"
                                 app:ccp_showFlag="false"
                                 app:ccp_showNameCode="false" />
 

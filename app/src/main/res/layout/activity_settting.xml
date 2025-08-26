@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".SetttingActivity">
+
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/app_main_bg"
+        android:layout_above="@id/bottom_nav"
+        android:orientation="vertical"
+        >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="?actionBarSize"
+            android:background="#F8F8F8"
+            android:gravity="center_vertical">
+
+            <ImageView
+                android:id="@+id/btn_back"
+                android:layout_width="@dimen/_20sdp"
+                android:layout_height="@dimen/_20sdp"
+                android:layout_marginLeft="@dimen/_10sdp"
+                android:src="@drawable/ic_back" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/_10sdp"
+                android:fontFamily="@font/poppins_semibold"
+                android:includeFontPadding="false"
+                android:layout_marginStart="@dimen/_10sdp"
+                android:text="Setting"
+                android:textColor="@color/black"
+                android:textSize="@dimen/_12sdp" />
+
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:id="@+id/ll_privacy"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_50sdp"
+            android:layout_marginLeft="@dimen/_15sdp"
+            android:layout_marginTop="@dimen/_15sdp"
+            android:layout_marginRight="@dimen/_15sdp"
+            android:background="@drawable/square_border2"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="@dimen/_25sdp"
+                android:layout_height="@dimen/_25sdp"
+                android:layout_marginLeft="@dimen/_10sdp"
+                android:layout_marginRight="@dimen/_10sdp"
+                android:src="@drawable/baseline_policy_24" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Privacy Policy"
+                android:textColor="@color/black"
+                android:textSize="@dimen/_15sdp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/ll_terms"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_50sdp"
+            android:layout_marginLeft="@dimen/_15sdp"
+            android:layout_marginTop="@dimen/_15sdp"
+            android:layout_marginRight="@dimen/_15sdp"
+            android:background="@drawable/square_border2"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="@dimen/_25sdp"
+                android:layout_height="@dimen/_25sdp"
+                android:layout_marginLeft="@dimen/_10sdp"
+                android:layout_marginRight="@dimen/_10sdp"
+                android:src="@drawable/baseline_policy_24" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Terms &amp; Condition"
+                android:textColor="@color/black"
+                android:textSize="@dimen/_15sdp" />
+
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:id="@+id/ll_share"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_50sdp"
+            android:layout_marginLeft="@dimen/_15sdp"
+            android:layout_marginTop="@dimen/_15sdp"
+            android:layout_marginRight="@dimen/_15sdp"
+            android:background="@drawable/square_border2"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="@dimen/_25sdp"
+                android:layout_height="@dimen/_25sdp"
+                android:layout_marginLeft="@dimen/_10sdp"
+                android:layout_marginRight="@dimen/_10sdp"
+                android:src="@drawable/baseline_share_24" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Share App"
+                android:textColor="@color/black"
+                android:textSize="@dimen/_15sdp" />
+
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:id="@+id/ll_rate"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_50sdp"
+            android:layout_marginLeft="@dimen/_15sdp"
+            android:layout_marginTop="@dimen/_15sdp"
+            android:layout_marginRight="@dimen/_15sdp"
+            android:background="@drawable/square_border2"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="@dimen/_25sdp"
+                android:layout_height="@dimen/_25sdp"
+                android:layout_marginLeft="@dimen/_10sdp"
+                android:layout_marginRight="@dimen/_10sdp"
+                android:src="@drawable/baseline_star_rate_24" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Rate App"
+                android:textColor="@color/black"
+                android:textSize="@dimen/_15sdp" />
+
+        </LinearLayout>
+
+
+
+    </LinearLayout>
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_nav"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        app:menu="@menu/bottom_menu" />
+</RelativeLayout>

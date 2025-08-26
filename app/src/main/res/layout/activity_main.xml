@@ -1,12 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.drawerlayout.widget.DrawerLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/drawer_layout"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:fitsSystemWindows="true">
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -24,11 +18,13 @@
             android:elevation="4dp"
             />
 
-        <!-- Scrollable Content -->
         <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:padding="16dp">
+            android:layout_height="0dp"
+            android:layout_below="@id/toolbar"
+            android:layout_above="@id/bottom_nav"
+            android:layout_weight="1"
+           >
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -211,16 +207,29 @@
 
             </LinearLayout>
         </ScrollView>
-    </LinearLayout>
 
 
-    <com.google.android.material.navigation.NavigationView
-        android:id="@+id/nav_view"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_gravity="start"
-        android:fitsSystemWindows="true"
-        app:menu="@menu/drawer_menu"/>
+        <!-- Scrollable Content -->
 
 
-</androidx.drawerlayout.widget.DrawerLayout>
+    <!-- Bottom Navigation -->
+<!--    <com.google.android.material.bottomnavigation.BottomNavigationView-->
+<!--        android:id="@+id/bottom_nav"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="60dp"-->
+<!--        android:layout_alignParentBottom="true"-->
+<!--        app:itemBackground="@color/white"-->
+
+<!--        app:menu="@menu/bottom_menu" />-->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_nav"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        app:menu="@menu/bottom_menu" />
+
+
+    </RelativeLayout>
+
+
+

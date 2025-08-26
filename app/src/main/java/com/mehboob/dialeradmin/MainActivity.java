@@ -25,6 +25,7 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -39,7 +40,7 @@ import com.mehboob.dialeradmin.Config;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     private static final int PERMISSION_REQUEST_CODE = 123;
     
@@ -48,7 +49,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private AdminModel currentAdmin;
     private boolean isAdminLoaded = false;
 
-    private DrawerLayout drawerLayout;
 
 
     @Override
@@ -60,26 +60,50 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right,0);
             return insets;
         });
 
-        drawerLayout = findViewById(R.id.drawer_layout);
-        NavigationView navigationView = findViewById(R.id.nav_view);
+     BottomNavigationView bottomNav = findViewById(R.id.bottom_nav);
+        bottomNav.setSelectedItemId(R.id.nav_info);
+
+        bottomNav.setOnItemSelectedListener(item -> {
+            int id = item.getItemId();
+
+            if (id == R.id.nav_history) {
+                startActivity(new Intent(this, CallHistoryActivity.class));
+                overridePendingTransition(0, 0);
+                return  true;
+            }else  if (id == R.id.nav_info) {
+                return  true;
+            } else if (id == R.id.nav_profile) {
+                startActivity(new Intent(this, ProfileActivity.class));
+                overridePendingTransition(0, 0);
+                return  true;
+            } else if (id == R.id.nav_premium) {
+                startActivity(new Intent(this, PacakageActivity.class));
+                overridePendingTransition(0, 0);
+                return  true;
+            } else if (id == R.id.nav_settings) {
+                startActivity(new Intent(this, SetttingActivity.class));
+                overridePendingTransition(0, 0);
+                return  true;
+            }
+            return true;
+        });
 
         // Setup Toolbar and ActionBarDrawerToggle
-        androidx.appcompat.widget.Toolbar toolbar = findViewById(R.id.toolbar); // Assuming you have a toolbar in your layout
-        setSupportActionBar(toolbar);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar,
-                R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawerLayout.addDrawerListener(toggle);
-        toggle.syncState();
 
-        navigationView.setNavigationItemSelectedListener(this);
+//        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar,
+//                R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+//        drawerLayout.addDrawerListener(toggle);
+//        toggle.syncState();
+//
+//        navigationView.setNavigationItemSelectedListener(this);
 
 
         initViews();
-       // setupToolbar();
+        setupToolbar();
         checkAuthentication(savedInstanceState);
     }
 
@@ -144,7 +168,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             
                             // Check if user has an active plan
                             if (!currentAdmin.isPremium() || !currentAdmin.isPlanActive()) {
-                                showNoPlanDialog();
+//                                showNoPlanDialog();
+
+                                startActivity(new Intent(MainActivity.this, PacakageActivity.class));
+                                overridePendingTransition(0, 0);
                                 return;
                             }
                             
@@ -202,7 +229,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             
                             // Check if user has an active plan
                             if (!currentAdmin.isPremium() || !currentAdmin.isPlanActive()) {
-                                showNoPlanDialog();
+                                //showNoPlanDialog();
+                                startActivity(new Intent(MainActivity.this, PacakageActivity.class));
+                                overridePendingTransition(0, 0);
                                 return;
                             }
                             
@@ -230,7 +259,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void setupMainApp(Bundle savedInstanceState) {
         // In Admin mode, show tracked numbers' call history instead of dialer
         if (savedInstanceState == null) {
-            startActivity(new Intent(this, CallHistoryActivity.class));
+          //  startActivity(new Intent(this, CallHistoryActivity.class));
         }
     }
 
@@ -332,18 +361,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         
-        if (id == R.id.action_call_history) {
-            Log.d("c","JKL");
-
-            startActivity(new Intent(this, CallHistoryActivity.class));
-            return true;
-        } else if (id == R.id.action_packages) {
-            startActivity(new Intent(this, PacakageActivity.class));
-            return true;
-        } else if (id == R.id.action_profile) {
-            startActivity(new Intent(this, ProfileActivity.class));
-            return true;
-        } else if (id == R.id.action_logout) {
+//        if (id == R.id.action_call_history) {
+//            Log.d("c","JKL");
+//
+//            startActivity(new Intent(this, CallHistoryActivity.class));
+//            return true;
+//        } else if (id == R.id.action_packages) {
+//            startActivity(new Intent(this, PacakageActivity.class));
+//            return true;
+//        } else if (id == R.id.action_profile) {
+//            startActivity(new Intent(this, ProfileActivity.class));
+//            return true;
+//        } else i
+//
+        if (id == R.id.action_logout) {
             showLogoutDialog();
             return true;
         } else if (id == R.id.action_switch_mode) {
@@ -382,27 +413,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // Clean up any listeners if needed
     }
 
-    @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
-        int id = item.getItemId();
-
-        if (id == R.id.nav_home) {
-            Toast.makeText(this, "Home selected", Toast.LENGTH_SHORT).show();
-        } else if (id == R.id.nav_settings) {
-            Toast.makeText(this, "Settings selected", Toast.LENGTH_SHORT).show();
-        }
-
-        drawerLayout.closeDrawer(GravityCompat.START);
-        return true;
-    }
 
     @Override
     public void onBackPressed() {
-        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-            drawerLayout.closeDrawer(GravityCompat.START);
-        } else {
             finishAffinity();
-        }
+
     }
 }

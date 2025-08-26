@@ -2,23 +2,23 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <item
-        android:id="@+id/action_call_history"
-        android:icon="@drawable/ic_call_history"
-        android:title="Call History"
-        app:showAsAction="ifRoom" />
+<!--    <item-->
+<!--        android:id="@+id/action_call_history"-->
+<!--        android:icon="@drawable/ic_call_history"-->
+<!--        android:title="Call History"-->
+<!--        app:showAsAction="ifRoom" />-->
 
-    <item
-        android:id="@+id/action_packages"
-        android:icon="@drawable/ic_package"
-        android:title="Packages"
-        app:showAsAction="ifRoom" />
+<!--    <item-->
+<!--        android:id="@+id/action_packages"-->
+<!--        android:icon="@drawable/ic_package"-->
+<!--        android:title="Packages"-->
+<!--        app:showAsAction="ifRoom" />-->
 
-    <item
-        android:id="@+id/action_profile"
-        android:icon="@drawable/ic_person"
-        android:title="Profile"
-        app:showAsAction="never" />
+<!--    <item-->
+<!--        android:id="@+id/action_profile"-->
+<!--        android:icon="@drawable/ic_person"-->
+<!--        android:title="Profile"-->
+<!--        app:showAsAction="never" />-->
 
     <item
         android:id="@+id/action_logout"
@@ -26,11 +26,11 @@
         android:title="Logout"
         app:showAsAction="never" />
 
-    <item
-        android:id="@+id/action_switch_mode"
-        android:icon="@drawable/ic_phone"
-        android:iconTint="@color/black"
-        android:title="Switch to Dialer"
-        app:showAsAction="never" />
+<!--    <item-->
+<!--        android:id="@+id/action_switch_mode"-->
+<!--        android:icon="@drawable/ic_phone"-->
+<!--        android:iconTint="@color/black"-->
+<!--        android:title="Switch to Dialer"-->
+<!--        app:showAsAction="never" />-->
 
 </menu>

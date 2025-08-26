@@ -22,6 +22,12 @@
         android:theme="@style/Theme.CallHistoryOfAnyNumber"
         tools:targetApi="31">
         <activity
+            android:name=".WebActivity"
+            android:exported="false" />
+        <activity
+            android:name=".SetttingActivity"
+            android:exported="false" />
+        <activity
             android:name=".DownloadActivity"
             android:exported="false" />
         <activity
@@ -32,10 +38,7 @@
             android:exported="false" />
         <activity
             android:name=".SuccessActivity"
-            android:exported="false" />
-
-
-        <!-- Launcher Activity - Mode Selection -->
+            android:exported="false" /> <!-- Launcher Activity - Mode Selection -->
         <activity
             android:name=".ModeSelectionActivity"
             android:exported="true"

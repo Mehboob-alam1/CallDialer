@@ -75,18 +75,6 @@ public class CallListFragment extends Fragment {
         callLogAdapter.setOnItemClickListener((position, callLog) -> redialNumber(callLog.getNumber()));
     }
 
-//    private void setupSearchView() {
-//        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-//            @Override
-//            public boolean onQueryTextSubmit(String query) { return false; }
-//
-//            @Override
-//            public boolean onQueryTextChange(String newText) {
-//                filterCallLogs(newText);
-//                return true;
-//            }
-//        });
-//    }
 
     private void setupClearHistoryButton() {
         fabClearHistory.setOnClickListener(v -> new MaterialAlertDialogBuilder(requireContext())

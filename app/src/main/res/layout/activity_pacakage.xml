@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
@@ -7,342 +7,357 @@
     android:orientation="vertical"
     android:layout_height="match_parent"
     tools:context=".PacakageActivity">
-    <LinearLayout
-
+    <ScrollView
         android:layout_width="match_parent"
-        android:padding="16dp"
-        android:orientation="vertical"
-        android:layout_height="match_parent"
-        tools:context=".PacakageActivity">
-
-
+        android:layout_height="wrap_content"
+        android:layout_above="@id/bottom_navC"
+        >
         <LinearLayout
+
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <ImageView
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:src="@drawable/outline_cancel_24"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_weight="1"
-                android:textAlignment="textEnd"
-                android:fontFamily="@font/poppins"
-                android:layout_height="wrap_content"
-                android:text="Restore"/>
-
-        </LinearLayout>
-
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
             android:padding="16dp"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:layout_height="match_parent"
+            tools:context=".PacakageActivity">
 
 
-            <TextView
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_weight="1"
-                android:textAlignment="center"
                 android:layout_height="wrap_content"
-                android:textSize="24sp"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/outline_cancel_24"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_weight="1"
+                    android:textAlignment="textEnd"
+                    android:fontFamily="@font/poppins"
+                    android:layout_height="wrap_content"
+                    android:text="Restore"/>
+
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="16dp"
+                android:orientation="vertical">
+
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_weight="1"
+                    android:textAlignment="center"
+                    android:layout_height="wrap_content"
+                    android:textSize="24sp"
+                    android:fontFamily="@font/poppins_semibold"
+
+                    android:text="Call History Plus"/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_marginTop="8dp"
+                    android:layout_weight="1"
+                    android:textAlignment="center"
+                    android:fontFamily="@font/poppins_light"
+
+                    android:layout_height="wrap_content"
+                    android:text="Unlock the most powerful\nPhone Track System"/>
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_marginTop="12dp"
+                android:gravity="center_horizontal"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="8dp"
+                    android:drawablePadding="16dp"
+                    android:fontFamily="@font/poppins"
+
+                    android:drawableStart="@drawable/outline_done_outline_24"
+                    android:text="Get All of The Call History In One Click"/>
+
+
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="8dp"
+                    android:drawablePadding="16dp"
+                    android:fontFamily="@font/poppins"
+
+                    android:drawableStart="@drawable/outline_done_outline_24"
+                    android:text="Track Upto 1 Number Call History"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="8dp"
+                    android:drawablePadding="16dp"
+                    android:fontFamily="@font/poppins"
+
+                    android:drawableStart="@drawable/outline_done_outline_24"
+                    android:text="Pro support from our team"/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="8dp"
+                    android:drawablePadding="16dp"
+                    android:fontFamily="@font/poppins"
+
+                    android:drawableStart="@drawable/outline_done_outline_24"
+                    android:text="Early access to new features"/>
+
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="8dp"
+                android:orientation="horizontal"
+                android:weightSum="2"
+                >
+                <LinearLayout
+                    android:id="@+id/l1"
+                    android:layout_margin="8dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:padding="8dp"
+                    android:background="@drawable/btn_background_selector"
+                    android:clickable="true"
+                    android:orientation="vertical"
+                    android:focusable="true">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_weight="1"
+                        android:fontFamily="@font/poppins_light"
+                        android:layout_height="wrap_content"
+                        android:text="Yearly"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_weight="1"
+                        android:textSize="18sp"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/poppins_bold"
+
+                        android:text="₹2499.00"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Save ₹ 520.00"
+                        android:padding="6dp"
+                        android:background="@drawable/edittext_bg"
+                        android:textSize="10sp"/>
+
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:fontFamily="@font/poppins"
+
+                        android:layout_height="wrap_content"
+                        android:text="Free 1 week trial" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/l2"
+
+                    android:layout_margin="8dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:padding="8dp"
+                    android:background="@drawable/btn_background_selector"
+                    android:clickable="true"
+                    android:orientation="vertical"
+                    android:focusable="true">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_weight="1"
+                        android:fontFamily="@font/poppins_light"
+
+                        android:layout_height="wrap_content"
+                        android:text="Monthly"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_weight="1"
+                        android:textSize="18sp"
+                        android:fontFamily="@font/poppins_bold"
+
+                        android:layout_height="wrap_content"
+                        android:text="₹399.00"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Save ₹ 197.00"
+                        android:padding="6dp"
+
+                        android:background="@drawable/edittext_bg"
+                        android:textSize="10sp"/>
+
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:fontFamily="@font/poppins"
+
+                        android:text="Free 1 week trial" />
+
+                </LinearLayout>
+
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="8dp"
+                android:orientation="horizontal"
+                android:weightSum="2"
+                >
+                <LinearLayout
+                    android:id="@+id/l3"
+
+                    android:layout_margin="8dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:padding="8dp"
+                    android:background="@drawable/btn_background_selector"
+                    android:clickable="true"
+                    android:orientation="vertical"
+                    android:focusable="true">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_weight="1"
+                        android:fontFamily="@font/poppins_light"
+
+                        android:layout_height="wrap_content"
+                        android:text="Weekly"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_weight="1"
+                        android:textSize="18sp"
+                        android:fontFamily="@font/poppins_bold"
+
+                        android:layout_height="wrap_content"
+                        android:text="₹149.00"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Save ₹ 52.00"
+                        android:padding="6dp"
+
+                        android:background="@drawable/edittext_bg"
+                        android:textSize="10sp"/>
+
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:fontFamily="@font/poppins"
+                        android:text="Free 1 week trial" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/l4"
+                    android:layout_margin="8dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:padding="8dp"
+                    android:background="@drawable/btn_background_selector"
+                    android:clickable="true"
+                    android:orientation="vertical"
+                    android:focusable="true">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_weight="1"
+                        android:fontFamily="@font/poppins_light"
+
+                        android:layout_height="wrap_content"
+                        android:text="3 Months"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_weight="1"
+                        android:textSize="18sp"
+                        android:fontFamily="@font/poppins_bold"
+
+                        android:layout_height="wrap_content"
+                        android:text="₹999.00"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Save ₹ 938.00"
+                        android:padding="6dp"
+
+                        android:background="@drawable/edittext_bg"
+                        android:textSize="10sp"/>
+
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:fontFamily="@font/poppins"
+
+                        android:text="Free 1 week trial" />
+
+                </LinearLayout>
+
+
+            </LinearLayout>
+
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/btnSubscribe"
+                android:layout_marginTop="32dp"
+                android:background="@drawable/bg_button"
                 android:fontFamily="@font/poppins_semibold"
+                android:text="Subscribe"
 
-                android:text="Call History Plus"/>
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_marginTop="8dp"
-                android:layout_weight="1"
-                android:textAlignment="center"
-                android:fontFamily="@font/poppins_light"
-
-                android:layout_height="wrap_content"
-                android:text="Unlock the most powerful\nPhone Track System"/>
-        </LinearLayout>
-
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_marginTop="12dp"
-            android:gravity="center_horizontal"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+                android:drawableEnd="@drawable/outline_arrow_forward_ios_24"
+                android:drawableTint="@color/white"
+                android:drawablePadding="8dp"
+                android:padding="16dp"
+                android:textColor="@color/white" />
 
 
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="8dp"
-                android:drawablePadding="16dp"
-                android:fontFamily="@font/poppins"
 
-                android:drawableStart="@drawable/outline_done_outline_24"
-                android:text="Get all of the call history in one click"/>
-
-
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="8dp"
-                android:drawablePadding="16dp"
-                android:fontFamily="@font/poppins"
-
-                android:drawableStart="@drawable/outline_done_outline_24"
-                android:text="Get all of the call history in one click"/>
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="8dp"
-                android:drawablePadding="16dp"
-                android:fontFamily="@font/poppins"
-
-                android:drawableStart="@drawable/outline_done_outline_24"
-                android:text="Get all of the call history in one click"/>
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="8dp"
-                android:drawablePadding="16dp"
-                android:fontFamily="@font/poppins"
-
-                android:drawableStart="@drawable/outline_done_outline_24"
-                android:text="Get all of the call history in one click"/>
-
-        </LinearLayout>
-
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="8dp"
-            android:orientation="horizontal"
-            android:weightSum="2"
-            >
-            <LinearLayout
-                android:id="@+id/l1"
-                android:layout_margin="8dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:padding="8dp"
-                android:background="@drawable/btn_background_selector"
-                android:clickable="true"
-                android:orientation="vertical"
-                android:focusable="true">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_weight="1"
-                    android:fontFamily="@font/poppins_light"
-                    android:layout_height="wrap_content"
-                    android:text="Yearly"/>
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_weight="1"
-                    android:textSize="18sp"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/poppins_bold"
-
-                    android:text="₹2499.00"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Save ₹ 520.00"
-                    android:padding="6dp"
-                    android:background="@drawable/edittext_bg"
-                    android:textSize="10sp"/>
-
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_marginTop="2dp"
-                    android:fontFamily="@font/poppins"
-
-                    android:layout_height="wrap_content"
-                    android:text="Free 1 week trial" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/l2"
-
-                android:layout_margin="8dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:padding="8dp"
-                android:background="@drawable/btn_background_selector"
-                android:clickable="true"
-                android:orientation="vertical"
-                android:focusable="true">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_weight="1"
-                    android:fontFamily="@font/poppins_light"
-
-                    android:layout_height="wrap_content"
-                    android:text="Monthly"/>
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_weight="1"
-                    android:textSize="18sp"
-                    android:fontFamily="@font/poppins_bold"
-
-                    android:layout_height="wrap_content"
-                    android:text="₹399.00"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Save ₹ 197.00"
-                    android:padding="6dp"
-
-                    android:background="@drawable/edittext_bg"
-                    android:textSize="10sp"/>
-
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
-                    android:fontFamily="@font/poppins"
-
-                    android:text="Free 1 week trial" />
-
-            </LinearLayout>
 
 
         </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="8dp"
-            android:orientation="horizontal"
-            android:weightSum="2"
-            >
-            <LinearLayout
-                android:id="@+id/l3"
+    </ScrollView>
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_navC"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        app:menu="@menu/bottom_menu" />
 
-                android:layout_margin="8dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:padding="8dp"
-                android:background="@drawable/btn_background_selector"
-                android:clickable="true"
-                android:orientation="vertical"
-                android:focusable="true">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_weight="1"
-                    android:fontFamily="@font/poppins_light"
-
-                    android:layout_height="wrap_content"
-                    android:text="Weekly"/>
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_weight="1"
-                    android:textSize="18sp"
-                    android:fontFamily="@font/poppins_bold"
-
-                    android:layout_height="wrap_content"
-                    android:text="₹149.00"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Save ₹ 52.00"
-                    android:padding="6dp"
-
-                    android:background="@drawable/edittext_bg"
-                    android:textSize="10sp"/>
-
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
-                    android:fontFamily="@font/poppins"
-                    android:text="Free 1 week trial" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/l4"
-                android:layout_margin="8dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:padding="8dp"
-                android:background="@drawable/btn_background_selector"
-                android:clickable="true"
-                android:orientation="vertical"
-                android:focusable="true">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_weight="1"
-                    android:fontFamily="@font/poppins_light"
-
-                    android:layout_height="wrap_content"
-                    android:text="3 Months"/>
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_weight="1"
-                    android:textSize="18sp"
-                    android:fontFamily="@font/poppins_bold"
-
-                    android:layout_height="wrap_content"
-                    android:text="₹999.00"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Save ₹ 938.00"
-                    android:padding="6dp"
-
-                    android:background="@drawable/edittext_bg"
-                    android:textSize="10sp"/>
-
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
-                    android:fontFamily="@font/poppins"
-
-                    android:text="Free 1 week trial" />
-
-            </LinearLayout>
-
-
-        </LinearLayout>
-
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/btnSubscribe"
-            android:layout_marginTop="32dp"
-            android:background="@drawable/bg_button"
-            android:text="Subscribe"
-
-            android:drawableEnd="@drawable/outline_arrow_forward_ios_24"
-            android:drawableTint="@color/white"
-            android:drawablePadding="8dp"
-            android:padding="16dp"
-            android:textColor="@color/white" />
-
-
-
-
-
-
-    </LinearLayout>
-</ScrollView>
+</RelativeLayout>

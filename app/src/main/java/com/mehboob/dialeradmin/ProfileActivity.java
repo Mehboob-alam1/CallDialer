@@ -24,6 +24,7 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -59,12 +60,41 @@ public class ProfileActivity extends AppCompatActivity {
         setContentView(R.layout.activity_profile);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, 0);
             return insets;
         });
         initViews();
         setupToolbar();
         loadAdminData();
+        BottomNavigationView bottomNav = findViewById(R.id.bottom_nav);
+        bottomNav.setSelectedItemId(R.id.nav_profile);
+
+        bottomNav.setOnItemSelectedListener(item -> {
+            int id = item.getItemId();
+
+            if (id == R.id.nav_history) {
+                startActivity(new Intent(this, CallHistoryActivity.class));
+                overridePendingTransition(0, 0);
+                return  true;
+            }else  if (id == R.id.nav_info) {
+                startActivity(new Intent(this, MainActivity.class));
+                overridePendingTransition(0, 0);
+                return  true;
+            } else if (id == R.id.nav_profile) {
+//                startActivity(new Intent(this, ProfileActivity.class));
+//                overridePendingTransition(0, 0);
+                return  true;
+            } else if (id == R.id.nav_premium) {
+                startActivity(new Intent(this, PacakageActivity.class));
+                overridePendingTransition(0, 0);
+                return  true;
+            } else if (id == R.id.nav_settings) {
+                startActivity(new Intent(this, SetttingActivity.class));
+                overridePendingTransition(0, 0);
+                return  true;
+            }
+            return true;
+        });
     }
 
     private void initViews() {
@@ -135,7 +165,16 @@ public class ProfileActivity extends AppCompatActivity {
                                 }
                                 currentAdmin.setChildNumbers(childNumbers);
                             }
-                            
+                            MyApplication.getInstance().setCurrentAdmin(currentAdmin);
+
+                            if (!currentAdmin.isPremium() || !currentAdmin.isPlanActive()) {
+//                                showNoPlanDialog();
+
+                                startActivity(new Intent(ProfileActivity.this, PacakageActivity.class));
+                                overridePendingTransition(0, 0);
+                                return;
+                            }
+
                             updateUI();
                             loadChildNumbers();
                         }
@@ -218,7 +257,7 @@ public class ProfileActivity extends AppCompatActivity {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(ProfileActivity.this, "Error loading child numbers: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(ProfileActivity.this, "Error loading  numbers: " + error.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -367,7 +406,7 @@ public class ProfileActivity extends AppCompatActivity {
     private void showUpgradePlanDialog() {
         new AlertDialog.Builder(this)
                 .setTitle("No Active Plan")
-                .setMessage("You need an active premium plan to track child numbers. Please subscribe to a plan.")
+                .setMessage("You need an active premium plan to track  numbers. Please subscribe to a plan.")
                 .setPositiveButton("Get Plans", (dialog, which) -> {
                     startActivity(new Intent(this, PacakageActivity.class));
                 })
@@ -417,5 +456,12 @@ public class ProfileActivity extends AppCompatActivity {
         if (currentAdmin != null) {
             loadAdminData();
         }
+
     }
+    @Override
+    public void onBackPressed() {
+        finishAffinity();
+
+    }
+
 }

@@ -22,13 +22,13 @@ import java.util.ArrayList;
 
 import eightbitlab.com.blurview.BlurTarget;
 import eightbitlab.com.blurview.RenderScriptBlur;
+import jp.wasabeef.blurry.Blurry;
 
 
 public class CallHis_AdapterlData extends RecyclerView.Adapter<CallHis_AdapterlData.AllHistoryAdapterViewHolder> {
 
-    Context context;
-    ArrayList<CallHis_DataModel> allHistoryData;
-    ViewGroup viewGroup;
+    private final Context context;
+    private final ArrayList<CallHis_DataModel> allHistoryData;
 
     public CallHis_AdapterlData(Context context, ArrayList<CallHis_DataModel> allHistoryData) {
         this.context = context;
@@ -38,54 +38,67 @@ public class CallHis_AdapterlData extends RecyclerView.Adapter<CallHis_AdapterlD
     @NonNull
     @Override
     public AllHistoryAdapterViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        viewGroup = parent;
-        return new AllHistoryAdapterViewHolder(LayoutInflater.from(context).inflate(R.layout.item_alldata, parent, false)
-        );
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_alldata, parent, false);
+        return new AllHistoryAdapterViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull AllHistoryAdapterViewHolder holder, int position) {
         CallHis_DataModel historyModel = allHistoryData.get(position);
 
+
         holder.binding.title.setText(historyModel.getName());
         holder.binding.totalMessage.setText(historyModel.getTotalNumber());
-        Glide.with(context).load(historyModel.getIcon()).into(holder.binding.img);
+
+        // ✅ Safe Glide usage (binds to View lifecycle, not Activity)
+        Glide.with(holder.itemView).load(historyModel.getIcon()).into(holder.binding.img);
 
         Drawable backgroundDrawable = holder.binding.img.getBackground();
         if (backgroundDrawable != null) {
             DrawableCompat.setTint(backgroundDrawable, Color.parseColor(historyModel.getTintColor()));
             holder.binding.img.setBackground(backgroundDrawable);
         }
+//        ViewGroup rootView = (ViewGroup) holder.itemView;
+//        Blurry.with(context)
+//                .radius(50)      // blur radius
+//                .sampling(2)     // downscale for performance
+//                .async()         // do it on background thread
+//                .onto(rootView); // apply blur overlay to the root view
 
-        float radius = 4f;
+      //  Blurry.with(context).capture(rootView).into(holder.binding.img);
 
-        // Root BlurTarget defined in XML
-        BlurTarget target = holder.itemView.findViewById(R.id.target);
 
-        // Background to clear
-        Drawable windowBackground = ((Activity) context).getWindow().getDecorView().getBackground();
-
-        holder.binding.topBlurView.setupWith(target)
-                .setFrameClearDrawable(windowBackground)
-
-                .setBlurRadius(radius)
-                .setBlurAutoUpdate(true);
     }
-
 
     @Override
     public int getItemCount() {
         return allHistoryData.size();
     }
 
-    class AllHistoryAdapterViewHolder extends RecyclerView.ViewHolder {
-
+    static class AllHistoryAdapterViewHolder extends RecyclerView.ViewHolder {
         ItemAlldataBinding binding;
 
         public AllHistoryAdapterViewHolder(@NonNull View itemView) {
             super(itemView);
-
             binding = ItemAlldataBinding.bind(itemView);
-        }
+
+//            // ✅ Setup blur ONCE here
+//            float radius = 2f;
+//            BlurTarget target = itemView.findViewById(R.id.target);
+//
+//            Drawable windowBackground = null;
+//            Context ctx = itemView.getContext();
+//            if (ctx instanceof Activity) {
+//                windowBackground = ((Activity) ctx).getWindow().getDecorView().getBackground();
+//            }
+//
+//            if (windowBackground != null) {
+//                binding.topBlurView.setupWith(target)
+//                        .setFrameClearDrawable(windowBackground)
+//                        .setBlurRadius(radius)
+//                        .setBlurAutoUpdate(true);
+//            }
+       }
     }
 }
+

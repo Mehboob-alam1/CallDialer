@@ -43,44 +43,26 @@ public class PhoneNumberActivity extends AppCompatActivity {
 
 
 
-        binding.btnBack.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                onBackPressed();
-            }
-        });
+        binding.btnBack.setOnClickListener(view -> onBackPressed());
 
         initClickEvent();
     }
 
     private void initClickEvent() {
-        binding.btnBack.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
+        binding.btnBack.setOnClickListener(v -> finish());
+
+        binding.btnGetCallHistory.setOnClickListener(v -> {
+            if (binding.inpNumber.getText().length() >= 8) {
+                phoneNumber = binding.inpNumber.getText().toString();
+
+                startActivity(new Intent(PhoneNumberActivity.this, SelectHistoryActivity.class));
+
+            } else {
+                Toast.makeText(PhoneNumberActivity.this, "Please enter valid phone number!", Toast.LENGTH_SHORT).show();
             }
         });
 
-        binding.btnGetCallHistory.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (binding.inpNumber.getText().length() >= 8) {
-                    phoneNumber = binding.inpNumber.getText().toString();
-
-                    startActivity(new Intent(PhoneNumberActivity.this, SelectHistoryActivity.class));
-
-                } else {
-                    Toast.makeText(PhoneNumberActivity.this, "Please enter valid phone number!", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-
-        binding.ccp.setOnCountryChangeListener(new CountryCodePicker.OnCountryChangeListener() {
-            @Override
-            public void onCountrySelected() {
-                countryCode = binding.ccp.getSelectedCountryCode();
-            }
-        });
+        binding.ccp.setOnCountryChangeListener(() -> countryCode = binding.ccp.getSelectedCountryCode());
 
         countryCode = binding.ccp.getSelectedCountryCode();
     }

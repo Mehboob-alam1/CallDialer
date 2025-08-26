@@ -89,4 +89,6 @@ dependencies {
 
     // BlurView
     implementation("com.github.Dimezis:BlurView:version-3.1.0")
+    implementation("jp.wasabeef:blurry:4.0.1")
+
 }

@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -22,6 +23,8 @@ import com.mehboob.dialeradmin.models.CallHis_AllData;
 import com.mehboob.dialeradmin.models.CallHis_DataModel;
 
 import java.util.ArrayList;
+
+import jp.wasabeef.blurry.Blurry;
 
 public class DownloadActivity extends AppCompatActivity {
 
@@ -41,7 +44,13 @@ public class DownloadActivity extends AppCompatActivity {
         });
 
 
-        binding.tvPhoneNumber.setText("+" + PhoneNumberActivity.countryCode + " " + PhoneNumberActivity.phoneNumber);
+       binding.tvPhoneNumber.setText("+" + PhoneNumberActivity.countryCode + " " + PhoneNumberActivity.phoneNumber);
+//        ViewGroup rootView = (ViewGroup) binding.rvHistory;
+//        Blurry.with(this)
+//                .radius(50)      // blur radius
+//                .sampling(2)     // downscale for performance
+//                .async()         // do it on background thread
+//                .onto(rootView);
 
         initAdapter();
         initClickEvent();
@@ -57,27 +66,20 @@ public class DownloadActivity extends AppCompatActivity {
     }
 
     private void initClickEvent() {
-        binding.btnBack.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
+        binding.btnBack.setOnClickListener(v -> finish());
+
+        binding.btnDownload.setOnClickListener(v -> {
+            binding.progressBar.setVisibility(VISIBLE);
+
+            new Handler().postDelayed(() -> {
+                if (!isFinishing() && !isDestroyed()) {  // ✅ prevent crash
+//                    binding.progressBar.setVisibility(GONE); // ✅ hide before closing
+                    startActivity(new Intent(DownloadActivity.this, AuthActivity.class));
+//                    finishAffinity();  // ✅ now safe to finish
+                }
+            }, 3000);
         });
 
-        binding.btnDownload.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                binding.progressBar.setVisibility(VISIBLE);
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        binding.progressBar.setVisibility(GONE);
-                        startActivity(new Intent(DownloadActivity.this,AuthActivity.class));
-                        finishAffinity();
-                    }
-                },3000);
-            }
-        });
 
     }
 }

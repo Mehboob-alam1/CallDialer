@@ -22,6 +22,7 @@ import com.cashfree.pg.core.api.utils.CFErrorResponse;
 import com.cashfree.pg.core.api.webcheckout.CFWebCheckoutPayment;
 import com.cashfree.pg.core.api.webcheckout.CFWebCheckoutTheme;
 import com.cashfree.pg.core.api.exception.CFException;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -46,7 +47,7 @@ public class PacakageActivity extends AppCompatActivity implements CFCheckoutRes
         setContentView(R.layout.activity_pacakage);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right,0);
             return insets;
         });
         try {
@@ -69,7 +70,41 @@ public class PacakageActivity extends AppCompatActivity implements CFCheckoutRes
 
         LinearLayout[] buttons = {btn1, btn2, btn3, btn4};
         if (!MyApplication.getInstance().isPlanExpired()){
-            showPremiumActiveDialog();
+
+          String planType = MyApplication.getInstance().getCurrentPlanType();
+
+          switch (planType){
+
+              case Config.PLAN_YEARLY:
+                  btn1.setSelected(true);
+                  btnSubscribe.setActivated(false);
+                  btnSubscribe.setText("Already Subscribed");
+
+                  break;
+              case Config.PLAN_MONTHLY:
+                  btn2.setSelected(true);
+                  btnSubscribe.setActivated(false);
+                  btnSubscribe.setText("Already Subscribed");
+
+                  break;
+              case Config.PLAN_WEEKLY:
+                  btn3.setSelected(true);
+                  btnSubscribe.setActivated(false);
+                  btnSubscribe.setText("Already Subscribed");
+
+
+                  break;
+              case Config.PLAN_3MONTHS:
+                  btn4.setSelected(true);
+                  btnSubscribe.setActivated(false);
+                  btnSubscribe.setText("Already Subscribed");
+
+
+                  break;
+          }
+
+
+           // showPremiumActiveDialog();
             return;
         }
         
@@ -112,6 +147,37 @@ public class PacakageActivity extends AppCompatActivity implements CFCheckoutRes
                 Toast.makeText(this, "Phone number is required for payment. Please update your profile.", Toast.LENGTH_LONG).show();
             }
         });
+
+        BottomNavigationView bottomNav = findViewById(R.id.bottom_navC);
+        bottomNav.setSelectedItemId(R.id.nav_premium);
+
+        bottomNav.setOnItemSelectedListener(item -> {
+            int id = item.getItemId();
+
+            if (id == R.id.nav_history) {
+                startActivity(new Intent(this, CallHistoryActivity.class));
+                overridePendingTransition(0, 0);
+                return  true;
+            }else  if (id == R.id.nav_info) {
+                startActivity(new Intent(this, MainActivity.class));
+                overridePendingTransition(0, 0);
+                return  true;
+            } else if (id == R.id.nav_profile) {
+                startActivity(new Intent(this, ProfileActivity.class));
+                overridePendingTransition(0, 0);
+                return  true;
+            } else if (id == R.id.nav_premium) {
+//                startActivity(new Intent(this, PacakageActivity.class));
+//                overridePendingTransition(0, 0);
+                return  true;
+            } else if (id == R.id.nav_settings) {
+                startActivity(new Intent(this, SetttingActivity.class));
+                overridePendingTransition(0, 0);
+                return  true;
+            }
+            return true;
+        });
+
     }
 
     private void showPremiumActiveDialog() {
@@ -292,4 +358,11 @@ public class PacakageActivity extends AppCompatActivity implements CFCheckoutRes
         Log.e(TAG, "CF SDK callback onPaymentFailure order=" + orderID + ": " + err);
         Toast.makeText(this, "Payment failed: " + err, Toast.LENGTH_SHORT).show();
     }
+
+    @Override
+    public void onBackPressed() {
+        finishAffinity();
+
+    }
+
 }
