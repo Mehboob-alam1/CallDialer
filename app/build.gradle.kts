@@ -7,11 +7,11 @@ plugins {
 }
 
 android {
-    namespace = "com.mehboob.dialeradmin"
+    namespace = "com.easyranktools.callhistoryforanynumber"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.mehboob.dialeradmin"
+        applicationId = "com.easyranktools.callhistoryforanynumber"
         minSdk = 24
         targetSdk = 36
         versionCode = 1
@@ -58,6 +58,7 @@ dependencies {
     implementation(libs.credentials.play.services.auth)
     implementation(libs.googleid)
     implementation(libs.core.ktx)
+    implementation(libs.firebase.messaging)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
@@ -90,5 +91,15 @@ dependencies {
     // BlurView
     implementation("com.github.Dimezis:BlurView:version-3.1.0")
     implementation("jp.wasabeef:blurry:4.0.1")
+
+    // Admob
+    implementation("com.google.android.gms:play-services-ads:23.1.0")
+
+    implementation("com.google.firebase:firebase-messaging")
+    implementation(platform("com.google.firebase:firebase-bom:33.2.0"))
+
+
+//    implementation(platform ( "com.google.firebase:firebase-bom:33.2"))
+
 
 }

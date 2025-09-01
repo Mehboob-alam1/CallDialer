@@ -1,0 +1,63 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:id="@+id/main"
+
+    android:background="@color/white">
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <ImageView
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:src="@drawable/no_ads"
+        android:contentDescription="Remove Ads"
+        android:layout_marginBottom="24dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Remove Ads Forever"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:fontFamily="@font/poppins_bold"
+        android:layout_marginBottom="12dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Enjoy an ad-free experience by upgrading once."
+        android:textSize="16sp"
+        android:textAlignment="center"
+        android:layout_marginBottom="32dp"/>
+
+    <Button
+        android:id="@+id/btnPurchase"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Buy Now - ₹199"
+      android:background="@drawable/bg_button"
+        android:textColor="@android:color/white"
+        android:fontFamily="@font/poppins_bold"
+        android:layout_marginBottom="16dp"/>
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btnRestore"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        android:text="Restore Purchase"
+        android:backgroundTint="@color/gray"
+        android:background="@drawable/bg_button"
+
+        android:textColor="@android:color/white"
+        android:fontFamily="@font/poppins_bold"/>
+</LinearLayout>
+
+</LinearLayout>

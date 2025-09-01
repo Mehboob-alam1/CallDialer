@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Dialer Admin</string>
+    <string name="app_name">Call History For Any Number</string>
 
     <!-- App Mode Strings -->
     <string name="dialer_mode">Dialer Mode</string>

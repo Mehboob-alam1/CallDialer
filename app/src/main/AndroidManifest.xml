@@ -9,6 +9,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
         android:name=".MyApplication"
@@ -22,11 +23,19 @@
         android:theme="@style/Theme.CallHistoryOfAnyNumber"
         tools:targetApi="31">
         <activity
+            android:name=".DownloadHistoryActivity"
+            android:exported="false" />
+        <activity
+            android:name=".RemoveAdsActivity"
+            android:exported="false" />
+        <activity
             android:name=".WebActivity"
             android:exported="false" />
         <activity
             android:name=".SetttingActivity"
-            android:exported="false" />
+            android:exported="true" >
+
+        </activity>
         <activity
             android:name=".DownloadActivity"
             android:exported="false" />
@@ -107,6 +116,28 @@
         <meta-data
             android:name="cashfree_subscription_flow_enable"
             android:value="true" />
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-8028241846578443~1962054900" />
+
+        <service
+            android:name=".MyFirebaseMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
     </application>
 
 </manifest>

@@ -11,15 +11,23 @@
     android:padding="32dp">
 
     <!-- App Icon -->
-    <ImageView
+
+    <androidx.cardview.widget.CardView
         android:layout_width="120dp"
         android:layout_height="120dp"
-        android:src="@drawable/ic_phone"
-        android:tint="@color/primary"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:cardCornerRadius="@dimen/_16sdp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:src="@drawable/call_logo"
+            />
+    </androidx.cardview.widget.CardView>
+
 
 
 

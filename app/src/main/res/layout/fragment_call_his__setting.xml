@@ -52,6 +52,7 @@
             android:layout_height="@dimen/_25sdp"
             android:layout_marginLeft="@dimen/_10sdp"
             android:layout_marginRight="@dimen/_10sdp"
+
             android:src="@drawable/baseline_policy_24" />
 
         <TextView
@@ -59,6 +60,7 @@
             android:layout_height="wrap_content"
             android:text="Privacy Policy"
             android:textColor="@color/black"
+            android:fontFamily="@font/poppins_semibold"
             android:textSize="@dimen/_15sdp" />
 
     </LinearLayout>
@@ -85,6 +87,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Terms &amp; Condition"
+            android:fontFamily="@font/poppins_semibold"
             android:textColor="@color/black"
             android:textSize="@dimen/_15sdp" />
 
@@ -113,6 +116,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Share App"
+            android:fontFamily="@font/poppins_semibold"
             android:textColor="@color/black"
             android:textSize="@dimen/_15sdp" />
 
@@ -142,9 +146,104 @@
             android:layout_height="wrap_content"
             android:text="Rate App"
             android:textColor="@color/black"
+            android:fontFamily="@font/poppins_semibold"
             android:textSize="@dimen/_15sdp" />
 
     </LinearLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_marginLeft="@dimen/_15sdp"
+        android:layout_marginTop="@dimen/_15sdp"
+        android:layout_marginRight="@dimen/_15sdp"
+        android:layout_height="wrap_content"
+        android:id="@+id/banner"/>
+
+    <LinearLayout
+        android:id="@+id/ll_remove_ads"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/_50sdp"
+        android:layout_marginLeft="@dimen/_15sdp"
+        android:layout_marginTop="@dimen/_15sdp"
+        android:layout_marginRight="@dimen/_15sdp"
+        android:background="@drawable/square_border2"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="@dimen/_25sdp"
+            android:layout_height="@dimen/_25sdp"
+            android:layout_marginLeft="@dimen/_10sdp"
+            android:layout_marginRight="@dimen/_10sdp"
+            android:src="@drawable/no_ads"
+       />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Remove Ads"
+            android:textColor="@color/black"
+            android:textSize="@dimen/_15sdp"
+            android:fontFamily="@font/poppins_semibold"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_cancellation"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/_50sdp"
+        android:layout_marginLeft="@dimen/_15sdp"
+        android:layout_marginTop="@dimen/_15sdp"
+        android:layout_marginRight="@dimen/_15sdp"
+        android:background="@drawable/square_border2"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="@dimen/_25sdp"
+            android:layout_height="@dimen/_25sdp"
+            android:layout_marginLeft="@dimen/_10sdp"
+            android:layout_marginRight="@dimen/_10sdp"
+            android:src="@drawable/baseline_policy_24"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cancellation Policy"
+            android:textColor="@color/black"
+            android:textSize="@dimen/_15sdp"
+            android:fontFamily="@font/poppins_semibold"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_download"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/_50sdp"
+        android:layout_marginLeft="@dimen/_15sdp"
+        android:layout_marginTop="@dimen/_15sdp"
+        android:layout_marginRight="@dimen/_15sdp"
+        android:background="@drawable/square_border2"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="@dimen/_25sdp"
+            android:layout_height="@dimen/_25sdp"
+            android:layout_marginLeft="@dimen/_10sdp"
+            android:layout_marginRight="@dimen/_10sdp"
+            android:src="@drawable/cf_avd_up_to_down" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Download Call History"
+            android:textColor="@color/black"
+            android:fontFamily="@font/poppins_semibold"
+            android:textSize="@dimen/_15sdp" />
+
+    </LinearLayout>
+
+
 
 
 

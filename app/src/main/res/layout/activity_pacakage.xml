@@ -202,10 +202,10 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_marginTop="2dp"
-                        android:fontFamily="@font/poppins"
-
+                        android:fontFamily="@font/poppins_bold"
+                         android:textSize="10sp"
                         android:layout_height="wrap_content"
-                        android:text="Free 1 week trial" />
+                        android:text="Track Unlimited numbers" />
 
                 </LinearLayout>
 
@@ -251,9 +251,10 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
-                        android:fontFamily="@font/poppins"
+                        android:fontFamily="@font/poppins_bold"
+                        android:textSize="10sp"
 
-                        android:text="Free 1 week trial" />
+                        android:text="Track 1 number" />
 
                 </LinearLayout>
 
@@ -309,8 +310,10 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
-                        android:fontFamily="@font/poppins"
-                        android:text="Free 1 week trial" />
+                        android:textSize="10sp"
+
+                        android:fontFamily="@font/poppins_bold"
+                        android:text="Track 1 number"  />
 
                 </LinearLayout>
 
@@ -355,9 +358,10 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
-                        android:fontFamily="@font/poppins"
+                        android:fontFamily="@font/poppins_bold"
+                        android:textSize="10sp"
 
-                        android:text="Free 1 week trial" />
+                        android:text="Track 3 numbers"  />
 
                 </LinearLayout>
 

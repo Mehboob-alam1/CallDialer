@@ -8,7 +8,6 @@
         app:cardCornerRadius="@dimen/_10sdp"
         app:cardElevation="@dimen/_10sdp"
 
-        android:outlineSpotShadowColor="#0A000000"
         android:orientation="vertical">
         <FrameLayout
             android:layout_width="match_parent"
@@ -28,8 +27,8 @@
                     android:layout_height="@dimen/_40sdp"
                     android:background="@drawable/item_icon_bg"
                     android:padding="@dimen/_11sdp"
-                    android:tint="@color/gray"
-                    android:src="@drawable/ic_call" />
+                    android:src="@drawable/ic_call"
+                    app:tint="@color/gray" />
 
                 <TextView
                     android:id="@+id/title"
