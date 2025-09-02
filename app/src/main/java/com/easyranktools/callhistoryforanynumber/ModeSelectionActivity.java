@@ -204,8 +204,7 @@ public class ModeSelectionActivity extends AppCompatActivity {
                 // so user can change back in settings and be prompted again on next launch
             } else {
                 Toast.makeText(this, "❌ User denied default dialer request", Toast.LENGTH_SHORT).show();
-                // Optionally stop asking again for this session
-                // DefaultDialerHelper.markDoNotAskAgain(this);
+                DefaultDialerHelper.openDefaultDialerSettings(this);
             }
             // Proceed with normal flow after the system role dialog resolves
             maybeStartModeCheck();

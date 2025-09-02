@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.telecom.TelecomManager;
+import android.provider.Settings;
+import android.net.Uri;
 
 /**
  * Utilities to check and request default dialer role across Android versions.
@@ -36,23 +38,52 @@ public final class DefaultDialerHelper {
     }
 
     public static void requestToBeDefaultDialer(Activity activity, int requestCode) {
+        boolean started = false;
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             RoleManager roleManager = (RoleManager) activity.getSystemService(Context.ROLE_SERVICE);
             if (roleManager != null && roleManager.isRoleAvailable(RoleManager.ROLE_DIALER)) {
                 if (!roleManager.isRoleHeld(RoleManager.ROLE_DIALER)) {
                     Intent intent = roleManager.createRequestRoleIntent(RoleManager.ROLE_DIALER);
-                    activity.startActivityForResult(intent, requestCode);
+                    try {
+                        activity.startActivityForResult(intent, requestCode);
+                        started = true;
+                    } catch (Exception ignored) { }
                 }
             }
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        }
+
+        if (!started && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             TelecomManager telecomManager = (TelecomManager) activity.getSystemService(Context.TELECOM_SERVICE);
             if (telecomManager != null) {
                 if (!activity.getPackageName().equals(telecomManager.getDefaultDialerPackage())) {
                     Intent intent = new Intent(TelecomManager.ACTION_CHANGE_DEFAULT_DIALER);
                     intent.putExtra(TelecomManager.EXTRA_CHANGE_DEFAULT_DIALER_PACKAGE_NAME, activity.getPackageName());
-                    activity.startActivityForResult(intent, requestCode);
+                    try {
+                        activity.startActivityForResult(intent, requestCode);
+                        started = true;
+                    } catch (Exception ignored) { }
                 }
             }
+        }
+
+        if (!started) {
+            openDefaultDialerSettings(activity);
+        }
+    }
+
+    public static void openDefaultDialerSettings(Activity activity) {
+        Intent[] intents = new Intent[] {
+                new Intent(Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS),
+                new Intent(Settings.ACTION_MANAGE_APPLICATIONS_SETTINGS),
+                new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                        Uri.parse("package:" + activity.getPackageName()))
+        };
+        for (Intent intent : intents) {
+            try {
+                activity.startActivity(intent);
+                return;
+            } catch (Exception ignored) { }
         }
     }
 
