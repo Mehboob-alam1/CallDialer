@@ -67,8 +67,10 @@ public final class DefaultDialerHelper {
             }
         }
 
+        // If we couldn't start any system prompt, just return quietly.
+        // The caller can decide next steps without forcing settings open.
         if (!started) {
-            openDefaultDialerSettings(activity);
+            return;
         }
     }
 
