@@ -30,7 +30,8 @@ public final class DefaultDialerHelper {
     }
 
     public static boolean shouldAskToBeDefault(Context context) {
-        return !isDefaultDialer(context) && !getPrefs(context).getBoolean(KEY_DO_NOT_ASK_DEFAULT_DIALER, false);
+        // Always ask when not default; avoid permanently suppressing the prompt
+        return !isDefaultDialer(context);
     }
 
     public static void markDoNotAskAgain(Context context) {
@@ -67,10 +68,9 @@ public final class DefaultDialerHelper {
             }
         }
 
-        // If we couldn't start any system prompt, just return quietly.
-        // The caller can decide next steps without forcing settings open.
+        // If we couldn't start any system prompt, open settings as a fallback
         if (!started) {
-            return;
+            openDefaultDialerSettings(activity);
         }
     }
 
