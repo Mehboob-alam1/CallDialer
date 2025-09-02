@@ -198,14 +198,16 @@ public class ModeSelectionActivity extends AppCompatActivity {
 
         if (requestCode == REQUEST_CODE_SET_DEFAULT_DIALER) {
             isRequestingDefaultDialer = false;
-            if (resultCode == RESULT_OK) {
+
+            // Double-check actual state instead of relying on resultCode which may vary by OEM
+            boolean isNowDefault = DefaultDialerHelper.isDefaultDialer(this);
+            if (isNowDefault) {
                 Toast.makeText(this, "✅ App is now the default dialer!", Toast.LENGTH_SHORT).show();
-                // Reset the do-not-ask flag if previously set
-                // so user can change back in settings and be prompted again on next launch
             } else {
-                Toast.makeText(this, "❌ User denied default dialer request", Toast.LENGTH_SHORT).show();
-                DefaultDialerHelper.openDefaultDialerSettings(this);
+                // Quietly proceed without nagging; remember user's choice to avoid re-prompting
+                DefaultDialerHelper.markDoNotAskAgain(this);
             }
+
             // Proceed with normal flow after the system role dialog resolves
             maybeStartModeCheck();
         }
