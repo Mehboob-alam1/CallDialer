@@ -59,6 +59,7 @@ public final class DefaultDialerHelper {
             if (telecomManager != null) {
                 if (!activity.getPackageName().equals(telecomManager.getDefaultDialerPackage())) {
                     Intent intent = new Intent(TelecomManager.ACTION_CHANGE_DEFAULT_DIALER);
+                    intent.putExtra(TelecomManager.EXTRA_CHANGE_DEFAULT_DIALER_PACKAGE_NAME, activity.getPackageName());
                     try {
                         activity.startActivityForResult(intent, requestCode);
                         started = true;
