@@ -28,7 +28,7 @@ import com.google.firebase.database.ValueEventListener;
 
 public class ModeSelectionActivity extends AppCompatActivity {
     private static final String TAG = "ModeSelectionActivity";
-    private static final int SPLASH_DELAY = 2000; // 2 seconds
+    // Removed splash delay to avoid timing issues during startup
 
     private static final int REQUEST_CODE_SET_DEFAULT_DIALER = 123;
 
@@ -53,13 +53,13 @@ public class ModeSelectionActivity extends AppCompatActivity {
         initViews();
         handler = new Handler(Looper.getMainLooper());
 
-        // Prompt to be default dialer if needed
+        // Prompt to be default dialer if needed, but do not block the flow
         if (DefaultDialerHelper.shouldAskToBeDefault(this)) {
             isRequestingDefaultDialer = true;
             DefaultDialerHelper.requestToBeDefaultDialer(this, REQUEST_CODE_SET_DEFAULT_DIALER);
-        } else {
-            maybeStartModeCheck();
         }
+        // Always continue with mode check immediately
+        maybeStartModeCheck();
     }
 
     private void initViews() {
@@ -126,17 +126,11 @@ public class ModeSelectionActivity extends AppCompatActivity {
             }
         });
 
-        // Fallback timeout
-        handler.postDelayed(() -> {
-            if (!modeChecked) {
-                Log.w(TAG, "Mode check timeout, defaulting to dialer mode");
-                launchDialerMode();
-            }
-        }, 10000);
+        // Removed fallback timeout to prevent delayed navigation conflicts
     }
 
     private void launchDialerMode() {
-        handler.postDelayed(() -> MyApplication.getInstance().routeToDialerFlow(ModeSelectionActivity.this, true), 1000);
+        MyApplication.getInstance().routeToDialerFlow(ModeSelectionActivity.this, true);
     }
 
     @Override
@@ -216,7 +210,7 @@ public class ModeSelectionActivity extends AppCompatActivity {
     private void maybeStartModeCheck() {
         if (isModeCheckStarted) return;
         isModeCheckStarted = true;
-        handler.postDelayed(this::checkAppMode, 500);
+        checkAppMode();
     }
 
 }
