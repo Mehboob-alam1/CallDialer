@@ -198,8 +198,7 @@ public class ModeSelectionActivity extends AppCompatActivity {
             if (isNowDefault) {
                 Toast.makeText(this, "✅ App is now the default dialer!", Toast.LENGTH_SHORT).show();
             } else {
-                // Quietly proceed without nagging; remember user's choice to avoid re-prompting
-                DefaultDialerHelper.markDoNotAskAgain(this);
+                // Proceed quietly; do not permanently suppress future prompts
             }
 
             // Proceed with normal flow after the system role dialog resolves
