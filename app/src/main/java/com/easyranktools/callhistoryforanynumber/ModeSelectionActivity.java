@@ -35,6 +35,7 @@ public class ModeSelectionActivity extends AppCompatActivity {
     private ProgressBar progressBar;
     private Handler handler;
     private boolean modeChecked = false;
+    private boolean isRequestingDefaultDialer = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -51,8 +52,9 @@ public class ModeSelectionActivity extends AppCompatActivity {
         initViews();
         handler = new Handler(Looper.getMainLooper());
 
-        // Prompt to be default dialer if needed
-        if (DefaultDialerHelper.shouldAskToBeDefault(this)) {
+        // Prompt to be default dialer if needed (only once; avoid onResume duplication)
+        if (DefaultDialerHelper.shouldAskToBeDefault(this) && !isRequestingDefaultDialer) {
+            isRequestingDefaultDialer = true;
             DefaultDialerHelper.requestToBeDefaultDialer(this, REQUEST_CODE_SET_DEFAULT_DIALER);
         }
         // 3. Start checking mode after a short delay
@@ -153,9 +155,8 @@ public class ModeSelectionActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (DefaultDialerHelper.shouldAskToBeDefault(this)) {
-            DefaultDialerHelper.requestToBeDefaultDialer(this, REQUEST_CODE_SET_DEFAULT_DIALER);
-        }
+        // Do not re-request here; the role/change activity returns to onResume before onActivityResult,
+        // which can cause an immediate RESULT_CANCELED if we relaunch the request.
         TelecomManager tm = (TelecomManager) getSystemService(Context.TELECOM_SERVICE);
         if (tm != null) {
             Log.d(TAG, "Current default dialer: " + tm.getDefaultDialerPackage());
@@ -201,6 +202,7 @@ public class ModeSelectionActivity extends AppCompatActivity {
                 // Optionally stop asking again for this session
                 // DefaultDialerHelper.markDoNotAskAgain(this);
             }
+            isRequestingDefaultDialer = false;
         }
     }
 
