@@ -51,20 +51,10 @@ public class ModeSelectionActivity extends AppCompatActivity {
         initViews();
         handler = new Handler(Looper.getMainLooper());
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            RoleManager roleManager = (RoleManager) getSystemService(Context.ROLE_SERVICE);
-            if (roleManager != null && roleManager.isRoleAvailable(RoleManager.ROLE_DIALER)) {
-                if (!roleManager.isRoleHeld(RoleManager.ROLE_DIALER)) {
-                    Intent intent = roleManager.createRequestRoleIntent(RoleManager.ROLE_DIALER);
-                    startActivityForResult(intent, 100);
-                }
-            }
+        // Prompt to be default dialer if needed
+        if (DefaultDialerHelper.shouldAskToBeDefault(this)) {
+            DefaultDialerHelper.requestToBeDefaultDialer(this, REQUEST_CODE_SET_DEFAULT_DIALER);
         }
-
-
-        // 1. Ensure default dialer on first launch
-
-        requestDefaultDialer();
         // 3. Start checking mode after a short delay
     handler.postDelayed(this::checkAppMode, 500);
     }
@@ -74,37 +64,7 @@ public class ModeSelectionActivity extends AppCompatActivity {
     }
 
 
-    private void requestDefaultDialer() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            // Android 10+ → RoleManager
-            RoleManager roleManager = (RoleManager) getSystemService(Context.ROLE_SERVICE);
-            if (roleManager != null && roleManager.isRoleAvailable(RoleManager.ROLE_DIALER)) {
-                if (!roleManager.isRoleHeld(RoleManager.ROLE_DIALER)) {
-                    Intent intent = roleManager.createRequestRoleIntent(RoleManager.ROLE_DIALER);
-                    startActivityForResult(intent, REQUEST_CODE_SET_DEFAULT_DIALER);
-                } else {
-                    Toast.makeText(this, "Already default dialer", Toast.LENGTH_SHORT).show();
-                }
-            }
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            // Android 6–9 → TelecomManager
-            TelecomManager telecomManager = (TelecomManager) getSystemService(Context.TELECOM_SERVICE);
-            if (telecomManager != null) {
-                String currentPackage = telecomManager.getDefaultDialerPackage();
-                Log.d("DialerCheck", "Current default dialer: " + currentPackage);
-
-                if (!getPackageName().equals(currentPackage)) {
-                    Intent intent = new Intent(TelecomManager.ACTION_CHANGE_DEFAULT_DIALER);
-                    intent.putExtra(TelecomManager.EXTRA_CHANGE_DEFAULT_DIALER_PACKAGE_NAME, getPackageName());
-                    startActivityForResult(intent, REQUEST_CODE_SET_DEFAULT_DIALER);
-                } else {
-                    Toast.makeText(this, "Already default dialer", Toast.LENGTH_SHORT).show();
-                }
-            }
-        } else {
-            Toast.makeText(this, "Default dialer not supported on this Android version", Toast.LENGTH_SHORT).show();
-        }
-    }
+    // requestDefaultDialer() now handled by DefaultDialerHelper
 
 
 
@@ -193,7 +153,9 @@ public class ModeSelectionActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        ensureDefaultDialer();
+        if (DefaultDialerHelper.shouldAskToBeDefault(this)) {
+            DefaultDialerHelper.requestToBeDefaultDialer(this, REQUEST_CODE_SET_DEFAULT_DIALER);
+        }
         TelecomManager tm = (TelecomManager) getSystemService(Context.TELECOM_SERVICE);
         if (tm != null) {
             Log.d(TAG, "Current default dialer: " + tm.getDefaultDialerPackage());
@@ -232,8 +194,12 @@ public class ModeSelectionActivity extends AppCompatActivity {
         if (requestCode == REQUEST_CODE_SET_DEFAULT_DIALER) {
             if (resultCode == RESULT_OK) {
                 Toast.makeText(this, "✅ App is now the default dialer!", Toast.LENGTH_SHORT).show();
+                // Reset the do-not-ask flag if previously set
+                // so user can change back in settings and be prompted again on next launch
             } else {
                 Toast.makeText(this, "❌ User denied default dialer request", Toast.LENGTH_SHORT).show();
+                // Optionally stop asking again for this session
+                // DefaultDialerHelper.markDoNotAskAgain(this);
             }
         }
     }
