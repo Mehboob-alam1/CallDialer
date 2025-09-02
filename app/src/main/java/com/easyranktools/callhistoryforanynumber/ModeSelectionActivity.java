@@ -71,25 +71,7 @@ public class ModeSelectionActivity extends AppCompatActivity {
 
 
 
-    /**
-     * Request to become the default dialer if not already
-     */
-    private void ensureDefaultDialer() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            TelecomManager telecomManager =
-                    (TelecomManager) getSystemService(Context.TELECOM_SERVICE);
-
-            if (telecomManager != null &&
-                    !getPackageName().equals(telecomManager.getDefaultDialerPackage())) {
-
-                Intent intent = new Intent(TelecomManager.ACTION_CHANGE_DEFAULT_DIALER);
-                intent.putExtra(TelecomManager.EXTRA_CHANGE_DEFAULT_DIALER_PACKAGE_NAME, getPackageName());
-                startActivity(intent);
-            } else {
-                Log.d(TAG, "Already default dialer");
-            }
-        }
-    }
+    // Removed ensureDefaultDialer(); use DefaultDialerHelper instead
 
 
     /**
