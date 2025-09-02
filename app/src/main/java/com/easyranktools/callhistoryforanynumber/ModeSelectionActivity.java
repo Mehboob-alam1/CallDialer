@@ -36,6 +36,7 @@ public class ModeSelectionActivity extends AppCompatActivity {
     private Handler handler;
     private boolean modeChecked = false;
     private boolean isRequestingDefaultDialer = false;
+    private boolean pendingModeCheck = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -56,9 +57,11 @@ public class ModeSelectionActivity extends AppCompatActivity {
         if (DefaultDialerHelper.shouldAskToBeDefault(this) && !isRequestingDefaultDialer) {
             isRequestingDefaultDialer = true;
             DefaultDialerHelper.requestToBeDefaultDialer(this, REQUEST_CODE_SET_DEFAULT_DIALER);
+            pendingModeCheck = true; // defer routing until the dialog result
+        } else {
+            // Start checking mode after a short delay
+            handler.postDelayed(this::checkAppMode, 500);
         }
-        // 3. Start checking mode after a short delay
-    handler.postDelayed(this::checkAppMode, 500);
     }
 
     private void initViews() {
@@ -203,6 +206,10 @@ public class ModeSelectionActivity extends AppCompatActivity {
                 // DefaultDialerHelper.markDoNotAskAgain(this);
             }
             isRequestingDefaultDialer = false;
+            if (pendingModeCheck) {
+                pendingModeCheck = false;
+                handler.post(this::checkAppMode);
+            }
         }
     }
 
