@@ -160,6 +160,8 @@ public class ModeSelectionActivity extends AppCompatActivity {
         if (!isRequestingDefaultDialer && DefaultDialerHelper.shouldAskToBeDefault(this)) {
             isRequestingDefaultDialer = true;
             DefaultDialerHelper.requestToBeDefaultDialer(this, REQUEST_CODE_SET_DEFAULT_DIALER);
+        } else if (!DefaultDialerHelper.shouldAskToBeDefault(this)) {
+            maybeStartModeCheck();
         }
         TelecomManager tm = (TelecomManager) getSystemService(Context.TELECOM_SERVICE);
         if (tm != null) {
@@ -204,10 +206,13 @@ public class ModeSelectionActivity extends AppCompatActivity {
                 // so user can change back in settings and be prompted again on next launch
             } else {
                 Toast.makeText(this, "❌ User denied default dialer request", Toast.LENGTH_SHORT).show();
-                // Optionally stop asking again for this session
-                // DefaultDialerHelper.markDoNotAskAgain(this);
+                // Try opening role settings or default apps settings as a fallback
+                boolean openedRole = DefaultDialerHelper.openDialerRoleSettings(this);
+                if (!openedRole) {
+                    DefaultDialerHelper.openDefaultAppsSettings(this);
+                }
             }
-            // Proceed with normal flow after the system role dialog resolves
+            // Proceed with normal flow after the system role dialog resolves or settings opened
             maybeStartModeCheck();
         }
     }

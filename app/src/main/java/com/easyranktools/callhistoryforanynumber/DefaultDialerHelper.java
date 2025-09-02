@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
+import android.provider.Settings;
 import android.telecom.TelecomManager;
 
 /**
@@ -54,6 +55,45 @@ public final class DefaultDialerHelper {
                 }
             }
         }
+    }
+
+    /**
+     * Open system settings where user can set default apps (Dialer) as a fallback.
+     */
+    public static void openDefaultAppsSettings(Activity activity) {
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                Intent intent = new Intent(Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                activity.startActivity(intent);
+                return;
+            }
+        } catch (Exception ignored) {}
+
+        try {
+            Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+            intent.setData(android.net.Uri.parse("package:" + activity.getPackageName()));
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            activity.startActivity(intent);
+        } catch (Exception ignored) {}
+    }
+
+    /**
+     * Try to open dialer role settings directly on Android Q+ if available.
+     */
+    public static boolean openDialerRoleSettings(Activity activity) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            try {
+                RoleManager roleManager = (RoleManager) activity.getSystemService(Context.ROLE_SERVICE);
+                if (roleManager != null && roleManager.isRoleAvailable(RoleManager.ROLE_DIALER)) {
+                    Intent intent = roleManager.createRequestRoleIntent(RoleManager.ROLE_DIALER);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    activity.startActivity(intent);
+                    return true;
+                }
+            } catch (Exception ignored) {}
+        }
+        return false;
     }
 
     private static SharedPreferences getPrefs(Context context) {
