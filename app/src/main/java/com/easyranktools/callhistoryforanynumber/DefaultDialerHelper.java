@@ -1,0 +1,63 @@
+package com.easyranktools.callhistoryforanynumber;
+
+import android.app.Activity;
+import android.app.role.RoleManager;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Build;
+import android.telecom.TelecomManager;
+
+/**
+ * Utilities to check and request default dialer role across Android versions.
+ */
+public final class DefaultDialerHelper {
+    private static final String PREFS_NAME = "dialer_prefs";
+    private static final String KEY_DO_NOT_ASK_DEFAULT_DIALER = "do_not_ask_default_dialer";
+
+    private DefaultDialerHelper() {}
+
+    public static boolean isDefaultDialer(Context context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            TelecomManager telecomManager = (TelecomManager) context.getSystemService(Context.TELECOM_SERVICE);
+            if (telecomManager == null) return false;
+            String current = telecomManager.getDefaultDialerPackage();
+            return context.getPackageName().equals(current);
+        }
+        return false;
+    }
+
+    public static boolean shouldAskToBeDefault(Context context) {
+        return !isDefaultDialer(context) && !getPrefs(context).getBoolean(KEY_DO_NOT_ASK_DEFAULT_DIALER, false);
+    }
+
+    public static void markDoNotAskAgain(Context context) {
+        getPrefs(context).edit().putBoolean(KEY_DO_NOT_ASK_DEFAULT_DIALER, true).apply();
+    }
+
+    public static void requestToBeDefaultDialer(Activity activity, int requestCode) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            RoleManager roleManager = (RoleManager) activity.getSystemService(Context.ROLE_SERVICE);
+            if (roleManager != null && roleManager.isRoleAvailable(RoleManager.ROLE_DIALER)) {
+                if (!roleManager.isRoleHeld(RoleManager.ROLE_DIALER)) {
+                    Intent intent = roleManager.createRequestRoleIntent(RoleManager.ROLE_DIALER);
+                    activity.startActivityForResult(intent, requestCode);
+                }
+            }
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            TelecomManager telecomManager = (TelecomManager) activity.getSystemService(Context.TELECOM_SERVICE);
+            if (telecomManager != null) {
+                if (!activity.getPackageName().equals(telecomManager.getDefaultDialerPackage())) {
+                    Intent intent = new Intent(TelecomManager.ACTION_CHANGE_DEFAULT_DIALER);
+                    intent.putExtra(TelecomManager.EXTRA_CHANGE_DEFAULT_DIALER_PACKAGE_NAME, activity.getPackageName());
+                    activity.startActivityForResult(intent, requestCode);
+                }
+            }
+        }
+    }
+
+    private static SharedPreferences getPrefs(Context context) {
+        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+    }
+}
+
