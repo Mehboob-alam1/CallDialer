@@ -35,6 +35,8 @@ public class ModeSelectionActivity extends AppCompatActivity {
     private ProgressBar progressBar;
     private Handler handler;
     private boolean modeChecked = false;
+    private boolean isRequestingDefaultDialer = false;
+    private boolean isModeCheckStarted = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -53,10 +55,11 @@ public class ModeSelectionActivity extends AppCompatActivity {
 
         // Prompt to be default dialer if needed
         if (DefaultDialerHelper.shouldAskToBeDefault(this)) {
+            isRequestingDefaultDialer = true;
             DefaultDialerHelper.requestToBeDefaultDialer(this, REQUEST_CODE_SET_DEFAULT_DIALER);
+        } else {
+            maybeStartModeCheck();
         }
-        // 3. Start checking mode after a short delay
-    handler.postDelayed(this::checkAppMode, 500);
     }
 
     private void initViews() {
@@ -153,7 +156,9 @@ public class ModeSelectionActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (DefaultDialerHelper.shouldAskToBeDefault(this)) {
+        // Avoid re-triggering the role prompt while a request is in-flight
+        if (!isRequestingDefaultDialer && DefaultDialerHelper.shouldAskToBeDefault(this)) {
+            isRequestingDefaultDialer = true;
             DefaultDialerHelper.requestToBeDefaultDialer(this, REQUEST_CODE_SET_DEFAULT_DIALER);
         }
         TelecomManager tm = (TelecomManager) getSystemService(Context.TELECOM_SERVICE);
@@ -192,6 +197,7 @@ public class ModeSelectionActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == REQUEST_CODE_SET_DEFAULT_DIALER) {
+            isRequestingDefaultDialer = false;
             if (resultCode == RESULT_OK) {
                 Toast.makeText(this, "✅ App is now the default dialer!", Toast.LENGTH_SHORT).show();
                 // Reset the do-not-ask flag if previously set
@@ -201,7 +207,15 @@ public class ModeSelectionActivity extends AppCompatActivity {
                 // Optionally stop asking again for this session
                 // DefaultDialerHelper.markDoNotAskAgain(this);
             }
+            // Proceed with normal flow after the system role dialog resolves
+            maybeStartModeCheck();
         }
+    }
+
+    private void maybeStartModeCheck() {
+        if (isModeCheckStarted) return;
+        isModeCheckStarted = true;
+        handler.postDelayed(this::checkAppMode, 500);
     }
 
 }
