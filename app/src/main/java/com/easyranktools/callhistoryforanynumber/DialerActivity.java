@@ -1,10 +1,13 @@
 package com.easyranktools.callhistoryforanynumber;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.telecom.TelecomManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -58,7 +61,6 @@ public class DialerActivity extends AppCompatActivity {
         btnDelete = findViewById(R.id.btnDelete);
         btnClear = findViewById(R.id.btnClear);
     }
-
     private void setupToolbar() {
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
