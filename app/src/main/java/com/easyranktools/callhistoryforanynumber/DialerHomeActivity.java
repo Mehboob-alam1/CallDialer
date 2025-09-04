@@ -3,6 +3,7 @@ package com.easyranktools.callhistoryforanynumber;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -23,6 +24,7 @@ import com.easyranktools.callhistoryforanynumber.fragment.CallHis_SettingFragmen
 
 public class DialerHomeActivity extends AppCompatActivity implements MyApplication.OnModeChangeListener {
     ActivityDialerHomeBinding binding;
+    private PhoneAccountManager phoneAccountManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +33,13 @@ public class DialerHomeActivity extends AppCompatActivity implements MyApplicati
 
         AdManager.initialize(this);
         AdManager.loadInterstitial(this);
+
+        // Initialize PhoneAccountManager
+        phoneAccountManager = new PhoneAccountManager(this);
+        phoneAccountManager.registerPhoneAccount();
+
+        // Check and request default dialer status
+        checkDefaultDialerStatus();
 
         if (android.os.Build.VERSION.SDK_INT >= 33) {
             if (checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS)
@@ -80,6 +89,9 @@ public class DialerHomeActivity extends AppCompatActivity implements MyApplicati
             @Override
             public void onTabReselected(TabLayout.Tab tab) {}
         });
+
+        // Handle incoming call state if launched from InCallService
+        handleIncomingCallState();
     }
 
     private void loadFragment(Fragment fragment) {
@@ -108,6 +120,41 @@ public class DialerHomeActivity extends AppCompatActivity implements MyApplicati
     protected void onDestroy() {
         super.onDestroy();
         MyApplication.getInstance().removeModeChangeListener();
+        if (phoneAccountManager != null) {
+            phoneAccountManager.unregisterPhoneAccount();
+        }
+    }
+
+    private void checkDefaultDialerStatus() {
+        if (phoneAccountManager != null && !phoneAccountManager.isDefaultDialer()) {
+            // Show a dialog or toast to inform user about setting as default dialer
+            Toast.makeText(this, "Set Call Dialer as your default dialer for better experience", Toast.LENGTH_LONG).show();
+            // Request default dialer role
+            phoneAccountManager.requestDefaultDialerRole();
+        }
+    }
+
+    private void handleIncomingCallState() {
+        Intent intent = getIntent();
+        if (intent != null && intent.hasExtra("call_state")) {
+            String callState = intent.getStringExtra("call_state");
+            if ("incoming".equals(callState)) {
+                Toast.makeText(this, "Incoming call detected", Toast.LENGTH_SHORT).show();
+                // You can add specific UI handling for incoming calls here
+            }
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 1001) { // Default dialer request
+            if (resultCode == RESULT_OK) {
+                Toast.makeText(this, "Call Dialer is now your default dialer!", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Default dialer request was denied", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
 //    @Override

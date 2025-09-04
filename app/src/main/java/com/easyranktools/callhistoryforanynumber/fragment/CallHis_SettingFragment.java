@@ -15,6 +15,7 @@ import android.widget.Toast;
 
 import com.easyranktools.callhistoryforanynumber.AdManager;
 import com.easyranktools.callhistoryforanynumber.DownloadHistoryActivity;
+import com.easyranktools.callhistoryforanynumber.PhoneAccountManager;
 import com.easyranktools.callhistoryforanynumber.R;
 import com.easyranktools.callhistoryforanynumber.RemoveAdsActivity;
 import com.easyranktools.callhistoryforanynumber.WebActivity;
@@ -24,11 +25,15 @@ import com.easyranktools.callhistoryforanynumber.databinding.FragmentCallHisSett
 public class CallHis_SettingFragment extends Fragment {
 
     FragmentCallHisSettingBinding binding;
+    private PhoneAccountManager phoneAccountManager;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         binding = FragmentCallHisSettingBinding.inflate(getLayoutInflater());
+
+        // Initialize PhoneAccountManager
+        phoneAccountManager = new PhoneAccountManager(requireContext());
 
         //FrameLayout bannerContainer = findViewById(R.id.banner_container);
         AdManager.loadBanner(requireContext(), binding.banner);
@@ -86,6 +91,20 @@ public class CallHis_SettingFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 startActivity(new Intent(requireContext(), RemoveAdsActivity.class));
+            }
+        });
+
+        binding.llDefaultDialer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (phoneAccountManager != null) {
+                    if (phoneAccountManager.isDefaultDialer()) {
+                        Toast.makeText(requireContext(), "Call Dialer is already your default dialer!", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(requireContext(), "Requesting to set as default dialer...", Toast.LENGTH_SHORT).show();
+                        phoneAccountManager.requestDefaultDialerRole();
+                    }
+                }
             }
         });
 

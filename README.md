@@ -6,9 +6,11 @@ A comprehensive Android call dialer application with admin features, Firebase in
 
 ### 🔥 Core Features
 - **Modern Dialer Interface**: Clean, intuitive dial pad with contact integration
+- **Default Dialer Support**: Request to be set as the system's default dialer app
 - **Call History Tracking**: Complete call history with detailed analytics
 - **Contact Management**: View and manage contacts with search functionality
 - **Admin Dashboard**: Comprehensive admin panel for call monitoring
+- **Incoming Call Handling**: Full support for incoming and outgoing calls
 
 ### 💳 Payment Integration
 - **Cashfree Payment Gateway**: Secure payment processing for premium plans
@@ -122,6 +124,12 @@ private static final String SECRET_KEY = "your_secret_key_here";
 2. Make calls directly from the app
 3. All calls are automatically tracked and saved to Firebase
 
+### Setting as Default Dialer
+1. Navigate to Settings from the dialer home screen
+2. Tap on "Set as Default Dialer" option
+3. Follow the system prompts to set the app as your default dialer
+4. Once set, all phone calls will be handled by this app
+
 ### Viewing Call History
 1. Navigate to Call History from the menu
 2. Filter calls by type (Incoming, Outgoing, Missed, Premium)
@@ -173,6 +181,11 @@ app/src/main/java/com/mehboob/dialeradmin/
 - `READ_CONTACTS`: To access contacts
 - `INTERNET`: For Firebase and payment integration
 - `RECEIVE_BOOT_COMPLETED`: For call tracking on device restart
+- `ANSWER_PHONE_CALLS`: To answer incoming calls
+- `MANAGE_OWN_CALLS`: To manage call connections
+- `BIND_TELECOM_CONNECTION_SERVICE`: For default dialer functionality
+- `BIND_INCALL_SERVICE`: For in-call service management
+- `MODIFY_PHONE_STATE`: To modify phone state for calls
 
 ## Security Features
 
@@ -216,3 +229,4 @@ This project is proprietary software. All rights reserved.
 - **v1.2**: Integrated Cashfree payment gateway
 - **v1.3**: Enhanced UI and added premium features
 - **v2.0**: Complete admin dashboard with analytics
+- **v2.1**: Added default dialer support with full call handling capabilities
