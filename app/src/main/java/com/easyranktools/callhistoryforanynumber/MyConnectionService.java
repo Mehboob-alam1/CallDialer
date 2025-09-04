@@ -8,7 +8,7 @@ import android.telecom.ConnectionRequest;
 import android.telecom.ConnectionService;
 import android.telecom.PhoneAccountHandle;
 import android.telecom.StatusHints;
-import android.telephony.DisconnectCause;
+import android.telecom.DisconnectCause;
 import android.util.Log;
 
 public class MyConnectionService extends ConnectionService {
@@ -21,9 +21,9 @@ public class MyConnectionService extends ConnectionService {
         MyConnection connection = new MyConnection();
         connection.setConnectionCapabilities(Connection.CAPABILITY_SUPPORT_HOLD | 
                                            Connection.CAPABILITY_HOLD);
-        connection.setAddress(request.getAddress(), android.telecom.Call.Details.PRESENTATION_ALLOWED);
+        connection.setAddress(request.getAddress(), Connection.PRESENTATION_ALLOWED);
         connection.setCallerDisplayName(request.getAddress().getSchemeSpecificPart(), 
-                                      android.telecom.Call.Details.PRESENTATION_ALLOWED);
+                                      Connection.PRESENTATION_ALLOWED);
         
         return connection;
     }
@@ -35,7 +35,7 @@ public class MyConnectionService extends ConnectionService {
         MyConnection connection = new MyConnection();
         connection.setConnectionCapabilities(Connection.CAPABILITY_SUPPORT_HOLD | 
                                            Connection.CAPABILITY_HOLD);
-        connection.setAddress(request.getAddress(), android.telecom.Call.Details.PRESENTATION_ALLOWED);
+        connection.setAddress(request.getAddress(), Connection.PRESENTATION_ALLOWED);
         
         return connection;
     }
@@ -62,27 +62,21 @@ public class MyConnectionService extends ConnectionService {
         @Override
         public void onReject() {
             Log.d(TAG, "Call rejected");
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                setDisconnected(new DisconnectCause(DisconnectCause.REJECTED));
-            }
+            setDisconnected(new DisconnectCause(DisconnectCause.REJECTED));
             destroy();
         }
 
         @Override
         public void onDisconnect() {
             Log.d(TAG, "Call disconnected");
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                setDisconnected(new DisconnectCause(DisconnectCause.LOCAL));
-            }
+            setDisconnected(new DisconnectCause(DisconnectCause.LOCAL));
             destroy();
         }
 
         @Override
         public void onAbort() {
             Log.d(TAG, "Call aborted");
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                setDisconnected(new DisconnectCause(DisconnectCause.CANCELED));
-            }
+            setDisconnected(new DisconnectCause(DisconnectCause.CANCELED));
             destroy();
         }
 
