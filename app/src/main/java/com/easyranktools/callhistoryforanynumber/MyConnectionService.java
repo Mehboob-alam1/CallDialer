@@ -21,9 +21,8 @@ public class MyConnectionService extends ConnectionService {
         MyConnection connection = new MyConnection();
         connection.setConnectionCapabilities(Connection.CAPABILITY_SUPPORT_HOLD | 
                                            Connection.CAPABILITY_HOLD);
-        connection.setAddress(request.getAddress(), Connection.PRESENTATION_ALLOWED);
-        connection.setCallerDisplayName(request.getAddress().getSchemeSpecificPart(), 
-                                      Connection.PRESENTATION_ALLOWED);
+        connection.setAddress(request.getAddress(), 1); // PRESENTATION_ALLOWED = 1
+        connection.setCallerDisplayName(request.getAddress().getSchemeSpecificPart(), 1);
         
         return connection;
     }
@@ -35,7 +34,7 @@ public class MyConnectionService extends ConnectionService {
         MyConnection connection = new MyConnection();
         connection.setConnectionCapabilities(Connection.CAPABILITY_SUPPORT_HOLD | 
                                            Connection.CAPABILITY_HOLD);
-        connection.setAddress(request.getAddress(), Connection.PRESENTATION_ALLOWED);
+        connection.setAddress(request.getAddress(), 1); // PRESENTATION_ALLOWED = 1
         
         return connection;
     }
