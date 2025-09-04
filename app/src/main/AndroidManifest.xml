@@ -110,13 +110,8 @@
             android:screenOrientation="portrait" /> <!-- Dialer Mode Activity -->
         <activity
             android:name=".DialerActivity"
-            android:exported="true"
-            android:screenOrientation="portrait" >
-
-            <!-- When user taps a phone number -->
-
-
-        </activity>
+            android:exported="false"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".DialerHomeActivity"
             android:exported="true"

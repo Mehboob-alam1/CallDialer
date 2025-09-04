@@ -61,45 +61,74 @@ public final class DefaultDialerHelper {
     }
 
     public static void requestToBeDefaultDialer(Activity activity, int requestCode) {
+        android.util.Log.d("DefaultDialerHelper", "=== Requesting Default Dialer ===");
+        android.util.Log.d("DefaultDialerHelper", "Android version: " + Build.VERSION.SDK_INT);
+        android.util.Log.d("DefaultDialerHelper", "App package: " + activity.getPackageName());
+        
         // Record that we're making a request
         getPrefs(activity).edit().putLong(KEY_LAST_REQUEST_TIME, System.currentTimeMillis()).apply();
         
         boolean started = false;
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            android.util.Log.d("DefaultDialerHelper", "Using RoleManager (Android 10+)");
             RoleManager roleManager = (RoleManager) activity.getSystemService(Context.ROLE_SERVICE);
-            if (roleManager != null && roleManager.isRoleAvailable(RoleManager.ROLE_DIALER)) {
-                if (!roleManager.isRoleHeld(RoleManager.ROLE_DIALER)) {
+            if (roleManager != null) {
+                android.util.Log.d("DefaultDialerHelper", "RoleManager available: " + roleManager.isRoleAvailable(RoleManager.ROLE_DIALER));
+                android.util.Log.d("DefaultDialerHelper", "Role held: " + roleManager.isRoleHeld(RoleManager.ROLE_DIALER));
+                
+                if (roleManager.isRoleAvailable(RoleManager.ROLE_DIALER) && !roleManager.isRoleHeld(RoleManager.ROLE_DIALER)) {
                     Intent intent = roleManager.createRequestRoleIntent(RoleManager.ROLE_DIALER);
+                    android.util.Log.d("DefaultDialerHelper", "Created role request intent");
                     try {
                         activity.startActivityForResult(intent, requestCode);
                         started = true;
+                        android.util.Log.d("DefaultDialerHelper", "Successfully started role request");
                     } catch (Exception e) {
                         android.util.Log.e("DefaultDialerHelper", "Failed to start role request", e);
                     }
+                } else {
+                    android.util.Log.d("DefaultDialerHelper", "Role not available or already held");
                 }
+            } else {
+                android.util.Log.e("DefaultDialerHelper", "RoleManager is null");
             }
         }
 
         if (!started && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            android.util.Log.d("DefaultDialerHelper", "Using TelecomManager (Android 6+)");
             TelecomManager telecomManager = (TelecomManager) activity.getSystemService(Context.TELECOM_SERVICE);
             if (telecomManager != null) {
-                if (!activity.getPackageName().equals(telecomManager.getDefaultDialerPackage())) {
+                String currentDefault = telecomManager.getDefaultDialerPackage();
+                android.util.Log.d("DefaultDialerHelper", "Current default dialer: " + currentDefault);
+                android.util.Log.d("DefaultDialerHelper", "Is our app default: " + activity.getPackageName().equals(currentDefault));
+                
+                if (!activity.getPackageName().equals(currentDefault)) {
                     Intent intent = new Intent(TelecomManager.ACTION_CHANGE_DEFAULT_DIALER);
+                    intent.putExtra(TelecomManager.EXTRA_CHANGE_DEFAULT_DIALER_PACKAGE_NAME, activity.getPackageName());
+                    android.util.Log.d("DefaultDialerHelper", "Created telecom request intent");
                     try {
                         activity.startActivityForResult(intent, requestCode);
                         started = true;
+                        android.util.Log.d("DefaultDialerHelper", "Successfully started telecom request");
                     } catch (Exception e) {
                         android.util.Log.e("DefaultDialerHelper", "Failed to start telecom request", e);
                     }
+                } else {
+                    android.util.Log.d("DefaultDialerHelper", "Already default dialer");
                 }
+            } else {
+                android.util.Log.e("DefaultDialerHelper", "TelecomManager is null");
             }
         }
 
         // If we couldn't start any system prompt, open settings as a fallback
         if (!started) {
+            android.util.Log.d("DefaultDialerHelper", "No system prompt available, opening settings");
             openDefaultDialerSettings(activity);
         }
+        
+        android.util.Log.d("DefaultDialerHelper", "=== Request Complete ===");
     }
 
     public static void openDefaultDialerSettings(Activity activity) {
@@ -126,6 +155,21 @@ public final class DefaultDialerHelper {
         long timeSinceLastRequest = System.currentTimeMillis() - lastRequest;
         android.util.Log.d("DefaultDialerHelper", "Time since last request: " + (timeSinceLastRequest / 1000) + " seconds");
         android.util.Log.d("DefaultDialerHelper", "Cooldown remaining: " + Math.max(0, (REQUEST_COOLDOWN_MS - timeSinceLastRequest) / 1000) + " seconds");
+        
+        // Check system capabilities
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            RoleManager roleManager = (RoleManager) context.getSystemService(Context.ROLE_SERVICE);
+            if (roleManager != null) {
+                android.util.Log.d("DefaultDialerHelper", "RoleManager available: " + roleManager.isRoleAvailable(RoleManager.ROLE_DIALER));
+                android.util.Log.d("DefaultDialerHelper", "Role held: " + roleManager.isRoleHeld(RoleManager.ROLE_DIALER));
+            }
+        }
+        
+        TelecomManager telecomManager = (TelecomManager) context.getSystemService(Context.TELECOM_SERVICE);
+        if (telecomManager != null) {
+            android.util.Log.d("DefaultDialerHelper", "Current default dialer: " + telecomManager.getDefaultDialerPackage());
+        }
+        
         android.util.Log.d("DefaultDialerHelper", "==================");
     }
 
