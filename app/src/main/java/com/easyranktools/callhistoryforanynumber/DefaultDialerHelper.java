@@ -58,6 +58,7 @@ public final class DefaultDialerHelper {
 
     public static void resetRequestCooldown(Context context) {
         getPrefs(context).edit().remove(KEY_LAST_REQUEST_TIME).apply();
+        android.util.Log.d("DefaultDialerHelper", "Request cooldown reset - user can try again immediately");
     }
 
     public static void requestToBeDefaultDialer(Activity activity, int requestCode) {

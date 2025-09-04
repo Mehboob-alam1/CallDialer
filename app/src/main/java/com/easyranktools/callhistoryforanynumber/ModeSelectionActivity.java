@@ -181,14 +181,28 @@ public class ModeSelectionActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == REQUEST_CODE_SET_DEFAULT_DIALER) {
+            Log.d(TAG, "=== Default Dialer Request Result ===");
+            Log.d(TAG, "Result code: " + resultCode);
+            Log.d(TAG, "Result data: " + (data != null ? data.toString() : "null"));
+            
             isRequestingDefaultDialer = false;
 
             // Double-check actual state instead of relying on resultCode which may vary by OEM
             boolean isNowDefault = DefaultDialerHelper.isDefaultDialer(this);
+            Log.d(TAG, "Is now default dialer: " + isNowDefault);
+            
             if (isNowDefault) {
                 Toast.makeText(this, "✅ App is now the default dialer!", Toast.LENGTH_SHORT).show();
+                Log.d(TAG, "Successfully set as default dialer!");
             } else {
-                // Proceed quietly; do not permanently suppress future prompts
+                Log.d(TAG, "Failed to set as default dialer. Result code: " + resultCode);
+                if (resultCode == RESULT_CANCELED) {
+                    Log.d(TAG, "User canceled the request");
+                } else if (resultCode == RESULT_OK) {
+                    Log.d(TAG, "Result OK but not default - possible system issue");
+                } else {
+                    Log.d(TAG, "Unknown result code: " + resultCode);
+                }
             }
 
             // Proceed with normal flow after the system role dialog resolves
