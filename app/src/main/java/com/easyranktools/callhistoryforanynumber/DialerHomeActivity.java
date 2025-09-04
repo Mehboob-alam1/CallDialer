@@ -3,6 +3,7 @@ package com.easyranktools.callhistoryforanynumber;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -47,6 +48,14 @@ public class DialerHomeActivity extends AppCompatActivity implements MyApplicati
             if (checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS)
                     != PackageManager.PERMISSION_GRANTED) {
                 requestPermissions(new String[]{android.Manifest.permission.POST_NOTIFICATIONS}, 101);
+            }
+        }
+
+        // Request READ_PHONE_NUMBERS permission for Android 14+
+        if (android.os.Build.VERSION.SDK_INT >= 34) {
+            if (checkSelfPermission(android.Manifest.permission.READ_PHONE_NUMBERS)
+                    != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{android.Manifest.permission.READ_PHONE_NUMBERS}, 102);
             }
         }
 
@@ -147,6 +156,23 @@ public class DialerHomeActivity extends AppCompatActivity implements MyApplicati
             if ("incoming".equals(callState)) {
                 Toast.makeText(this, "Incoming call detected", Toast.LENGTH_SHORT).show();
                 // You can add specific UI handling for incoming calls here
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == 102) { // READ_PHONE_NUMBERS permission
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Log.d("DialerHomeActivity", "READ_PHONE_NUMBERS permission granted");
+                // Re-register phone account now that we have permission
+                if (phoneAccountManager != null) {
+                    phoneAccountManager.registerPhoneAccount();
+                }
+            } else {
+                Log.e("DialerHomeActivity", "READ_PHONE_NUMBERS permission denied");
+                Toast.makeText(this, "Phone numbers permission required for default dialer functionality", Toast.LENGTH_LONG).show();
             }
         }
     }

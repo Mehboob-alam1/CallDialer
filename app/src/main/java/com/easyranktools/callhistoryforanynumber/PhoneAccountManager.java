@@ -78,6 +78,11 @@ public class PhoneAccountManager {
 
             telecomManager.registerPhoneAccount(phoneAccount);
             Log.d(TAG, "Phone account registered successfully");
+        } catch (SecurityException e) {
+            Log.e(TAG, "SecurityException - missing permission: " + e.getMessage());
+            if (e.getMessage() != null && e.getMessage().contains("READ_PHONE_NUMBERS")) {
+                Log.e(TAG, "READ_PHONE_NUMBERS permission required for Android 14+");
+            }
         } catch (Exception e) {
             Log.e(TAG, "Failed to register phone account", e);
         }
