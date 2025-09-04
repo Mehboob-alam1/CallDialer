@@ -39,8 +39,9 @@ public class DialerHomeActivity extends AppCompatActivity implements MyApplicati
         phoneAccountManager.setupActivityResultLauncher(this);
         phoneAccountManager.registerPhoneAccount();
 
-        // Check and request default dialer status
-        checkDefaultDialerStatus();
+        // Don't request default dialer here - it's already handled by ModeSelectionActivity
+        // Just show current status
+        showDefaultDialerStatus();
 
         if (android.os.Build.VERSION.SDK_INT >= 33) {
             if (checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS)
@@ -126,22 +127,15 @@ public class DialerHomeActivity extends AppCompatActivity implements MyApplicati
         }
     }
 
-    private void checkDefaultDialerStatus() {
+    private void showDefaultDialerStatus() {
         if (phoneAccountManager != null) {
             // Show debug info
             phoneAccountManager.showDefaultDialerInfo();
             
-            if (!phoneAccountManager.isDefaultDialer()) {
-                if (phoneAccountManager.canRequestDefaultDialer()) {
-                    // Show a dialog or toast to inform user about setting as default dialer
-                    Toast.makeText(this, "Set Call Dialer as your default dialer for better experience", Toast.LENGTH_LONG).show();
-                    // Request default dialer role
-                    phoneAccountManager.requestDefaultDialerRole();
-                } else {
-                    Toast.makeText(this, "Cannot set as default dialer. Check logs for details.", Toast.LENGTH_LONG).show();
-                }
+            if (phoneAccountManager.isDefaultDialer()) {
+                Toast.makeText(this, "Call Dialer is your default dialer!", Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(this, "Call Dialer is already your default dialer!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Call Dialer is not your default dialer. Use Settings to change.", Toast.LENGTH_LONG).show();
             }
         }
     }

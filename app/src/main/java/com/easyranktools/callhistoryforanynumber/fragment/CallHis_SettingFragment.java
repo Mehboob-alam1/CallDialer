@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.easyranktools.callhistoryforanynumber.AdManager;
+import com.easyranktools.callhistoryforanynumber.DefaultDialerHelper;
 import com.easyranktools.callhistoryforanynumber.DownloadHistoryActivity;
 import com.easyranktools.callhistoryforanynumber.PhoneAccountManager;
 import com.easyranktools.callhistoryforanynumber.R;
@@ -99,20 +100,12 @@ public class CallHis_SettingFragment extends Fragment {
         binding.llDefaultDialer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (phoneAccountManager != null) {
-                    // Show debug info
-                    phoneAccountManager.showDefaultDialerInfo();
-                    
-                    if (phoneAccountManager.isDefaultDialer()) {
-                        Toast.makeText(requireContext(), "Call Dialer is already your default dialer!", Toast.LENGTH_SHORT).show();
-                    } else if (phoneAccountManager.canRequestDefaultDialer()) {
-                        Toast.makeText(requireContext(), "Requesting to set as default dialer...", Toast.LENGTH_SHORT).show();
-                        phoneAccountManager.requestDefaultDialerRole();
-                    } else {
-                        Toast.makeText(requireContext(), "Cannot set as default dialer. Check logs for details.", Toast.LENGTH_LONG).show();
-                    }
+                if (DefaultDialerHelper.isDefaultDialer(requireContext())) {
+                    Toast.makeText(requireContext(), "Call Dialer is already your default dialer!", Toast.LENGTH_SHORT).show();
                 } else {
-                    Toast.makeText(requireContext(), "PhoneAccountManager not available", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), "Opening default dialer settings...", Toast.LENGTH_SHORT).show();
+                    // Use the existing DefaultDialerHelper which works properly
+                    DefaultDialerHelper.requestToBeDefaultDialer(requireActivity(), 1001);
                 }
             }
         });
