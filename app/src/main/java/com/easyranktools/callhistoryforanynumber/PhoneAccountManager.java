@@ -54,16 +54,28 @@ public class PhoneAccountManager {
     }
 
     public void registerPhoneAccount() {
-        if (telecomManager == null) return;
-
-        PhoneAccount phoneAccount = PhoneAccount.builder(phoneAccountHandle, "Call Dialer")
-                .setCapabilities(PhoneAccount.CAPABILITY_CALL_PROVIDER | 
-                               PhoneAccount.CAPABILITY_CONNECTION_MANAGER)
-                .setShortDescription("Call Dialer")
-                .setSupportedUriSchemes(new String[]{PhoneAccount.SCHEME_TEL})
-                .build();
+        if (telecomManager == null) {
+            Log.e(TAG, "TelecomManager is null");
+            return;
+        }
 
         try {
+            // Check if already registered
+            if (telecomManager.getPhoneAccount(phoneAccountHandle) != null) {
+                Log.d(TAG, "Phone account already registered");
+                return;
+            }
+
+            PhoneAccount phoneAccount = PhoneAccount.builder(phoneAccountHandle, "Call Dialer")
+                    .setCapabilities(PhoneAccount.CAPABILITY_CALL_PROVIDER | 
+                                   PhoneAccount.CAPABILITY_CONNECTION_MANAGER |
+                                   PhoneAccount.CAPABILITY_SELF_MANAGED)
+                    .setShortDescription("Call Dialer")
+                    .setDescription("Default Call Dialer App")
+                    .setSupportedUriSchemes(new String[]{PhoneAccount.SCHEME_TEL})
+                    .setIcon(android.R.drawable.ic_menu_call)
+                    .build();
+
             telecomManager.registerPhoneAccount(phoneAccount);
             Log.d(TAG, "Phone account registered successfully");
         } catch (Exception e) {
@@ -90,31 +102,52 @@ public class PhoneAccountManager {
     }
 
     public void requestDefaultDialerRole() {
+        Log.d(TAG, "Requesting default dialer role...");
+        
+        // First ensure phone account is registered
+        registerPhoneAccount();
+        
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             // Use RoleManager for Android 10+
             RoleManager roleManager = (RoleManager) context.getSystemService(Context.ROLE_SERVICE);
-            if (roleManager != null && !roleManager.isRoleHeld(RoleManager.ROLE_DIALER)) {
-                Intent intent = roleManager.createRequestRoleIntent(RoleManager.ROLE_DIALER);
-                if (context instanceof AppCompatActivity && roleRequestLauncher != null) {
-                    roleRequestLauncher.launch(intent);
+            if (roleManager != null) {
+                boolean isRoleHeld = roleManager.isRoleHeld(RoleManager.ROLE_DIALER);
+                Log.d(TAG, "Role held: " + isRoleHeld);
+                
+                if (!isRoleHeld) {
+                    Intent intent = roleManager.createRequestRoleIntent(RoleManager.ROLE_DIALER);
+                    Log.d(TAG, "Launching role request intent");
+                    
+                    if (context instanceof AppCompatActivity && roleRequestLauncher != null) {
+                        roleRequestLauncher.launch(intent);
+                    } else {
+                        // Fallback for non-Activity contexts
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        context.startActivity(intent);
+                    }
                 } else {
-                    // Fallback for non-Activity contexts
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    context.startActivity(intent);
+                    Log.d(TAG, "Already default dialer");
                 }
+            } else {
+                Log.e(TAG, "RoleManager is null");
             }
         } else {
             // Use TelecomManager for older versions
+            Log.d(TAG, "Using TelecomManager for older Android version");
             if (telecomManager != null && !isDefaultDialer()) {
                 Intent intent = new Intent(TelecomManager.ACTION_CHANGE_DEFAULT_DIALER);
                 intent.putExtra(TelecomManager.EXTRA_CHANGE_DEFAULT_DIALER_PACKAGE_NAME, 
                               context.getPackageName());
+                Log.d(TAG, "Launching TelecomManager intent");
+                
                 if (context instanceof AppCompatActivity) {
                     ((AppCompatActivity) context).startActivityForResult(intent, 1001);
                 } else {
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     context.startActivity(intent);
                 }
+            } else {
+                Log.d(TAG, "Already default dialer or TelecomManager is null");
             }
         }
     }
@@ -151,5 +184,36 @@ public class PhoneAccountManager {
     public String getCurrentDefaultDialer() {
         if (telecomManager == null) return null;
         return telecomManager.getDefaultDialerPackage();
+    }
+
+    public boolean canRequestDefaultDialer() {
+        if (telecomManager == null) {
+            Log.e(TAG, "TelecomManager is null");
+            return false;
+        }
+        
+        try {
+            // Check if we can register phone account
+            boolean canRegister = telecomManager.getDefaultDialerPackage() != null;
+            Log.d(TAG, "Can register phone account: " + canRegister);
+            
+            // Check if we're already the default dialer
+            boolean isDefault = isDefaultDialer();
+            Log.d(TAG, "Is default dialer: " + isDefault);
+            
+            return canRegister && !isDefault;
+        } catch (Exception e) {
+            Log.e(TAG, "Error checking default dialer capability", e);
+            return false;
+        }
+    }
+
+    public void showDefaultDialerInfo() {
+        Log.d(TAG, "=== Default Dialer Info ===");
+        Log.d(TAG, "Current default dialer: " + getCurrentDefaultDialer());
+        Log.d(TAG, "Is our app default: " + isDefaultDialer());
+        Log.d(TAG, "Can request default: " + canRequestDefaultDialer());
+        Log.d(TAG, "Phone account registered: " + (telecomManager != null && telecomManager.getPhoneAccount(phoneAccountHandle) != null));
+        Log.d(TAG, "========================");
     }
 }

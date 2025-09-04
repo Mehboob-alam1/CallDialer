@@ -127,11 +127,22 @@ public class DialerHomeActivity extends AppCompatActivity implements MyApplicati
     }
 
     private void checkDefaultDialerStatus() {
-        if (phoneAccountManager != null && !phoneAccountManager.isDefaultDialer()) {
-            // Show a dialog or toast to inform user about setting as default dialer
-            Toast.makeText(this, "Set Call Dialer as your default dialer for better experience", Toast.LENGTH_LONG).show();
-            // Request default dialer role
-            phoneAccountManager.requestDefaultDialerRole();
+        if (phoneAccountManager != null) {
+            // Show debug info
+            phoneAccountManager.showDefaultDialerInfo();
+            
+            if (!phoneAccountManager.isDefaultDialer()) {
+                if (phoneAccountManager.canRequestDefaultDialer()) {
+                    // Show a dialog or toast to inform user about setting as default dialer
+                    Toast.makeText(this, "Set Call Dialer as your default dialer for better experience", Toast.LENGTH_LONG).show();
+                    // Request default dialer role
+                    phoneAccountManager.requestDefaultDialerRole();
+                } else {
+                    Toast.makeText(this, "Cannot set as default dialer. Check logs for details.", Toast.LENGTH_LONG).show();
+                }
+            } else {
+                Toast.makeText(this, "Call Dialer is already your default dialer!", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
