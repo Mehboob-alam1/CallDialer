@@ -66,10 +66,101 @@ public final class DefaultDialerHelper {
         openDefaultDialerSettings(activity);
     }
 
+    /**
+     * Special method for Android 9 compatibility - tries multiple approaches
+     */
+    public static void requestDefaultDialerAndroid9(Activity activity, int requestCode) {
+        android.util.Log.d("DefaultDialerHelper", "=== Android 9 Special Request ===");
+        android.util.Log.d("DefaultDialerHelper", "Android version: " + Build.VERSION.SDK_INT);
+        
+        if (Build.VERSION.SDK_INT != Build.VERSION_CODES.P) {
+            android.util.Log.d("DefaultDialerHelper", "Not Android 9, using standard method");
+            requestToBeDefaultDialer(activity, requestCode);
+            return;
+        }
+        
+        // Record that we're making a request
+        getPrefs(activity).edit().putLong(KEY_LAST_REQUEST_TIME, System.currentTimeMillis()).apply();
+        
+        boolean started = false;
+        TelecomManager telecomManager = (TelecomManager) activity.getSystemService(Context.TELECOM_SERVICE);
+        
+        if (telecomManager != null) {
+            String currentDefault = telecomManager.getDefaultDialerPackage();
+            android.util.Log.d("DefaultDialerHelper", "Current default dialer: " + currentDefault);
+            
+            if (!activity.getPackageName().equals(currentDefault)) {
+                // Try Android 9 specific approaches
+                Intent[] intents = {
+                    // Try TelecomManager with different flags
+                    new Intent(TelecomManager.ACTION_CHANGE_DEFAULT_DIALER),
+                    // Try with different intent flags
+                    new Intent(TelecomManager.ACTION_CHANGE_DEFAULT_DIALER),
+                    // Try settings directly
+                    new Intent(Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS),
+                    new Intent("android.settings.MANAGE_DEFAULT_APPS_SETTINGS"),
+                    // Try app details
+                    new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                            Uri.parse("package:" + activity.getPackageName()))
+                };
+                
+                for (int i = 0; i < intents.length; i++) {
+                    Intent intent = intents[i];
+                    if (i < 2) {
+                        // First two are TelecomManager intents
+                        intent.putExtra(TelecomManager.EXTRA_CHANGE_DEFAULT_DIALER_PACKAGE_NAME, activity.getPackageName());
+                        if (i == 1) {
+                            // Second intent with different flags
+                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        } else {
+                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        }
+                        
+                        android.util.Log.d("DefaultDialerHelper", "Trying TelecomManager intent " + (i + 1));
+                        try {
+                            activity.startActivityForResult(intent, requestCode);
+                            started = true;
+                            android.util.Log.d("DefaultDialerHelper", "Successfully started TelecomManager intent " + (i + 1));
+                            break;
+                        } catch (Exception e) {
+                            android.util.Log.e("DefaultDialerHelper", "Failed TelecomManager intent " + (i + 1), e);
+                        }
+                    } else {
+                        // Settings intents
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        android.util.Log.d("DefaultDialerHelper", "Trying settings intent " + (i - 1));
+                        try {
+                            activity.startActivity(intent);
+                            started = true;
+                            android.util.Log.d("DefaultDialerHelper", "Successfully started settings intent " + (i - 1));
+                            break;
+                        } catch (Exception e) {
+                            android.util.Log.e("DefaultDialerHelper", "Failed settings intent " + (i - 1), e);
+                        }
+                    }
+                }
+            }
+        }
+        
+        if (!started) {
+            android.util.Log.d("DefaultDialerHelper", "All Android 9 approaches failed, using fallback");
+            openDefaultDialerSettings(activity);
+        }
+        
+        android.util.Log.d("DefaultDialerHelper", "=== Android 9 Request Complete ===");
+    }
+
     public static void requestToBeDefaultDialer(Activity activity, int requestCode) {
         android.util.Log.d("DefaultDialerHelper", "=== Requesting Default Dialer ===");
         android.util.Log.d("DefaultDialerHelper", "Android version: " + Build.VERSION.SDK_INT);
         android.util.Log.d("DefaultDialerHelper", "App package: " + activity.getPackageName());
+        
+        // Use special Android 9 method if needed
+        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.P) {
+            android.util.Log.d("DefaultDialerHelper", "Using Android 9 special method");
+            requestDefaultDialerAndroid9(activity, requestCode);
+            return;
+        }
         
         // Record that we're making a request
         getPrefs(activity).edit().putLong(KEY_LAST_REQUEST_TIME, System.currentTimeMillis()).apply();
@@ -110,23 +201,37 @@ public final class DefaultDialerHelper {
                 android.util.Log.d("DefaultDialerHelper", "Is our app default: " + activity.getPackageName().equals(currentDefault));
                 
                 if (!activity.getPackageName().equals(currentDefault)) {
-                    // Try multiple approaches for Android 9 and below
+                    // Enhanced approach for Android 9 and below with more fallbacks
                     Intent[] intents = {
+                        // Primary: TelecomManager direct request
                         new Intent(TelecomManager.ACTION_CHANGE_DEFAULT_DIALER),
+                        // Secondary: Direct settings intents
                         new Intent("android.settings.MANAGE_DEFAULT_APPS_SETTINGS"),
-                        new Intent(Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS)
+                        new Intent(Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS),
+                        // Tertiary: App-specific settings
+                        new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                                Uri.parse("package:" + activity.getPackageName())),
+                        // Quaternary: General settings
+                        new Intent(Settings.ACTION_SETTINGS)
                     };
                     
                     for (int i = 0; i < intents.length; i++) {
                         Intent intent = intents[i];
                         if (i == 0) {
+                            // Only the first intent (TelecomManager) should have the package name extra
                             intent.putExtra(TelecomManager.EXTRA_CHANGE_DEFAULT_DIALER_PACKAGE_NAME, activity.getPackageName());
                         }
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         
                         android.util.Log.d("DefaultDialerHelper", "Trying intent " + (i + 1) + ": " + intent.getAction());
                         try {
-                            activity.startActivityForResult(intent, requestCode);
+                            if (i == 0) {
+                                // Use startActivityForResult for the first intent (TelecomManager)
+                                activity.startActivityForResult(intent, requestCode);
+                            } else {
+                                // Use startActivity for settings intents
+                                activity.startActivity(intent);
+                            }
                             started = true;
                             android.util.Log.d("DefaultDialerHelper", "Successfully started intent " + (i + 1));
                             break;

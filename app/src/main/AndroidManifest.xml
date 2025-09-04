@@ -71,17 +71,8 @@
 
         <activity
             android:name=".ModeSelectionActivity"
-            android:exported="true"
-            android:screenOrientation="portrait">
-
-            <!-- Launcher -->
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter>
-
-
-        </activity>
+            android:exported="false"
+            android:screenOrientation="portrait" />
 
         <activity
             android:name=".AuthActivity"
@@ -119,6 +110,12 @@
             android:name=".DialerHomeActivity"
             android:exported="true"
             android:screenOrientation="portrait" >
+
+            <!-- Launcher - Main app entry point -->
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
 
             <intent-filter>
                 <action android:name="android.intent.action.DIAL" />

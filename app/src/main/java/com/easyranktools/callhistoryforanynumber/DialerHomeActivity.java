@@ -40,9 +40,15 @@ public class DialerHomeActivity extends AppCompatActivity implements MyApplicati
         phoneAccountManager.setupActivityResultLauncher(this);
         phoneAccountManager.registerPhoneAccount();
 
-        // Don't request default dialer here - it's already handled by ModeSelectionActivity
-        // Just show current status
-        showDefaultDialerStatus();
+        // Check if this is a dialer intent (ACTION_DIAL, ACTION_CALL, etc.)
+        if (handleDialerIntent(getIntent())) {
+            // If it's a dialer intent, show the dialer UI directly
+            setupDialerUI();
+            return;
+        }
+
+        // Check app mode and route accordingly
+        checkAppModeAndRoute();
 
         if (android.os.Build.VERSION.SDK_INT >= 33) {
             if (checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS)
@@ -58,51 +64,6 @@ public class DialerHomeActivity extends AppCompatActivity implements MyApplicati
                 requestPermissions(new String[]{android.Manifest.permission.READ_PHONE_NUMBERS}, 102);
             }
         }
-
-
-        binding = ActivityDialerHomeBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
-
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
-
-        binding.tabLayout.addTab(binding.tabLayout.newTab().setText("Home").setIcon(R.drawable.ic_home));
-        binding.tabLayout.addTab(binding.tabLayout.newTab().setText("Add Contact").setIcon(R.drawable.ic_addcontact));
-        binding.tabLayout.addTab(binding.tabLayout.newTab().setText("Setting").setIcon(R.drawable.ic_setting));
-
-        binding.tabLayout.getTabAt(0).getIcon().setTint(ContextCompat.getColor(this, R.color.primary));
-        loadFragment(new CallHis_FragmentHomeData());
-
-        binding.tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-            @Override
-            public void onTabSelected(@NonNull TabLayout.Tab tab) {
-                AdManager.showInterstitial(DialerHomeActivity.this);
-                tab.getIcon().setTint(ContextCompat.getColor(DialerHomeActivity.this, R.color.primary));
-                Fragment selectedFragment;
-                if (tab.getPosition() == 0) {
-                    selectedFragment = new CallHis_FragmentHomeData();
-                } else if (tab.getPosition() == 1) {
-                    selectedFragment = new CallHis_AddtoContactFragment();
-                }else {
-                    selectedFragment = new CallHis_SettingFragment();
-                }
-                loadFragment(selectedFragment);
-            }
-
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
-                tab.getIcon().setTint(ContextCompat.getColor(DialerHomeActivity.this, R.color.black));
-            }
-
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) {}
-        });
-
-        // Handle incoming call state if launched from InCallService
-        handleIncomingCallState();
     }
 
     private void loadFragment(Fragment fragment) {
@@ -191,6 +152,120 @@ public class DialerHomeActivity extends AppCompatActivity implements MyApplicati
 
     public PhoneAccountManager getPhoneAccountManager() {
         return phoneAccountManager;
+    }
+
+    /**
+     * Handle dialer intents (ACTION_DIAL, ACTION_CALL, tel: scheme)
+     */
+    private boolean handleDialerIntent(Intent intent) {
+        if (intent == null) return false;
+
+        String action = intent.getAction();
+        android.net.Uri data = intent.getData();
+
+        if (Intent.ACTION_DIAL.equals(action) ||
+                Intent.ACTION_CALL.equals(action) ||
+                Intent.ACTION_VIEW.equals(action) ||
+                Intent.ACTION_CALL_BUTTON.equals(action)) {
+            
+            if (data != null && "tel".equals(data.getScheme())) {
+                String number = data.getSchemeSpecificPart();
+                Log.d("DialerHomeActivity", "Handling dialer intent: " + number);
+                
+                // Forward to DialerActivity with the number
+                Intent dialerIntent = new Intent(this, DialerActivity.class);
+                dialerIntent.setData(data);
+                startActivity(dialerIntent);
+                finish();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Setup the dialer UI (tabs, fragments, etc.)
+     */
+    private void setupDialerUI() {
+        binding = ActivityDialerHomeBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
+
+        binding.tabLayout.addTab(binding.tabLayout.newTab().setText("Home").setIcon(R.drawable.ic_home));
+        binding.tabLayout.addTab(binding.tabLayout.newTab().setText("Add Contact").setIcon(R.drawable.ic_addcontact));
+        binding.tabLayout.addTab(binding.tabLayout.newTab().setText("Setting").setIcon(R.drawable.ic_setting));
+
+        binding.tabLayout.getTabAt(0).getIcon().setTint(ContextCompat.getColor(this, R.color.primary));
+        loadFragment(new CallHis_FragmentHomeData());
+
+        binding.tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(@NonNull TabLayout.Tab tab) {
+                AdManager.showInterstitial(DialerHomeActivity.this);
+                tab.getIcon().setTint(ContextCompat.getColor(DialerHomeActivity.this, R.color.primary));
+                Fragment selectedFragment;
+                if (tab.getPosition() == 0) {
+                    selectedFragment = new CallHis_FragmentHomeData();
+                } else if (tab.getPosition() == 1) {
+                    selectedFragment = new CallHis_AddtoContactFragment();
+                } else {
+                    selectedFragment = new CallHis_SettingFragment();
+                }
+                loadFragment(selectedFragment);
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+                tab.getIcon().setTint(ContextCompat.getColor(DialerHomeActivity.this, R.color.black));
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {}
+        });
+
+        // Show default dialer status
+        showDefaultDialerStatus();
+        
+        // Handle incoming call state if launched from InCallService
+        handleIncomingCallState();
+    }
+
+    /**
+     * Check app mode and route to appropriate flow
+     */
+    private void checkAppModeAndRoute() {
+        // Check if we should ask to be default dialer
+        if (DefaultDialerHelper.shouldAskToBeDefault(this)) {
+            Log.d("DialerHomeActivity", "Requesting default dialer role...");
+            DefaultDialerHelper.requestToBeDefaultDialer(this, 1001);
+        }
+
+        // Check app mode from Firebase
+        MyApplication.getInstance().setModeChangeListener(this);
+        
+        if (MyApplication.getInstance().isAdminModeEnabled()) {
+            // Route to admin flow
+            MyApplication.getInstance().routeToAdminFlow(this, true);
+        } else {
+            // Route to dialer flow (show dialer UI)
+            setupDialerUI();
+        }
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        
+        // Handle new dialer intents
+        if (handleDialerIntent(intent)) {
+            return;
+        }
     }
 
 //    @Override
