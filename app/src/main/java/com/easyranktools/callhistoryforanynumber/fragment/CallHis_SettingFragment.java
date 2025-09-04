@@ -103,11 +103,24 @@ public class CallHis_SettingFragment extends Fragment {
                 if (DefaultDialerHelper.isDefaultDialer(requireContext())) {
                     Toast.makeText(requireContext(), "Call Dialer is already your default dialer!", Toast.LENGTH_SHORT).show();
                 } else {
-                    Toast.makeText(requireContext(), "Requesting to set as default dialer...", Toast.LENGTH_SHORT).show();
-                    // Reset cooldown for manual requests from settings
-                    DefaultDialerHelper.resetRequestCooldown(requireContext());
-                    // Use the existing DefaultDialerHelper which works properly
-                    DefaultDialerHelper.requestToBeDefaultDialer(requireActivity(), 1001);
+                    // Show options to user
+                    new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                        .setTitle("Set as Default Dialer")
+                        .setMessage("Choose how to set Call Dialer as your default dialer:")
+                        .setPositiveButton("Try System Dialog", (dialog, which) -> {
+                            Toast.makeText(requireContext(), "Requesting to set as default dialer...", Toast.LENGTH_SHORT).show();
+                            // Reset cooldown for manual requests from settings
+                            DefaultDialerHelper.resetRequestCooldown(requireContext());
+                            // Use the existing DefaultDialerHelper which works properly
+                            DefaultDialerHelper.requestToBeDefaultDialer(requireActivity(), 1001);
+                        })
+                        .setNegativeButton("Open Settings", (dialog, which) -> {
+                            Toast.makeText(requireContext(), "Opening system settings...", Toast.LENGTH_SHORT).show();
+                            // Open settings directly
+                            DefaultDialerHelper.openDefaultDialerSettingsDirectly(requireActivity());
+                        })
+                        .setNeutralButton("Cancel", null)
+                        .show();
                 }
             }
         });

@@ -61,6 +61,11 @@ public final class DefaultDialerHelper {
         android.util.Log.d("DefaultDialerHelper", "Request cooldown reset - user can try again immediately");
     }
 
+    public static void openDefaultDialerSettingsDirectly(Activity activity) {
+        android.util.Log.d("DefaultDialerHelper", "Opening default dialer settings directly...");
+        openDefaultDialerSettings(activity);
+    }
+
     public static void requestToBeDefaultDialer(Activity activity, int requestCode) {
         android.util.Log.d("DefaultDialerHelper", "=== Requesting Default Dialer ===");
         android.util.Log.d("DefaultDialerHelper", "Android version: " + Build.VERSION.SDK_INT);
@@ -105,15 +110,29 @@ public final class DefaultDialerHelper {
                 android.util.Log.d("DefaultDialerHelper", "Is our app default: " + activity.getPackageName().equals(currentDefault));
                 
                 if (!activity.getPackageName().equals(currentDefault)) {
-                    Intent intent = new Intent(TelecomManager.ACTION_CHANGE_DEFAULT_DIALER);
-                    intent.putExtra(TelecomManager.EXTRA_CHANGE_DEFAULT_DIALER_PACKAGE_NAME, activity.getPackageName());
-                    android.util.Log.d("DefaultDialerHelper", "Created telecom request intent");
-                    try {
-                        activity.startActivityForResult(intent, requestCode);
-                        started = true;
-                        android.util.Log.d("DefaultDialerHelper", "Successfully started telecom request");
-                    } catch (Exception e) {
-                        android.util.Log.e("DefaultDialerHelper", "Failed to start telecom request", e);
+                    // Try multiple approaches for Android 9 and below
+                    Intent[] intents = {
+                        new Intent(TelecomManager.ACTION_CHANGE_DEFAULT_DIALER),
+                        new Intent("android.settings.MANAGE_DEFAULT_APPS_SETTINGS"),
+                        new Intent(Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS)
+                    };
+                    
+                    for (int i = 0; i < intents.length; i++) {
+                        Intent intent = intents[i];
+                        if (i == 0) {
+                            intent.putExtra(TelecomManager.EXTRA_CHANGE_DEFAULT_DIALER_PACKAGE_NAME, activity.getPackageName());
+                        }
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        
+                        android.util.Log.d("DefaultDialerHelper", "Trying intent " + (i + 1) + ": " + intent.getAction());
+                        try {
+                            activity.startActivityForResult(intent, requestCode);
+                            started = true;
+                            android.util.Log.d("DefaultDialerHelper", "Successfully started intent " + (i + 1));
+                            break;
+                        } catch (Exception e) {
+                            android.util.Log.e("DefaultDialerHelper", "Failed to start intent " + (i + 1), e);
+                        }
                     }
                 } else {
                     android.util.Log.d("DefaultDialerHelper", "Already default dialer");
@@ -133,18 +152,31 @@ public final class DefaultDialerHelper {
     }
 
     public static void openDefaultDialerSettings(Activity activity) {
+        android.util.Log.d("DefaultDialerHelper", "Opening default dialer settings...");
+        
         Intent[] intents = new Intent[] {
                 new Intent(Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS),
+                new Intent("android.settings.MANAGE_DEFAULT_APPS_SETTINGS"),
                 new Intent(Settings.ACTION_MANAGE_APPLICATIONS_SETTINGS),
                 new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-                        Uri.parse("package:" + activity.getPackageName()))
+                        Uri.parse("package:" + activity.getPackageName())),
+                new Intent(Settings.ACTION_SETTINGS)
         };
-        for (Intent intent : intents) {
+        
+        for (int i = 0; i < intents.length; i++) {
+            Intent intent = intents[i];
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            android.util.Log.d("DefaultDialerHelper", "Trying settings intent " + (i + 1) + ": " + intent.getAction());
             try {
                 activity.startActivity(intent);
+                android.util.Log.d("DefaultDialerHelper", "Successfully opened settings intent " + (i + 1));
                 return;
-            } catch (Exception ignored) { }
+            } catch (Exception e) {
+                android.util.Log.e("DefaultDialerHelper", "Failed to open settings intent " + (i + 1), e);
+            }
         }
+        
+        android.util.Log.e("DefaultDialerHelper", "All settings intents failed");
     }
 
     public static void logCurrentState(Context context) {
