@@ -103,7 +103,9 @@ public class CallHis_SettingFragment extends Fragment {
                 if (DefaultDialerHelper.isDefaultDialer(requireContext())) {
                     Toast.makeText(requireContext(), "Call Dialer is already your default dialer!", Toast.LENGTH_SHORT).show();
                 } else {
-                    Toast.makeText(requireContext(), "Opening default dialer settings...", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), "Requesting to set as default dialer...", Toast.LENGTH_SHORT).show();
+                    // Reset cooldown for manual requests from settings
+                    DefaultDialerHelper.resetRequestCooldown(requireContext());
                     // Use the existing DefaultDialerHelper which works properly
                     DefaultDialerHelper.requestToBeDefaultDialer(requireActivity(), 1001);
                 }

@@ -132,11 +132,20 @@ public class ModeSelectionActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        
+        // Log current state for debugging
+        DefaultDialerHelper.logCurrentState(this);
+        
         // Avoid re-triggering the role prompt while a request is in-flight
         if (!isRequestingDefaultDialer && DefaultDialerHelper.shouldAskToBeDefault(this)) {
+            Log.d(TAG, "Requesting default dialer role...");
             isRequestingDefaultDialer = true;
             DefaultDialerHelper.requestToBeDefaultDialer(this, REQUEST_CODE_SET_DEFAULT_DIALER);
+        } else {
+            Log.d(TAG, "Not requesting default dialer - isRequesting: " + isRequestingDefaultDialer + 
+                      ", shouldAsk: " + DefaultDialerHelper.shouldAskToBeDefault(this));
         }
+        
         TelecomManager tm = (TelecomManager) getSystemService(Context.TELECOM_SERVICE);
         if (tm != null) {
             Log.d(TAG, "Current default dialer: " + tm.getDefaultDialerPackage());
@@ -144,7 +153,6 @@ public class ModeSelectionActivity extends AppCompatActivity {
                 Toast.makeText(this, "App is default dialer", Toast.LENGTH_SHORT).show();
             }
         }
-
     }
 
     private void handleDialerIntent(Intent intent) {
