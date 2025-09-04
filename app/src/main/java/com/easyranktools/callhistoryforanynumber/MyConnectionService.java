@@ -2,11 +2,13 @@ package com.easyranktools.callhistoryforanynumber;
 
 import android.content.Context;
 import android.net.Uri;
+import android.os.Build;
 import android.telecom.Connection;
 import android.telecom.ConnectionRequest;
 import android.telecom.ConnectionService;
 import android.telecom.PhoneAccountHandle;
 import android.telecom.StatusHints;
+import android.telephony.DisconnectCause;
 import android.util.Log;
 
 public class MyConnectionService extends ConnectionService {
@@ -60,21 +62,27 @@ public class MyConnectionService extends ConnectionService {
         @Override
         public void onReject() {
             Log.d(TAG, "Call rejected");
-            setDisconnected(new DisconnectCause(DisconnectCause.REJECTED));
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                setDisconnected(new DisconnectCause(DisconnectCause.REJECTED));
+            }
             destroy();
         }
 
         @Override
         public void onDisconnect() {
             Log.d(TAG, "Call disconnected");
-            setDisconnected(new DisconnectCause(DisconnectCause.LOCAL));
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                setDisconnected(new DisconnectCause(DisconnectCause.LOCAL));
+            }
             destroy();
         }
 
         @Override
         public void onAbort() {
             Log.d(TAG, "Call aborted");
-            setDisconnected(new DisconnectCause(DisconnectCause.CANCELED));
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                setDisconnected(new DisconnectCause(DisconnectCause.CANCELED));
+            }
             destroy();
         }
 
