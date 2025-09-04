@@ -31,9 +31,11 @@ public class PhoneAccountManager {
         // Create phone account handle
         ComponentName componentName = new ComponentName(context, MyConnectionService.class);
         this.phoneAccountHandle = new PhoneAccountHandle(componentName, PHONE_ACCOUNT_ID);
-        
-        if (context instanceof AppCompatActivity) {
-            setupRoleRequestLauncher((AppCompatActivity) context);
+    }
+
+    public void setupActivityResultLauncher(AppCompatActivity activity) {
+        if (roleRequestLauncher == null) {
+            setupRoleRequestLauncher(activity);
         }
     }
 

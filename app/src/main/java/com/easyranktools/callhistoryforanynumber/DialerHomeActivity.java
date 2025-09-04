@@ -36,6 +36,7 @@ public class DialerHomeActivity extends AppCompatActivity implements MyApplicati
 
         // Initialize PhoneAccountManager
         phoneAccountManager = new PhoneAccountManager(this);
+        phoneAccountManager.setupActivityResultLauncher(this);
         phoneAccountManager.registerPhoneAccount();
 
         // Check and request default dialer status
@@ -155,6 +156,10 @@ public class DialerHomeActivity extends AppCompatActivity implements MyApplicati
                 Toast.makeText(this, "Default dialer request was denied", Toast.LENGTH_SHORT).show();
             }
         }
+    }
+
+    public PhoneAccountManager getPhoneAccountManager() {
+        return phoneAccountManager;
     }
 
 //    @Override

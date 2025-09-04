@@ -32,8 +32,10 @@ public class CallHis_SettingFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         binding = FragmentCallHisSettingBinding.inflate(getLayoutInflater());
 
-        // Initialize PhoneAccountManager
-        phoneAccountManager = new PhoneAccountManager(requireContext());
+        // Get PhoneAccountManager from parent activity
+        if (getActivity() instanceof DialerHomeActivity) {
+            phoneAccountManager = ((DialerHomeActivity) getActivity()).getPhoneAccountManager();
+        }
 
         //FrameLayout bannerContainer = findViewById(R.id.banner_container);
         AdManager.loadBanner(requireContext(), binding.banner);
